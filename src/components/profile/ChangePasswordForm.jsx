@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Lock, CheckCircle2, XCircle, AlertCircle, ShieldCheck, Key } from 'lucide-react';
 import { authService } from '../../services/authService';
+import { useToast } from '../../context/ToastContext';
 
 export const ChangePasswordForm = () => {
+  const { showSuccess, showError, showWarning } = useToast();
   const [formData, setFormData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -50,16 +52,19 @@ export const ChangePasswordForm = () => {
     e.preventDefault();
     if (!formData.currentPassword || !formData.newPassword || !formData.confirmPassword) {
       setError('Please fill in all required password fields.');
+      showWarning('Please fill all required fields.');
       return;
     }
 
     if (formData.newPassword !== formData.confirmPassword) {
       setError('New password and confirm password do not match.');
+      showWarning('Please make sure the new passwords match.');
       return;
     }
 
     if (validCount < 5) {
       setError('New password does not meet all security policy requirements.');
+      showWarning('Please use a stronger password.');
       return;
     }
 
@@ -75,13 +80,16 @@ export const ChangePasswordForm = () => {
       });
 
       setSuccess('Password changed successfully.');
+      showSuccess('Password changed successfully.');
       setFormData({
         currentPassword: '',
         newPassword: '',
         confirmPassword: '',
       });
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to change password. Please verify current password.');
+      const message = err.response?.data?.message || 'Failed to change password. Please verify current password.';
+      setError(message);
+      showError(message);
     } finally {
       setLoading(false);
     }

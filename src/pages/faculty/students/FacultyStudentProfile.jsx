@@ -6,6 +6,7 @@ import CertificateProgress from '../../../components/certificates/CertificatePro
 import CertificatePreviewModal from '../../../components/certificates/CertificatePreviewModal';
 import studentService from '../../../services/studentService';
 import certificateService from '../../../services/certificateService';
+import { formatSectionName } from '../../../utils/studentDataFormatter';
 import {
   ArrowLeft, CreditCard, User, Phone, Users, BookOpen, Award, Lock, Eye, AlertCircle
 } from 'lucide-react';
@@ -117,7 +118,7 @@ export const FacultyStudentProfile = () => {
                 <span>·</span>
                 <span>Roll: <span className="font-mono font-bold text-white">{student.rollNumber}</span></span>
                 <span>·</span>
-                <span>Section <span className="font-bold text-white">{student.section || 'A'}</span></span>
+                <span><span className="font-bold text-white">{formatSectionName(student.section)}</span></span>
               </div>
             </div>
           </div>

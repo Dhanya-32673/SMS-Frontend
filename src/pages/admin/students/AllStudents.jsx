@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import AdminLayout from '../../../layouts/AdminLayout';
 import FacultyLayout from '../../../layouts/FacultyLayout';
 import { useAuth } from '../../../context/AuthContext';
+import { useToast } from '../../../context/ToastContext';
 import StudentStatusBadge from '../../../components/students/StudentStatusBadge';
 import studentService from '../../../services/studentService';
 import DeleteStudentModal from '../../../components/students/DeleteStudentModal';
@@ -18,6 +19,15 @@ import {
   ChevronRight,
   ArrowUpDown
 } from 'lucide-react';
+
+import { AnimatePresence } from 'framer-motion';
+import { useDebounce } from '../../../hooks/useDebounce';
+import { useDataRefresh } from '../../../utils/dataSync';
+import { formatSectionName, formatBranchGroup } from '../../../utils/studentDataFormatter';
+import { useDeleteAnimation } from '../../../hooks/useDeleteAnimation';
+import DeleteConfirmModal from '../../../components/common/DeleteConfirmModal';
+import AnimatedDeleteWrapper from '../../../components/common/AnimatedDeleteWrapper';
+import DeleteLoadingOverlay from '../../../components/common/DeleteLoadingOverlay';
 
 export const AllStudents = () => {
   const navigate = useNavigate();
@@ -41,6 +51,7 @@ export const AllStudents = () => {
   const [section, setSection] = useState('');
   const [status, setStatus] = useState('');
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
 
   const fetchStudents = async () => {
     setLoading(true);
@@ -50,7 +61,7 @@ export const AllStudents = () => {
         size: 10,
         section: section || undefined,
         status: status || undefined,
-        search: search || undefined,
+        search: debouncedSearch || undefined,
       });
 
       setStudents(data.content || []);
@@ -65,20 +76,28 @@ export const AllStudents = () => {
 
   useEffect(() => {
     fetchStudents();
-  }, [page, section, status, search]);
+  }, [page, section, status, debouncedSearch]);
+  useDataRefresh(['students'], fetchStudents);
 
-  const handleDeleteConfirm = async () => {
-    if (!studentToDelete || deleting) return;
-    setDeleting(true);
-    try {
-      await studentService.deleteStudent(studentToDelete.studentId || studentToDelete.id);
-      setStudentToDelete(null);
-      fetchStudents();
-    } catch (err) {
-      setError('Failed to delete student.');
-    } finally {
-      setDeleting(false);
-    }
+  const { confirmDelete, closeModal, handleProceedDelete, modalState, isDeleting, showOverlay } = useDeleteAnimation();
+
+  const handleDeleteStudentClick = (st) => {
+    const targetId = st.studentId || st.id;
+    confirmDelete({
+      id: targetId,
+      item: st,
+      title: 'Delete Student Profile',
+      message: `Are you sure you want to delete ${st.fullName || 'this student'} (${targetId})? The item will animate into the 3D trash bin and be deleted.`,
+      deleteApiFn: (id) => studentService.deleteStudent(id),
+      onOptimisticRemove: (id) => {
+        setStudents((prev) => prev.filter((s) => s.studentId !== id && s.id !== id));
+        setTotalElements((prev) => Math.max(0, prev - 1));
+      },
+      onRestore: (id, restoredItem) => {
+        setStudents((prev) => [restoredItem, ...prev]);
+        setTotalElements((prev) => prev + 1);
+      },
+    });
   };
 
   return (
@@ -166,17 +185,17 @@ export const AllStudents = () => {
 
         {/* Student Table */}
         <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200/80 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-extrabold uppercase text-[11px] tracking-wider">
+          <div className="overflow-x-auto scrollbar-thin">
+            <table className="w-full min-w-[1050px] text-left text-xs border-collapse">
+              <thead className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200/80 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-extrabold uppercase text-[11px] tracking-wider whitespace-nowrap">
                 <tr>
                   <th className="py-3.5 px-6">Student ID</th>
-                  <th className="py-3.5 px-4">Student Name</th>
+                  <th className="py-3.5 px-4 min-w-[160px]">Student Name</th>
                   <th className="py-3.5 px-4">Roll Number</th>
                   <th className="py-3.5 px-4">Group & Year</th>
                   <th className="py-3.5 px-4">Section</th>
                   <th className="py-3.5 px-4">Status</th>
-                  <th className="py-3.5 px-4 text-right pr-6">Actions</th>
+                  <th className="py-3.5 px-4 text-right pr-6 min-w-[120px]">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
@@ -194,68 +213,77 @@ export const AllStudents = () => {
                     </td>
                   </tr>
                 ) : (
-                  students.map((st) => (
-                    <tr key={st.id || st.studentId} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition">
-                      <td className="py-3.5 px-6 font-mono font-bold text-blue-600 dark:text-blue-400">
-                        {st.studentId}
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center space-x-3">
-                          <img
-                            src={st.profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
-                            alt={st.fullName}
-                            className="w-9 h-9 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shrink-0"
-                          />
-                          <div>
-                            <span className="font-bold text-slate-900 dark:text-white block">{st.fullName}</span>
-                            <span className="text-[10px] text-slate-400 font-mono">{st.admissionNumber || 'N/A'}</span>
+                  <AnimatePresence>
+                    {students.map((st) => (
+                      <AnimatedDeleteWrapper
+                        key={st.id || st.studentId}
+                        as="tr"
+                        className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition"
+                      >
+                        <td className="py-3.5 px-6 font-mono font-bold text-blue-600 dark:text-blue-400">
+                          {st.studentId}
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center space-x-3">
+                            <img
+                              src={st.profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
+                              alt={st.fullName}
+                              loading="lazy"
+                              className="w-9 h-9 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shrink-0"
+                            />
+                            <div>
+                              <span className="font-bold text-slate-900 dark:text-white block">{st.fullName}</span>
+                              <span className="text-[10px] text-slate-400 font-mono">{st.admissionNumber || 'N/A'}</span>
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="py-3.5 px-4 font-mono font-medium text-slate-500">
-                        {st.rollNumber || 'N/A'}
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <span className="px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 rounded-md text-[10px] font-extrabold">
-                          {st.branchGroup || st.academicDetail?.branchGroup || 'MPC'}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-4 font-bold text-slate-800 dark:text-slate-200">
-                        Section {st.section || st.academicDetail?.section || 'A'}
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <StudentStatusBadge status={st.status} />
-                      </td>
-                      <td className="py-3.5 px-4 text-right pr-6 space-x-1">
-                        <button
-                          onClick={() => navigate(`/admin/students/${st.studentId || st.id}`)}
-                          className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition cursor-pointer"
-                          title="View Student Profile"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
+                        </td>
+                        <td className="py-3.5 px-4 font-mono font-medium text-slate-500">
+                          {st.rollNumber || 'N/A'}
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <span className="px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 rounded-md text-[10px] font-extrabold">
+                            {formatBranchGroup(st.branchGroup || st.academicDetail?.branchGroup)}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4 font-bold text-slate-800 dark:text-slate-200">
+                          {formatSectionName(st.section || st.academicDetail?.section)}
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <StudentStatusBadge status={st.status} />
+                        </td>
+                        <td className="py-3.5 px-4 text-right pr-6 whitespace-nowrap">
+                          <div className="inline-flex items-center justify-end space-x-1">
+                            <button
+                              onClick={() => navigate(`/admin/students/${st.studentId || st.id}`)}
+                              className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/60 rounded-lg transition cursor-pointer"
+                              title="View Student Profile"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
 
-                        {isAdmin && (
-                          <>
-                            <button
-                              onClick={() => navigate(`/admin/students/${st.studentId || st.id}/edit`)}
-                              className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition cursor-pointer"
-                              title="Edit Student Profile"
-                            >
-                              <Edit3 className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => setStudentToDelete(st)}
-                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer"
-                              title="Delete Student"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </>
-                        )}
-                      </td>
-                    </tr>
-                  ))
+                            {isAdmin && (
+                              <>
+                                <button
+                                  onClick={() => navigate(`/admin/students/${st.studentId || st.id}/edit`)}
+                                  className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/60 rounded-lg transition cursor-pointer"
+                                  title="Edit Student Profile"
+                                >
+                                  <Edit3 className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteStudentClick(st)}
+                                  className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/60 rounded-lg transition cursor-pointer"
+                                  title="Delete Student"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </AnimatedDeleteWrapper>
+                    ))}
+                  </AnimatePresence>
                 )}
               </tbody>
             </table>
@@ -289,15 +317,18 @@ export const AllStudents = () => {
         </div>
       </div>
 
-      {/* Delete Confirmation Modal */}
-      {studentToDelete && (
-        <DeleteStudentModal
-          student={studentToDelete}
-          loading={deleting}
-          onClose={() => setStudentToDelete(null)}
-          onConfirm={handleDeleteConfirm}
-        />
-      )}
+      {/* Live Crumple & Toss 3D Animation Overlay */}
+      <DeleteLoadingOverlay isVisible={showOverlay} item={modalState.item} durationMs={1200} />
+
+      {/* Glassmorphic Live Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={modalState.isOpen}
+        title={modalState.title}
+        message={modalState.message}
+        onConfirm={handleProceedDelete}
+        onClose={closeModal}
+        isDeleting={isDeleting}
+      />
     </Layout>
   );
 };

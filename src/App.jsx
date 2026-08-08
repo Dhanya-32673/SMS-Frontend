@@ -1,56 +1,66 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { ToastProvider } from './context/ToastContext';
+import RoleRoute from './components/RoleRoute';
 
-// Auth Pages
+// Auth Pages (Eagerly loaded for fast TTI on login)
 import Login from './pages/auth/Login';
 import OtpVerification from './pages/auth/OtpVerification';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import ResetPassword from './pages/auth/ResetPassword';
 
-// Dashboards
-import AdminDashboard from './pages/admin/AdminDashboard';
-import FacultyDashboard from './pages/faculty/FacultyDashboard';
+// Dashboards (Lazy loaded)
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
+const FacultyDashboard = lazy(() => import('./pages/faculty/FacultyDashboard').then(m => ({ default: m.FacultyDashboard })));
 
-// Admin Student Management Pages
-import AllStudents from './pages/admin/students/AllStudents';
-import AddStudent from './pages/admin/students/AddStudent';
-import StudentProfile from './pages/admin/students/StudentProfile';
-import EditStudent from './pages/admin/students/EditStudent';
-import StudentIdCard from './pages/admin/students/StudentIdCard';
+// Admin Student Management Pages (Lazy loaded)
+const AllStudents = lazy(() => import('./pages/admin/students/AllStudents').then(m => ({ default: m.AllStudents })));
+const AddStudent = lazy(() => import('./pages/admin/students/AddStudent').then(m => ({ default: m.AddStudent })));
+const StudentProfile = lazy(() => import('./pages/admin/students/StudentProfile').then(m => ({ default: m.StudentProfile })));
+const EditStudent = lazy(() => import('./pages/admin/students/EditStudent').then(m => ({ default: m.EditStudent })));
+const StudentIdCard = lazy(() => import('./pages/admin/students/StudentIdCard').then(m => ({ default: m.StudentIdCard })));
 
-// Faculty Student Management Pages
-import SearchStudent from './pages/faculty/students/SearchStudent';
-import FacultyStudentProfile from './pages/faculty/students/FacultyStudentProfile';
+// Faculty Student Management Pages (Lazy loaded)
+const SearchStudent = lazy(() => import('./pages/faculty/students/SearchStudent').then(m => ({ default: m.SearchStudent })));
+const FacultyStudentProfile = lazy(() => import('./pages/faculty/students/FacultyStudentProfile').then(m => ({ default: m.FacultyStudentProfile })));
 
-// Part 3 Certificate Pages
-import AllCertificates from './pages/admin/certificates/AllCertificates';
-import UploadCertificate from './pages/admin/certificates/UploadCertificate';
-import PendingDocuments from './pages/admin/certificates/PendingDocuments';
-import MissingDocuments from './pages/admin/certificates/MissingDocuments';
-import VerifiedDocuments from './pages/admin/certificates/VerifiedDocuments';
-import CertificateTypes from './pages/admin/certificates/CertificateTypes';
+// Certificate Pages (Lazy loaded)
+const AllCertificates = lazy(() => import('./pages/admin/certificates/AllCertificates').then(m => ({ default: m.AllCertificates })));
+const UploadCertificate = lazy(() => import('./pages/admin/certificates/UploadCertificate').then(m => ({ default: m.UploadCertificate })));
+const PendingDocuments = lazy(() => import('./pages/admin/certificates/PendingDocuments').then(m => ({ default: m.PendingDocuments })));
+const MissingDocuments = lazy(() => import('./pages/admin/certificates/MissingDocuments').then(m => ({ default: m.MissingDocuments })));
+const VerifiedDocuments = lazy(() => import('./pages/admin/certificates/VerifiedDocuments').then(m => ({ default: m.VerifiedDocuments })));
+const CertificateTypes = lazy(() => import('./pages/admin/certificates/CertificateTypes').then(m => ({ default: m.CertificateTypes })));
 
-// Part 4 Faculty, Group, Section & Security Pages
-import FacultyManagement from './pages/admin/faculty/FacultyManagement';
-import AddFaculty from './pages/admin/faculty/AddFaculty';
-import EditFaculty from './pages/admin/faculty/EditFaculty';
-import FacultyProfile from './pages/admin/faculty/FacultyProfile';
-import GroupManagement from './pages/admin/academic/GroupManagement';
-import SectionManagement from './pages/admin/academic/SectionManagement';
-import RoleManagement from './pages/admin/security/RoleManagement';
+// Faculty, Group, Section & Security Pages (Lazy loaded)
+const FacultyManagement = lazy(() => import('./pages/admin/faculty/FacultyManagement').then(m => ({ default: m.FacultyManagement })));
+const AddFaculty = lazy(() => import('./pages/admin/faculty/AddFaculty').then(m => ({ default: m.AddFaculty })));
+const EditFaculty = lazy(() => import('./pages/admin/faculty/EditFaculty').then(m => ({ default: m.EditFaculty })));
+const FacultyProfile = lazy(() => import('./pages/admin/faculty/FacultyProfile').then(m => ({ default: m.FacultyProfile })));
+const GroupManagement = lazy(() => import('./pages/admin/academic/GroupManagement').then(m => ({ default: m.GroupManagement })));
+const SectionManagement = lazy(() => import('./pages/admin/academic/SectionManagement').then(m => ({ default: m.SectionManagement })));
+const RoleManagement = lazy(() => import('./pages/admin/security/RoleManagement').then(m => ({ default: m.RoleManagement })));
 
-// Common User Profile Page
-import UserProfile from './pages/common/UserProfile';
+// Common User Profile Page (Lazy loaded)
+const UserProfile = lazy(() => import('./pages/common/UserProfile').then(m => ({ default: m.UserProfile })));
 
-// Route Protection
-import RoleRoute from './components/RoleRoute';
+const RouteFallback = () => (
+  <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+    <div className="flex items-center space-x-3 text-blue-400 font-bold text-sm">
+      <span className="inline-block animate-spin rounded-full h-5 w-5 border-2 border-blue-500 border-t-transparent" />
+      <span>Loading Page...</span>
+    </div>
+  </div>
+);
 
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <Routes>
+      <ToastProvider>
+        <AuthProvider>
+          <Suspense fallback={<RouteFallback />}>
+            <Routes>
           {/* Public Authentication Routes */}
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
@@ -279,8 +289,10 @@ function App() {
           {/* Catch-all Fallback */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
+      </Suspense>
       </AuthProvider>
-    </BrowserRouter>
+    </ToastProvider>
+  </BrowserRouter>
   );
 }
 

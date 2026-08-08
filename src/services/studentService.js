@@ -1,8 +1,10 @@
 import api from './api';
+import apiCache from '../utils/apiCache';
 
 export const studentService = {
   createStudent: async (studentData) => {
     const response = await api.post('/students', studentData);
+    apiCache.clear('/academic/sections');
     return response.data;
   },
 
@@ -18,11 +20,13 @@ export const studentService = {
 
   updateStudent: async (studentId, studentData) => {
     const response = await api.put(`/students/${studentId}`, studentData);
+    apiCache.clear('/academic/sections');
     return response.data;
   },
 
   deactivateStudent: async (studentId) => {
     const response = await api.patch(`/students/${studentId}/deactivate`);
+    apiCache.clear('/academic/sections');
     return response.data;
   },
 
@@ -47,6 +51,7 @@ export const studentService = {
 
   deleteStudent: async (studentId) => {
     const response = await api.delete(`/students/${studentId}`);
+    apiCache.clear('/academic/sections');
     return response.data;
   },
 };

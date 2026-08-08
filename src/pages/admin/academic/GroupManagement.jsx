@@ -4,13 +4,16 @@ import academicService from '../../../services/academicService';
 import { Layers, Plus, Users, BookOpen, AlertCircle, Trash2 } from 'lucide-react';
 import DeleteConfirmationModal from '../../../components/common/DeleteConfirmationModal';
 
+import { useToast } from '../../../context/ToastContext';
+import { useDataRefresh } from '../../../utils/dataSync';
+
 export const GroupManagement = () => {
+  const { showSuccess, showError } = useToast();
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [groupToDelete, setGroupToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
 
   const fetchGroups = async () => {
     setLoading(true);
@@ -27,20 +30,23 @@ export const GroupManagement = () => {
   useEffect(() => {
     fetchGroups();
   }, []);
+  useDataRefresh(['groups'], fetchGroups);
 
   const handleConfirmDelete = async () => {
     if (!groupToDelete || deleting) return;
+    const targetId = groupToDelete.id;
     setDeleting(true);
     setError('');
     try {
-      await academicService.deleteGroup(groupToDelete.id);
-      setSuccessMessage(`Academic Group '${groupToDelete.code}' deleted successfully!`);
+      await academicService.deleteGroup(targetId);
+      showSuccess('Academic group deleted successfully');
       setGroupToDelete(null);
-      fetchGroups();
-      setTimeout(() => setSuccessMessage(''), 3000);
+      setGroups((prev) => prev.filter((g) => g.id !== targetId));
     } catch (err) {
       console.error('Failed to delete group:', err);
-      setError(err.response?.data?.message || err.message || 'Failed to delete group');
+      const msg = err.response?.data?.message || err.message || 'Failed to delete group';
+      setError(msg);
+      showError(msg);
     } finally {
       setDeleting(false);
     }
@@ -73,11 +79,6 @@ export const GroupManagement = () => {
           <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl flex items-center gap-3 text-rose-700 text-sm">
             <AlertCircle className="w-5 h-5 shrink-0" />
             <span>{error}</span>
-          </div>
-        )}
-        {successMessage && (
-          <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-3 text-emerald-700 text-sm font-bold">
-            <span>{successMessage}</span>
           </div>
         )}
 

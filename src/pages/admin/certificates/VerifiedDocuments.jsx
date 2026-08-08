@@ -5,6 +5,7 @@ import { useAuth } from '../../../context/AuthContext';
 import CertificateStatusBadge from '../../../components/certificates/CertificateStatusBadge';
 import CertificatePreviewModal from '../../../components/certificates/CertificatePreviewModal';
 import certificateService from '../../../services/certificateService';
+import { useDataRefresh } from '../../../utils/dataSync';
 import { Award, Eye, Download } from 'lucide-react';
 
 export const VerifiedDocuments = () => {
@@ -34,6 +35,7 @@ export const VerifiedDocuments = () => {
   useEffect(() => {
     fetchVerified();
   }, []);
+  useDataRefresh(['certificates'], fetchVerified);
 
   return (
     <Layout>

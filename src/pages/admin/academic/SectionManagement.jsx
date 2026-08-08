@@ -3,20 +3,33 @@ import { Link } from 'react-router-dom';
 import AdminLayout from '../../../layouts/AdminLayout';
 import FacultyLayout from '../../../layouts/FacultyLayout';
 import { useAuth } from '../../../context/AuthContext';
+import { useToast } from '../../../context/ToastContext';
 import academicService from '../../../services/academicService';
 import SectionMembersModal from '../../../components/academic/SectionMembersModal';
 import DeleteConfirmationModal from '../../../components/common/DeleteConfirmationModal';
 import { Plus, Users, Edit, Trash2, Search, AlertCircle, CheckCircle2, X, Building2 } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
+import { useDataRefresh } from '../../../utils/dataSync';
+import { useApiCache, invalidateCache } from '../../../utils/useApiCache';
+import { useDeleteAnimation } from '../../../hooks/useDeleteAnimation';
+import DeleteConfirmModal from '../../../components/common/DeleteConfirmModal';
+import AnimatedDeleteWrapper from '../../../components/common/AnimatedDeleteWrapper';
+import DeleteLoadingOverlay from '../../../components/common/DeleteLoadingOverlay';
 
 export const SectionManagement = () => {
   const { user } = useAuth();
+  const { showSuccess, showError } = useToast();
   const rawRole = (typeof user?.role === 'string' ? user.role : user?.role?.roleName || user?.role?.name || '').replace('ROLE_', '').toUpperCase();
   const isAdmin = rawRole === 'ADMIN';
 
   const Layout = isAdmin ? AdminLayout : FacultyLayout;
 
-  const [sections, setSections] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { data: rawSections, loading, refetch: fetchSections } = useApiCache(
+    'academic-sections',
+    () => academicService.getAllSections()
+  );
+  const sections = rawSections || [];
+
   const [searchQuery, setSearchQuery] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -39,22 +52,10 @@ export const SectionManagement = () => {
   });
   const [submitting, setSubmitting] = useState(false);
 
-  const fetchSections = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const data = await academicService.getAllSections();
-      setSections(data || []);
-    } catch (err) {
-      setError('Failed to fetch sections');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
+  useDataRefresh(['sections', 'students', 'faculty'], () => {
+    invalidateCache('academic-sections');
     fetchSections();
-  }, []);
+  });
 
   const handleOpenAddModal = () => {
     setEditingSection(null);
@@ -89,35 +90,39 @@ export const SectionManagement = () => {
     try {
       if (editingSection) {
         await academicService.updateSection(editingSection.id, formData);
-        setSuccessMessage('Section updated successfully!');
+        showSuccess('Section updated successfully!');
       } else {
         await academicService.createSection(formData);
-        setSuccessMessage('New section created successfully!');
+        showSuccess('New section created successfully!');
       }
       setShowFormModal(false);
-      fetchSections();
-      setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to save section');
+      const msg = err.response?.data?.message || 'Failed to save section';
+      setError(msg);
+      showError(msg);
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleConfirmDelete = async () => {
-    if (!sectionToDelete || deleting) return;
-    setDeleting(true);
-    try {
-      await academicService.deleteSection(sectionToDelete.id);
-      setSuccessMessage('Section deleted successfully!');
-      setSectionToDelete(null);
-      fetchSections();
-      setTimeout(() => setSuccessMessage(''), 3000);
-    } catch (err) {
-      setError('Failed to delete section');
-    } finally {
-      setDeleting(false);
-    }
+  const { confirmDelete, closeModal, handleProceedDelete, modalState, isDeleting, showOverlay } = useDeleteAnimation();
+
+  const handleDeleteSectionClick = (sec) => {
+    confirmDelete({
+      id: sec.id,
+      item: sec,
+      title: 'Delete Academic Section',
+      message: `Are you sure you want to delete Section "${sec.name}" (${sec.branchGroup} - ${sec.intermediateYear})? The item will animate into the 3D trash bin and be deleted.`,
+      deleteApiFn: (id) => academicService.deleteSection(id),
+      onOptimisticRemove: (id) => {
+        invalidateCache('academic-sections');
+        fetchSections();
+      },
+      onRestore: (id) => {
+        invalidateCache('academic-sections');
+        fetchSections();
+      },
+    });
   };
 
   const filteredSections = sections.filter(
@@ -193,66 +198,78 @@ export const SectionManagement = () => {
               No sections found.
             </div>
           ) : (
-            filteredSections.map((sec) => (
-              <div key={sec.id} className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-xl space-y-4 hover:shadow-2xl transition">
-                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center font-black text-sm border border-blue-200 dark:border-blue-900/40">
-                      {sec.name?.charAt(0) || 'S'}
+            <AnimatePresence>
+              {filteredSections.map((sec) => (
+                <AnimatedDeleteWrapper
+                  key={sec.id}
+                  as="div"
+                  className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-xl space-y-4 hover:shadow-2xl transition"
+                >
+                  <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center font-black text-sm border border-blue-200 dark:border-blue-900/40">
+                        {sec.name?.charAt(0) || 'S'}
+                      </div>
+                      <div>
+                        <h3 className="text-base font-black text-slate-900 dark:text-white">Section {sec.name}</h3>
+                        <span className="text-[10px] text-blue-600 dark:text-blue-400 font-extrabold block">{sec.academicYear || '2026-2027'}</span>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-base font-black text-slate-900 dark:text-white">Section {sec.name}</h3>
-                      <span className="text-[10px] text-blue-600 dark:text-blue-400 font-extrabold block">{sec.academicYear || '2026-2027'}</span>
+                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${
+                      sec.active !== false ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'
+                    }`}>
+                      {sec.active !== false ? 'ACTIVE' : 'INACTIVE'}
+                    </span>
+                  </div>
+
+                  <div className="space-y-2 text-xs">
+                    <div className="flex justify-between text-slate-500">
+                      <span>Branch & Year:</span>
+                      <strong className="text-slate-900 dark:text-white">{sec.branchGroup} ({sec.intermediateYear})</strong>
+                    </div>
+                    <div className="flex justify-between text-slate-500">
+                      <span>Assigned Faculty:</span>
+                      <strong className={`font-bold ${sec.assignedFacultyName && sec.assignedFacultyName !== 'Not Assigned' ? 'text-slate-900 dark:text-white' : 'text-slate-400 italic'}`}>
+                        {sec.assignedFacultyName || 'Not Assigned'}
+                      </strong>
+                    </div>
+                    <div className="flex justify-between text-slate-500">
+                      <span>Enrolled Students:</span>
+                      <strong className="text-blue-600 dark:text-blue-400 font-mono text-sm">{sec.totalStudents ?? sec.studentCount ?? 0} Students</strong>
                     </div>
                   </div>
-                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${
-                    sec.active !== false ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'
-                  }`}>
-                    {sec.active !== false ? 'ACTIVE' : 'INACTIVE'}
-                  </span>
-                </div>
 
-                <div className="space-y-2 text-xs">
-                  <div className="flex justify-between text-slate-500">
-                    <span>Branch & Year:</span>
-                    <strong className="text-slate-900 dark:text-white">{sec.branchGroup} ({sec.intermediateYear})</strong>
+                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                    <button
+                      onClick={() => setSelectedSectionForMembers(sec)}
+                      className="px-3 py-1.5 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 rounded-xl text-xs font-bold hover:bg-blue-100 transition inline-flex items-center space-x-1 cursor-pointer"
+                    >
+                      <Users className="w-3.5 h-3.5" />
+                      <span>View Members</span>
+                    </button>
+
+                    {isAdmin && (
+                      <div className="flex items-center space-x-1">
+                        <button
+                          onClick={() => handleOpenEditModal(sec)}
+                          className="p-1.5 text-slate-400 hover:text-blue-600 rounded-lg hover:bg-slate-100 transition cursor-pointer"
+                          title="Edit Section"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteSectionClick(sec)}
+                          className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition cursor-pointer"
+                          title="Delete Section"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
                   </div>
-                  <div className="flex justify-between text-slate-500">
-                    <span>Enrolled Students:</span>
-                    <strong className="text-blue-600 dark:text-blue-400 font-mono text-sm">{sec.studentCount || 0} Students</strong>
-                  </div>
-                </div>
-
-                <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                  <button
-                    onClick={() => setSelectedSectionForMembers(sec)}
-                    className="px-3 py-1.5 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 rounded-xl text-xs font-bold hover:bg-blue-100 transition inline-flex items-center space-x-1 cursor-pointer"
-                  >
-                    <Users className="w-3.5 h-3.5" />
-                    <span>View Members</span>
-                  </button>
-
-                  {isAdmin && (
-                    <div className="flex items-center space-x-1">
-                      <button
-                        onClick={() => handleOpenEditModal(sec)}
-                        className="p-1.5 text-slate-400 hover:text-blue-600 rounded-lg hover:bg-slate-100 transition cursor-pointer"
-                        title="Edit Section"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => setSectionToDelete(sec)}
-                        className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition cursor-pointer"
-                        title="Delete Section"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))
+                </AnimatedDeleteWrapper>
+              ))}
+            </AnimatePresence>
           )}
         </div>
 
@@ -261,8 +278,22 @@ export const SectionManagement = () => {
           <SectionMembersModal
             section={selectedSectionForMembers}
             onClose={() => setSelectedSectionForMembers(null)}
+            onUpdated={fetchSections}
           />
         )}
+
+        {/* Live Crumple & Toss 3D Animation Overlay */}
+        <DeleteLoadingOverlay isVisible={showOverlay} item={modalState.item} durationMs={1200} />
+
+        {/* Glassmorphic Delete Confirm Modal */}
+        <DeleteConfirmModal
+          isOpen={modalState.isOpen}
+          title={modalState.title}
+          message={modalState.message}
+          onConfirm={handleProceedDelete}
+          onClose={closeModal}
+          isDeleting={isDeleting}
+        />
 
         {/* Form Modal */}
         {showFormModal && (
@@ -334,8 +365,17 @@ export const SectionManagement = () => {
             entityDetails={[
               { label: 'Section Name', value: `Section ${sectionToDelete.name}` },
               { label: 'Group & Year', value: `${sectionToDelete.branchGroup} (${sectionToDelete.intermediateYear})` },
+              { label: 'Enrolled Students', value: `${sectionToDelete.studentCount ?? sectionToDelete.totalStudents ?? 0} Student(s)` },
             ]}
             warningList={['Section Record', 'Student Section Assignments']}
+            cannotDelete={(sectionToDelete.studentCount ?? sectionToDelete.totalStudents ?? 0) > 0}
+            cannotDeleteMessage={`This section currently has ${(sectionToDelete.studentCount ?? sectionToDelete.totalStudents ?? 0)} enrolled student(s). You must remove or reassign all students before deleting this section.`}
+            cannotDeleteActionText="Manage Section Students"
+            onCannotDeleteAction={() => {
+              const sec = sectionToDelete;
+              setSectionToDelete(null);
+              setSelectedSectionForMembers(sec);
+            }}
             confirmationKeyword="DELETE SECTION"
             dangerButtonText="Delete Section"
             loading={deleting}

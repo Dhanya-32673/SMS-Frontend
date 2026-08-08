@@ -9,6 +9,16 @@ export default defineConfig({
     tailwindcss()
   ],
   server: {
-    port: 5173
+    port: 5173,
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+    },
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false,
+      }
+    }
   }
 })

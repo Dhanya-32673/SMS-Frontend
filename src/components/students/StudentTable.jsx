@@ -1,6 +1,7 @@
 import React from 'react';
 import { Eye, Edit3, UserX, CreditCard, ChevronLeft, ChevronRight, Users } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { formatSectionName, formatIntermediateYear } from '../../utils/studentDataFormatter';
 
 const statusBadge = (status) => {
   const map = {
@@ -84,7 +85,7 @@ export const StudentTable = ({
                   </span>
                 </td>
                 <td className="px-4 py-3.5 font-bold text-slate-700">
-                  {student.currentYear ? `Year ${student.currentYear}` : '—'} / {student.section || '—'}
+                  {formatIntermediateYear(student.intermediateYear || student.currentYear)} / {formatSectionName(student.section)}
                 </td>
                 <td className="px-4 py-3.5">
                   <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${statusBadge(student.status)}`}>

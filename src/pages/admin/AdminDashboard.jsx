@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AdminLayout from '../../layouts/AdminLayout';
 import dashboardService from '../../services/dashboardService';
+import { useDataRefresh } from '../../utils/dataSync';
+import { formatSectionName, formatBranchGroup } from '../../utils/studentDataFormatter';
 import {
   Users,
   UserCheck,
@@ -35,29 +37,19 @@ import {
   Legend
 } from 'recharts';
 
+import { useApiCache } from '../../utils/useApiCache';
+
 const DEPT_COLORS = ['#2563EB', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899'];
 
 export const AdminDashboard = () => {
   const navigate = useNavigate();
 
-  const [summary, setSummary] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { data: summary, loading, refetch: fetchSummary } = useApiCache(
+    'admin-dashboard-summary',
+    () => dashboardService.getAdminSummary()
+  );
 
-  useEffect(() => {
-    const fetchSummary = async () => {
-      setLoading(true);
-      try {
-        const data = await dashboardService.getAdminSummary();
-        setSummary(data);
-      } catch (err) {
-        console.error('Failed to load admin summary:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSummary();
-  }, []);
+  useDataRefresh(['dashboard'], fetchSummary);
 
   const deptData = summary?.studentsByDepartment
     ? Object.entries(summary.studentsByDepartment).map(([dept, val]) => ({
@@ -160,7 +152,9 @@ export const AdminDashboard = () => {
                   <span className="text-2xl font-black text-slate-900 dark:text-white tracking-tight block">
                     {summary?.totalCertificates ?? 0}
                   </span>
-                  <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold block mt-1">Uploaded & Verified</span>
+                  <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold block mt-1">
+                    {summary?.verifiedDocuments ?? 0} Verified · {summary?.uploadedCertificates ?? 0} Uploaded
+                  </span>
                 </div>
               </div>
 
@@ -173,7 +167,7 @@ export const AdminDashboard = () => {
                 </div>
                 <div className="mt-3">
                   <span className="text-2xl font-black text-slate-900 dark:text-white tracking-tight block">
-                    {summary?.pendingVerifications ?? 0}
+                    {summary?.pendingVerification ?? 0}
                   </span>
                   <span className="text-[11px] text-amber-600 dark:text-amber-400 font-bold block mt-1">Needs Verification</span>
                 </div>
@@ -377,11 +371,11 @@ export const AdminDashboard = () => {
                           </td>
                           <td className="p-3.5">
                             <span className="px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 rounded-md font-extrabold text-[10px]">
-                              {st.branchGroup || st.academicDetail?.branchGroup || 'MPC'}
+                              {formatBranchGroup(st.branchGroup || st.academicDetail?.branchGroup)}
                             </span>
                           </td>
                           <td className="p-3.5 font-bold text-slate-800 dark:text-slate-200">
-                            Section {st.section || st.academicDetail?.section || 'A'}
+                            {formatSectionName(st.section || st.academicDetail?.section)}
                           </td>
                           <td className="p-3.5 pr-6 text-right">
                             <button

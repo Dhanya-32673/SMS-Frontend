@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import FacultyLayout from '../../layouts/FacultyLayout';
 import dashboardService from '../../services/dashboardService';
+import { useDataRefresh } from '../../utils/dataSync';
+import { formatSectionName, formatBranchGroup } from '../../utils/studentDataFormatter';
 import {
   Users,
   Award,
@@ -19,21 +21,22 @@ export const FacultyDashboard = () => {
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchSummary = async () => {
-      setLoading(true);
-      try {
-        const data = await dashboardService.getFacultySummary();
-        setSummary(data);
-      } catch (err) {
-        console.error('Failed to load faculty summary:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchSummary = async () => {
+    setLoading(true);
+    try {
+      const data = await dashboardService.getFacultySummary();
+      setSummary(data);
+    } catch (err) {
+      console.error('Failed to load faculty summary:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchSummary();
   }, []);
+  useDataRefresh(['dashboard'], fetchSummary);
 
   const assignedCount = typeof summary?.assignedStudentsCount === 'number'
     ? summary.assignedStudentsCount
@@ -197,11 +200,11 @@ export const FacultyDashboard = () => {
                           </td>
                           <td className="p-3.5">
                             <span className="px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 rounded-md font-extrabold text-[10px]">
-                              {st.branchGroup || st.academicDetail?.branchGroup || 'MPC'}
+                              {formatBranchGroup(st.branchGroup || st.academicDetail?.branchGroup)}
                             </span>
                           </td>
                           <td className="p-3.5 font-bold text-slate-800 dark:text-slate-200">
-                            Section {st.section || st.academicDetail?.section || 'A'}
+                            {formatSectionName(st.section || st.academicDetail?.section)}
                           </td>
                           <td className="p-3.5 pr-6 text-right">
                             <button

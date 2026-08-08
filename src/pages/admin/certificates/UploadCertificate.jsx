@@ -3,10 +3,12 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import AdminLayout from '../../../layouts/AdminLayout';
 import FacultyLayout from '../../../layouts/FacultyLayout';
 import { useAuth } from '../../../context/AuthContext';
+import { useToast } from '../../../context/ToastContext';
 import certificateService from '../../../services/certificateService';
 import studentService from '../../../services/studentService';
 import DuplicateCertificateModal from '../../../components/certificates/DuplicateCertificateModal';
 import CertificatePreviewModal from '../../../components/certificates/CertificatePreviewModal';
+import AnimatedFileUpload from '../../../components/common/AnimatedFileUpload';
 import {
   UploadCloud,
   FileText,
@@ -21,6 +23,7 @@ import {
 export const UploadCertificate = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { showSuccess, showError, showWarning } = useToast();
   const rawRole = (typeof user?.role === 'string' ? user.role : user?.role?.roleName || user?.role?.name || '').replace('ROLE_', '').toUpperCase();
   const Layout = rawRole === 'FACULTY' ? FacultyLayout : AdminLayout;
 
@@ -43,7 +46,6 @@ export const UploadCertificate = () => {
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [duplicateModalData, setDuplicateModalData] = useState(null);
   const [previewDoc, setPreviewDoc] = useState(null);
 
@@ -60,68 +62,45 @@ export const UploadCertificate = () => {
     fetchDocTypes();
   }, []);
 
-  useEffect(() => {
-    if (studentSearchQuery.trim().length > 1) {
-      const searchSt = async () => {
-        try {
-          const results = await studentService.searchStudents(studentSearchQuery);
-          setStudentOptions(results || []);
-        } catch (err) {
-          console.error('Search error:', err);
-        }
-      };
-      searchSt();
-    } else {
+  const handleStudentSelect = (student) => {
+    setSelectedStudent(student);
+    setStudentId(student.studentId || student.id);
+    setStudentSearchQuery(`${student.fullName || student.name} (${student.studentId})`);
+    setStudentOptions([]);
+  };
+
+  const handleSearchChange = async (e) => {
+    const val = e.target.value;
+    setStudentSearchQuery(val);
+    setStudentId(val);
+    if (!val || val.length < 2) {
       setStudentOptions([]);
+      return;
     }
-  }, [studentSearchQuery]);
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const isPdfExt = file.name.toLowerCase().endsWith('.pdf');
-      const isPdfMime = file.type === 'application/pdf' || file.type === '';
-
-      if (!isPdfExt || !isPdfMime) {
-        setError('Only PDF files (.pdf) are allowed.');
-        setSelectedFile(null);
-        return;
-      }
-
-      if (file.size > 5 * 1024 * 1024) {
-        setError('PDF file size exceeds maximum 5 MB limit.');
-        setSelectedFile(null);
-        return;
-      }
-
-      setError('');
-      setSelectedFile(file);
+    try {
+      const res = await studentService.searchStudents(val);
+      setStudentOptions(res || []);
+    } catch (err) {
+      console.error('Search failed:', err);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!studentId) {
-      setError('Please select or enter a valid Student ID.');
-      return;
-    }
-    if (!documentTypeId) {
-      setError('Please select a certificate type.');
-      return;
-    }
-    if (!selectedFile) {
-      setError('Please attach a PDF certificate file.');
+    if (!studentId || !documentTypeId || !selectedFile) {
+      setError('Please select a student, document type, and choose a PDF file.');
+      showWarning('Please fill all required fields.');
       return;
     }
 
     setSubmitting(true);
     setError('');
-    setSuccess('');
 
     const formData = new FormData();
     formData.append('studentId', studentId);
     formData.append('documentTypeId', documentTypeId);
     formData.append('file', selectedFile);
+
     if (documentNumber) formData.append('documentNumber', documentNumber);
     if (issueDate) formData.append('issueDate', issueDate);
     if (expiryDate) formData.append('expiryDate', expiryDate);
@@ -130,24 +109,70 @@ export const UploadCertificate = () => {
 
     try {
       await certificateService.uploadCertificate(formData);
-      setSuccess('Certificate PDF uploaded successfully to Supabase Private Bucket!');
+      showSuccess('Certificate uploaded successfully');
       setSelectedFile(null);
       setNotes('');
       setDocumentNumber('');
       setTimeout(() => {
         navigate('/admin/certificates');
-      }, 1500);
+      }, 1000);
     } catch (err) {
-      if (err.response?.status === 409 && err.response?.data?.existingDocument) {
+      if (err.response?.status === 409) {
+        const dupData = err.response.data || {};
         setDuplicateModalData({
-          existingDoc: err.response.data.existingDocument,
-          formData,
+          existingCertificateId: dupData.existingCertificateId,
+          certificateType: dupData.certificateType || 'Selected Certificate Type',
+          studentId: dupData.studentId || studentId,
         });
+        setError('Certificate already exists for this student.');
       } else {
-        setError(err.response?.data?.message || 'Failed to upload certificate.');
+        const msg = err.response?.data?.message || 'Failed to upload certificate.';
+        setError(msg);
+        showError(msg);
       }
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleViewExisting = async (existingCertId) => {
+    try {
+      const doc = await certificateService.getDocumentById(existingCertId);
+      setPreviewDoc(doc);
+    } catch (err) {
+      showError('Failed to fetch existing certificate details');
+    }
+  };
+
+  const handleReplaceExisting = async (existingCertId) => {
+    if (!selectedFile) {
+      showError('Please select a file to replace with.');
+      return;
+    }
+    try {
+      await certificateService.replaceCertificate(existingCertId, selectedFile);
+      showSuccess('Certificate replaced successfully!');
+      setDuplicateModalData(null);
+      setTimeout(() => {
+        navigate('/admin/certificates');
+      }, 1000);
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to replace certificate.';
+      showError(msg);
+      throw err;
+    }
+  };
+
+  const handleDeleteExisting = async (existingCertId) => {
+    try {
+      await certificateService.deleteCertificate(existingCertId);
+      showSuccess('Existing certificate deleted. You can now upload the new certificate.');
+      setDuplicateModalData(null);
+      setError('');
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to delete existing certificate.';
+      showError(msg);
+      throw err;
     }
   };
 
@@ -180,13 +205,6 @@ export const UploadCertificate = () => {
             <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-xs text-rose-700 dark:text-rose-300 font-bold flex items-center space-x-2.5 animate-fadeIn">
               <AlertCircle className="w-4.5 h-4.5 text-rose-600 shrink-0" />
               <span>{error}</span>
-            </div>
-          )}
-
-          {success && (
-            <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-700 dark:text-emerald-300 font-bold flex items-center space-x-2.5 animate-fadeIn">
-              <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600 shrink-0" />
-              <span>{success}</span>
             </div>
           )}
 
@@ -258,28 +276,38 @@ export const UploadCertificate = () => {
             </div>
 
             {/* File Input */}
+            {/* Animated File Upload */}
             <div>
-              <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+              <label className="block font-bold text-slate-700 dark:text-slate-300 mb-2">
                 Certificate PDF Document * (Max 5 MB)
               </label>
-              <div className="p-4 bg-slate-50 dark:bg-slate-800/60 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl text-center space-y-2">
-                <FileText className="w-8 h-8 text-blue-600 mx-auto" />
-                <p className="text-xs text-slate-500 font-medium">
-                  Select a valid PDF document to attach. File storage will be encrypted on Supabase.
-                </p>
-                <input
-                  type="file"
-                  accept=".pdf,application/pdf"
-                  onChange={handleFileChange}
-                  required
-                  className="w-full max-w-sm mx-auto text-xs text-slate-700 dark:text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-600 file:text-white"
-                />
-              </div>
-              {selectedFile && (
-                <p className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 mt-2">
-                  ✓ Selected File: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
-                </p>
-              )}
+              <AnimatedFileUpload
+                selectedFile={selectedFile}
+                onFileSelect={(file) => {
+                  if (file) {
+                    const isPdfExt = file.name.toLowerCase().endsWith('.pdf');
+                    const isPdfMime = file.type === 'application/pdf' || file.type === '';
+                    if (!isPdfExt || !isPdfMime) {
+                      setError('Only PDF files (.pdf) are allowed.');
+                      setSelectedFile(null);
+                      return;
+                    }
+                    if (file.size > 5 * 1024 * 1024) {
+                      setError('PDF file size exceeds maximum 5 MB limit.');
+                      setSelectedFile(null);
+                      return;
+                    }
+                    setError('');
+                    setSelectedFile(file);
+                  }
+                }}
+                onFileRemove={() => setSelectedFile(null)}
+                uploading={submitting}
+                accept=".pdf,application/pdf"
+                maxSizeMB={5}
+                label="Drag & drop PDF certificates or any document"
+                sublabel="or browse files on your computer"
+              />
             </div>
 
             {/* Optional Fields Grid */}
@@ -347,6 +375,25 @@ export const UploadCertificate = () => {
           </form>
         </div>
       </div>
+
+      {/* Duplicate Certificate Action Modal */}
+      {duplicateModalData && (
+        <DuplicateCertificateModal
+          duplicateData={duplicateModalData}
+          onView={handleViewExisting}
+          onReplace={handleReplaceExisting}
+          onDelete={handleDeleteExisting}
+          onCancel={() => setDuplicateModalData(null)}
+        />
+      )}
+
+      {/* Certificate Preview Modal */}
+      {previewDoc && (
+        <CertificatePreviewModal
+          doc={previewDoc}
+          onClose={() => setPreviewDoc(null)}
+        />
+      )}
     </Layout>
   );
 };

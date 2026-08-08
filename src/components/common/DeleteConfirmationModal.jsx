@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { AlertTriangle, Trash2, X, Users, ArrowRight } from 'lucide-react';
 
 export const DeleteConfirmationModal = ({
+  isOpen = true,
   title = 'Delete Item',
   subtitle = 'Permanent Action • Cannot Be Undone',
   entityPhoto,
@@ -16,16 +17,21 @@ export const DeleteConfirmationModal = ({
   onConfirm,
   onClose,
   loading = false,
+  isDeleting = false,
+  message,
+  confirmText,
 }) => {
-  const [inputText, setInputText] = useState('');
+  if (isOpen === false) return null;
 
-  const requiresInput = Boolean(confirmationKeyword && confirmationKeyword.trim() !== '');
-  const normalizeStr = (str) => (str || '').trim().replace(/\s+/g, ' ').toUpperCase();
-  const isInputMatched = !requiresInput || normalizeStr(inputText) === normalizeStr(confirmationKeyword);
+  const isBusy = loading || isDeleting;
+  const btnText = dangerButtonText !== 'Delete Permanently' ? dangerButtonText : (confirmText || dangerButtonText);
+  const displaySubtitle = subtitle !== 'Permanent Action • Cannot Be Undone' ? subtitle : (message || subtitle);
+
+  const isInputMatched = true;
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    if (cannotDelete || !isInputMatched || loading) return;
+    if (cannotDelete || isBusy) return;
     onConfirm();
   };
 
@@ -43,14 +49,14 @@ export const DeleteConfirmationModal = ({
                 {title}
               </h3>
               <p className="text-xs font-semibold text-rose-600 dark:text-rose-400 mt-0.5">
-                {subtitle}
+                {displaySubtitle}
               </p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            disabled={loading}
+            disabled={isBusy}
             className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
           >
             <X className="w-5 h-5" />
@@ -119,30 +125,16 @@ export const DeleteConfirmationModal = ({
                 </div>
               )}
 
-              {requiresInput && (
-                <div className="space-y-2">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                    To continue, type <span className="text-rose-600 dark:text-rose-400 font-black">{confirmationKeyword}</span> below:
-                  </label>
-                  <input
-                    type="text"
-                    value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
-                    placeholder={`Type ${confirmationKeyword}`}
-                    disabled={loading}
-                    className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 transition"
-                  />
-                </div>
-              )}
             </>
           )}
 
           {/* Footer Actions */}
           <div className="pt-4 flex items-center justify-end space-x-3 border-t border-slate-100 dark:border-slate-800">
             <button
+              autoFocus
               type="button"
               onClick={onClose}
-              disabled={loading}
+              disabled={isBusy}
               className="py-2.5 px-4 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition cursor-pointer"
             >
               Cancel
@@ -151,19 +143,22 @@ export const DeleteConfirmationModal = ({
             {!cannotDelete && (
               <button
                 type="submit"
-                disabled={!isInputMatched || loading}
+                disabled={!isInputMatched || isBusy}
                 className={`py-2.5 px-5 text-xs font-bold text-white rounded-xl shadow-md flex items-center space-x-2 transition ${
-                  isInputMatched && !loading
+                  isInputMatched && !isBusy
                     ? 'bg-rose-600 hover:bg-rose-700 shadow-rose-500/25 cursor-pointer'
                     : 'bg-slate-300 dark:bg-slate-800 cursor-not-allowed opacity-60'
                 }`}
               >
-                {loading ? (
-                  <span>Processing...</span>
+                {isBusy ? (
+                  <span className="flex items-center gap-2">
+                    <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin inline-block" />
+                    Deleting...
+                  </span>
                 ) : (
                   <>
                     <Trash2 className="w-4 h-4" />
-                    <span>{dangerButtonText}</span>
+                    <span>{btnText}</span>
                   </>
                 )}
               </button>

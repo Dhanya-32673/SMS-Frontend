@@ -1,6 +1,7 @@
 import React from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { GraduationCap, ShieldCheck, Printer } from 'lucide-react';
+import { formatSectionName, formatBranchGroup, formatIntermediateYear } from '../../utils/studentDataFormatter';
 
 export const StudentIdCardDisplay = ({ idCardData }) => {
   if (!idCardData) return null;
@@ -13,15 +14,19 @@ export const StudentIdCardDisplay = ({ idCardData }) => {
     <div className="flex flex-col items-center space-y-6">
       {/* Identity Card Container */}
       <div className="w-[380px] bg-gradient-to-b from-slate-900 via-slate-900 to-purple-950 text-white rounded-3xl border-2 border-purple-500/30 shadow-2xl overflow-hidden p-6 space-y-5 print:shadow-none print:border-slate-300">
-        
+
         {/* Card Header: College Logo & Name */}
-        <div className="flex items-center space-x-3 border-b border-purple-500/30 pb-4">
-          <div className="w-10 h-10 rounded-xl bg-purple-600 flex items-center justify-center shadow-md shrink-0">
-            <GraduationCap className="w-6 h-6 text-white" />
+        <div className="flex items-center space-x-3.5 border-b border-purple-500/30 pb-4">
+          <div className="w-12 h-12 rounded-xl bg-white p-1 shadow-md flex items-center justify-center shrink-0 border border-white/20">
+            <img
+              src="https://ookzjdmkoaunbrufvmvq.supabase.co/storage/v1/object/public/student-profile-photos/info/ChatGPT%20Image%20Aug%206,%202026,%2012_07_23%20AM.png"
+              alt="Bhashyam Logo"
+              className="w-full h-full object-contain"
+            />
           </div>
           <div>
             <h2 className="text-xs font-black tracking-wider uppercase text-purple-200">
-              {idCardData.collegeName || 'COLLEGE OF ARTS, SCIENCE & TECH'}
+              {idCardData.collegeName || 'BHASHYAM EDUCATIONAL INSTITUTION'}
             </h2>
             <span className="inline-block px-2 py-0.5 mt-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[9px] font-extrabold tracking-widest uppercase border border-purple-500/30">
               STUDENT IDENTITY CARD
@@ -55,7 +60,7 @@ export const StudentIdCardDisplay = ({ idCardData }) => {
               </div>
               <div>
                 <span className="text-[9px] text-slate-400 block">Group</span>
-                <span className="font-bold text-purple-400">{idCardData.branchGroup || 'MPC'}</span>
+                <span className="font-bold text-purple-400">{formatBranchGroup(idCardData.branchGroup)}</span>
               </div>
             </div>
           </div>
@@ -65,11 +70,11 @@ export const StudentIdCardDisplay = ({ idCardData }) => {
         <div className="grid grid-cols-3 gap-2 bg-slate-800/80 p-2.5 rounded-xl border border-slate-700/60 text-center text-[10px]">
           <div>
             <span className="text-slate-400 block text-[9px]">Year</span>
-            <span className="font-bold text-slate-200">{idCardData.intermediateYear || '1st Year'}</span>
+            <span className="font-bold text-slate-200">{formatIntermediateYear(idCardData.intermediateYear)}</span>
           </div>
           <div>
             <span className="text-slate-400 block text-[9px]">Section</span>
-            <span className="font-bold text-slate-200">Sec {idCardData.section || 'A'}</span>
+            <span className="font-bold text-slate-200">{formatSectionName(idCardData.section)}</span>
           </div>
           <div>
             <span className="text-slate-400 block text-[9px]">Academic Year</span>

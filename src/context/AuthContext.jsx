@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useRef, useCallb
 import { authService } from '../services/authService';
 import { tokenUtils } from '../utils/tokenUtils';
 import SessionTimeoutModal from '../components/common/SessionTimeoutModal';
+import toast from '../utils/toastService';
 
 const AuthContext = createContext(null);
 
@@ -160,25 +161,25 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     setIsInactiveLoggedOut(false);
     const data = await authService.login(email, password);
-    setUser(data.user);
-    resetInactivityTimer(true);
     return data;
   };
 
   const googleLogin = async (idToken) => {
     setIsInactiveLoggedOut(false);
     const data = await authService.googleLogin(idToken);
+    return data;
+  };
+
+  const verifyOtp = async (email, otp) => {
+    setIsInactiveLoggedOut(false);
+    const data = await authService.verifyOtp(email, otp, 'LOGIN');
     setUser(data.user);
     resetInactivityTimer(true);
     return data;
   };
 
   const otpLogin = async (email, otp) => {
-    setIsInactiveLoggedOut(false);
-    const data = await authService.verifyOtp(email, otp, 'LOGIN');
-    setUser(data.user);
-    resetInactivityTimer(true);
-    return data;
+    return verifyOtp(email, otp);
   };
 
   const logout = async () => {
@@ -195,6 +196,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
     if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    toast.success('Logout successful.', { operation: 'local:logout' });
   };
 
   const value = {
@@ -208,6 +210,7 @@ export const AuthProvider = ({ children }) => {
     login,
     googleLogin,
     otpLogin,
+    verifyOtp,
     logout,
     resetInactivityTimer: () => resetInactivityTimer(true),
   };

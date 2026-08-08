@@ -5,15 +5,18 @@ import facultyService from '../../../services/facultyService';
 import { Eye, Edit3, Plus, Search, UserCheck, AlertCircle, Trash2 } from 'lucide-react';
 import DeleteConfirmationModal from '../../../components/common/DeleteConfirmationModal';
 
+import { useToast } from '../../../context/ToastContext';
+import { useDataRefresh } from '../../../utils/dataSync';
+
 export const FacultyManagement = () => {
   const navigate = useNavigate();
+  const { showSuccess, showError } = useToast();
   const [facultyList, setFacultyList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [facultyToDelete, setFacultyToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
 
   const fetchFaculty = async () => {
     setLoading(true);
@@ -30,20 +33,23 @@ export const FacultyManagement = () => {
   useEffect(() => {
     fetchFaculty();
   }, []);
+  useDataRefresh(['faculty', 'sections', 'students'], fetchFaculty);
 
   const handleConfirmDelete = async () => {
     if (!facultyToDelete || deleting) return;
+    const targetId = facultyToDelete.id;
     setDeleting(true);
     setError('');
     try {
-      await facultyService.deleteFaculty(facultyToDelete.id);
-      setSuccessMessage(`Faculty member '${facultyToDelete.fullName}' deleted successfully!`);
+      await facultyService.deleteFaculty(targetId);
+      showSuccess('Faculty deleted successfully');
       setFacultyToDelete(null);
-      fetchFaculty();
-      setTimeout(() => setSuccessMessage(''), 3000);
+      setFacultyList((prev) => prev.filter((f) => f.id !== targetId));
     } catch (err) {
       console.error('Failed to delete faculty:', err);
-      setError(err.response?.data?.message || err.message || 'Failed to delete faculty');
+      const msg = err.response?.data?.message || err.message || 'Failed to delete faculty';
+      setError(msg);
+      showError(msg);
     } finally {
       setDeleting(false);
     }
@@ -88,11 +94,6 @@ export const FacultyManagement = () => {
           <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl flex items-center gap-3 text-rose-700 text-sm">
             <AlertCircle className="w-5 h-5 shrink-0" />
             <span>{error}</span>
-          </div>
-        )}
-        {successMessage && (
-          <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-3 text-emerald-700 text-sm font-bold">
-            <span>{successMessage}</span>
           </div>
         )}
 
@@ -166,28 +167,30 @@ export const FacultyManagement = () => {
                           ACTIVE
                         </span>
                       </td>
-                      <td className="px-4 py-3.5 text-right pr-6 space-x-1">
-                        <button
-                          onClick={() => navigate(`/admin/faculty/${fac.id || fac.employeeId}`)}
-                          className="p-1.5 text-slate-400 hover:text-blue-600 rounded-lg transition cursor-pointer"
-                          title="View Faculty Profile"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => navigate(`/admin/faculty/${fac.id || fac.employeeId}/edit`)}
-                          className="p-1.5 text-slate-400 hover:text-blue-600 rounded-lg transition cursor-pointer"
-                          title="Edit Faculty"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => setFacultyToDelete(fac)}
-                          className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg transition cursor-pointer"
-                          title="Delete Faculty Member"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                      <td className="px-4 py-3.5 text-right pr-6 whitespace-nowrap">
+                        <div className="inline-flex items-center justify-end space-x-1">
+                          <button
+                            onClick={() => navigate(`/admin/faculty/${fac.id || fac.employeeId}`)}
+                            className="p-1.5 text-slate-400 hover:text-blue-600 rounded-lg transition cursor-pointer"
+                            title="View Faculty Profile"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => navigate(`/admin/faculty/${fac.id || fac.employeeId}/edit`)}
+                            className="p-1.5 text-slate-400 hover:text-blue-600 rounded-lg transition cursor-pointer"
+                            title="Edit Faculty"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => setFacultyToDelete(fac)}
+                            className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg transition cursor-pointer"
+                            title="Delete Faculty"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -198,15 +201,17 @@ export const FacultyManagement = () => {
         </div>
 
         {/* Delete Confirmation Modal */}
-        <DeleteConfirmationModal
-          isOpen={!!facultyToDelete}
-          onClose={() => setFacultyToDelete(null)}
-          onConfirm={handleConfirmDelete}
-          title="Delete Faculty Member"
-          message={`Are you sure you want to permanently delete faculty member '${facultyToDelete?.fullName}'? This action cannot be undone.`}
-          confirmText="Permanently Delete"
-          isDeleting={deleting}
-        />
+        {facultyToDelete && (
+          <DeleteConfirmationModal
+            isOpen={!!facultyToDelete}
+            onClose={() => setFacultyToDelete(null)}
+            onConfirm={handleConfirmDelete}
+            title="Delete Faculty Member"
+            message={`Are you sure you want to permanently delete faculty member '${facultyToDelete?.fullName}'? This action cannot be undone.`}
+            confirmText="Permanently Delete"
+            isDeleting={deleting}
+          />
+        )}
       </div>
     </AdminLayout>
   );

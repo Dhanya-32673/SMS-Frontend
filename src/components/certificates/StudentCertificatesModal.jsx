@@ -13,6 +13,7 @@ import {
   Plus
 } from 'lucide-react';
 import certificateService from '../../services/certificateService';
+import { formatSectionName, formatBranchGroup, formatIntermediateYear } from '../../utils/studentDataFormatter';
 import CertificatePreviewModal from './CertificatePreviewModal';
 import UploadCertificateModal from './UploadCertificateModal';
 import DeleteConfirmationModal from '../common/DeleteConfirmationModal';
@@ -156,7 +157,7 @@ export const StudentCertificatesModal = ({ student, onClose, onUpdated, isAdmin 
                   </span>
                 </div>
                 <p className="text-xs text-slate-500 font-medium mt-0.5">
-                  Roll: <strong className="text-slate-900 dark:text-white">{student.rollNumber || 'N/A'}</strong> • Group: <strong className="text-blue-600">{student.branchGroup || 'MPC'}</strong> • Year: <strong>{student.intermediateYear || '1st Year'}</strong> • Section: <strong>Section {student.section || 'A'}</strong>
+                  Roll: <strong className="text-slate-900 dark:text-white">{student.rollNumber || 'N/A'}</strong> • Group: <strong className="text-blue-600">{formatBranchGroup(student.branchGroup)}</strong> • Year: <strong>{formatIntermediateYear(student.intermediateYear)}</strong> • Section: <strong>{formatSectionName(student.section)}</strong>
                 </p>
               </div>
             </div>

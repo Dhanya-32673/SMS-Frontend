@@ -1,5 +1,6 @@
 import React from 'react';
 import DeleteConfirmationModal from '../common/DeleteConfirmationModal';
+import { formatSectionName, formatBranchGroup, formatIntermediateYear } from '../../utils/studentDataFormatter';
 
 export const DeleteStudentModal = ({ student, onClose, onConfirm, onDeleteConfirm, loading }) => {
   if (!student) return null;
@@ -15,8 +16,8 @@ export const DeleteStudentModal = ({ student, onClose, onConfirm, onDeleteConfir
         { label: 'Student Name', value: student.fullName || student.name },
         { label: 'Student ID', value: student.studentId },
         { label: 'Roll Number', value: student.rollNumber || 'N/A' },
-        { label: 'Group / Year', value: `${student.branchGroup || 'MPC'} • ${student.intermediateYear || '1st Year'}` },
-        { label: 'Section', value: student.section ? `Section ${student.section}` : 'Unassigned', fullWidth: true },
+        { label: 'Group / Year', value: `${formatBranchGroup(student.branchGroup)} • ${formatIntermediateYear(student.intermediateYear)}` },
+        { label: 'Section', value: formatSectionName(student.section), fullWidth: true },
       ]}
       warningList={[
         'Student Profile & Personal Records',

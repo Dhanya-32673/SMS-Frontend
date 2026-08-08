@@ -3,9 +3,14 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import AdminLayout from '../../../layouts/AdminLayout';
 import FacultyLayout from '../../../layouts/FacultyLayout';
 import { useAuth } from '../../../context/AuthContext';
+import { useToast } from '../../../context/ToastContext';
+import { useDataRefresh } from '../../../utils/dataSync';
+import { formatSectionName, formatBranchGroup, formatIntermediateYear } from '../../../utils/studentDataFormatter';
+import ConfirmationModal from '../../../components/common/ConfirmationModal';
 import StudentStatusBadge from '../../../components/students/StudentStatusBadge';
 import CertificateStatusBadge from '../../../components/certificates/CertificateStatusBadge';
 import CertificatePreviewModal from '../../../components/certificates/CertificatePreviewModal';
+import UploadCertificateModal from '../../../components/certificates/UploadCertificateModal';
 import studentService from '../../../services/studentService';
 import certificateService from '../../../services/certificateService';
 import DeleteStudentModal from '../../../components/students/DeleteStudentModal';
@@ -21,9 +26,27 @@ import {
   Upload,
   Lock,
   Eye,
+  EyeOff,
   CheckCircle2,
   ChevronLeft,
-  FileText
+  FileText,
+  ShieldCheck,
+  Building2,
+  Calendar,
+  MapPin,
+  Heart,
+  DollarSign,
+  School,
+  Bus,
+  Home,
+  Check,
+  X,
+  Clock,
+  Download,
+  RefreshCw,
+  AlertCircle,
+  KeyRound,
+  UserCheck
 } from 'lucide-react';
 
 export const StudentProfile = () => {
@@ -36,51 +59,139 @@ export const StudentProfile = () => {
 
   const [student, setStudent] = useState(null);
   const [documents, setDocuments] = useState([]);
+  const [documentTypes, setDocumentTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('PERSONAL');
+  
+  // Sensitive Data Toggles
+  const [showAadhaar, setShowAadhaar] = useState(false);
+  const [showPan, setShowPan] = useState(false);
+
+  // Modals & Document Actions
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [selectedDocTypeId, setSelectedDocTypeId] = useState(null);
+  const [actionLoadingId, setActionLoadingId] = useState(null);
+
+  const fetchProfileData = async () => {
+    setLoading(true);
+    try {
+      const [studentData, docsData, typesData] = await Promise.all([
+        studentService.getStudentById(id),
+        certificateService.getStudentDocuments(id),
+        certificateService.getActiveDocumentTypes()
+      ]);
+      setStudent(studentData);
+      setDocuments(docsData || []);
+      setDocumentTypes(typesData || []);
+    } catch (err) {
+      console.error('Failed to load student profile:', err);
+      setError('Student profile not found or server error.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      setLoading(true);
-      try {
-        const data = await studentService.getStudentById(id);
-        setStudent(data);
-        const docs = await certificateService.getStudentDocuments(id);
-        setDocuments(docs || []);
-      } catch (err) {
-        console.error('Failed to load profile:', err);
-        setError('Student profile not found.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
+    fetchProfileData();
   }, [id]);
+  useDataRefresh(['students', 'certificates', 'sections'], fetchProfileData);
+
+  const { showSuccess, showError } = useToast();
+  const [docToDelete, setDocToDelete] = useState(null);
 
   const handleDeleteConfirm = async () => {
     if (deleting) return;
     setDeleting(true);
     try {
       await studentService.deleteStudent(student.studentId || id);
+      showSuccess('Student deleted successfully');
       navigate('/admin/students');
     } catch (err) {
-      setError('Failed to delete student.');
+      setError('Failed to delete student record.');
+      showError('Failed to delete student record.');
     } finally {
       setDeleting(false);
     }
   };
 
+  // Document Verification / Rejection / Deletion / Download handlers
+  const handleVerifyDocument = async (docId) => {
+    setActionLoadingId(docId);
+    try {
+      await certificateService.verifyDocument(docId);
+      showSuccess('Certificate verified successfully');
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to verify document.';
+      showError(msg);
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const handleRejectDocument = async (docId) => {
+    const reason = prompt('Please enter rejection reason:');
+    if (!reason || !reason.trim()) return;
+    setActionLoadingId(docId);
+    try {
+      await certificateService.rejectDocument(docId, reason);
+      showSuccess('Certificate rejected');
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to reject document.';
+      showError(msg);
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const handleDeleteDocumentConfirmed = async () => {
+    if (!docToDelete) return;
+    const docId = docToDelete.id;
+    setActionLoadingId(docId);
+    try {
+      await certificateService.deleteDocument(docId);
+      showSuccess('Document deleted successfully');
+      setDocToDelete(null);
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to delete document.';
+      showError(msg);
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const handleDownloadDocument = async (doc) => {
+    try {
+      const fileUrl = doc.storagePath || doc.fileUrl || `/api/documents/${doc.id}/file`;
+      const link = document.createElement('a');
+      link.href = fileUrl;
+      link.target = '_blank';
+      link.download = doc.originalFileName || `${doc.documentTypeName || 'document'}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      showError('Failed to download file.');
+    }
+  };
+
+  // Helper formatter to satisfy "Zero N/A Policy"
+  const formatVal = (val, suffix = '') => {
+    if (val !== null && val !== undefined && String(val).trim() !== '' && String(val).toUpperCase() !== 'N/A') {
+      return `${val}${suffix}`;
+    }
+    return <span className="text-slate-400 font-medium italic">Not Provided</span>;
+  };
+
   if (loading) {
     return (
       <Layout>
-        <div className="py-20 text-center text-slate-400 font-sans">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent mb-2" />
-          <p className="text-xs font-bold">Loading student profile record...</p>
+        <div className="py-24 text-center font-sans space-y-3">
+          <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent shadow-md" />
+          <p className="text-xs font-extrabold text-slate-600 dark:text-slate-300">Loading full student profile data...</p>
         </div>
       </Layout>
     );
@@ -93,7 +204,7 @@ export const StudentProfile = () => {
           <p className="text-base font-bold text-slate-800 dark:text-white">{error || 'Student not found.'}</p>
           <button
             onClick={() => navigate('/admin/students')}
-            className="px-4 py-2 bg-blue-600 text-white font-bold rounded-xl text-xs"
+            className="px-5 py-2.5 bg-blue-600 text-white font-bold rounded-xl text-xs shadow-md cursor-pointer"
           >
             Back to Students Directory
           </button>
@@ -102,69 +213,86 @@ export const StudentProfile = () => {
     );
   }
 
+  // Calculate missing documents
+  const uploadedDocTypeIds = new Set(documents.map((d) => d.documentTypeId || d.documentType?.id));
+  const missingDocumentTypes = documentTypes.filter((dt) => dt.requiredByDefault && !uploadedDocTypeIds.has(dt.id));
+
   return (
     <Layout>
-      <div className="max-w-6xl mx-auto space-y-6 font-sans">
+      <div className="max-w-7xl mx-auto space-y-6 font-sans pb-12">
         
         {/* Navigation Breadcrumb */}
         <div className="flex items-center justify-between">
           <button
             onClick={() => navigate('/admin/students')}
-            className="text-xs font-bold text-slate-500 hover:text-blue-600 flex items-center space-x-1 cursor-pointer"
+            className="text-xs font-extrabold text-slate-500 hover:text-blue-600 flex items-center space-x-1.5 cursor-pointer transition"
           >
             <ChevronLeft className="w-4 h-4" />
-            <span>Back to Students List</span>
+            <span>Back to Students Directory</span>
           </button>
         </div>
 
-        {/* Header Profile Banner Card */}
-        <div className="bg-gradient-to-r from-blue-600 via-blue-600 to-blue-500 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-blue-500/25 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-5 text-center sm:text-left">
-            <img
-              src={student.profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200'}
-              alt={student.fullName}
-              className="w-20 h-20 rounded-2xl object-cover border-2 border-white/40 shadow-lg shrink-0"
-            />
-            <div>
-              <div className="flex items-center justify-center sm:justify-start space-x-2">
-                <h1 className="text-2xl font-black text-white tracking-tight">
+        {/* Enterprise Profile Header Banner */}
+        <div className="bg-gradient-to-r from-blue-600 via-blue-600 to-blue-500 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-blue-500/25 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left">
+            <div className="relative group shrink-0">
+              <img
+                src={student.profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300'}
+                alt={student.fullName}
+                className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border-4 border-white/30 shadow-2xl shrink-0"
+              />
+              <span className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 border-2 border-white rounded-full shadow-sm" title="Active Record" />
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-center sm:justify-start space-x-2.5">
+                <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
                   {student.fullName}
                 </h1>
-                <span className="px-3 py-0.5 bg-white/20 backdrop-blur-md text-white font-mono text-[10px] font-extrabold rounded-lg border border-white/20">
+                <span className="px-3 py-1 bg-white/20 backdrop-blur-md text-white font-mono text-xs font-black rounded-lg border border-white/30">
                   {student.studentId}
                 </span>
               </div>
-              <p className="text-xs text-blue-100 mt-1 font-medium">
-                Roll No: <strong className="text-white">{student.rollNumber || 'N/A'}</strong> • Group: <strong className="text-white">{student.branchGroup || student.academicDetail?.branchGroup || 'MPC'}</strong> • Year: <strong>{student.intermediateYear || student.academicDetail?.intermediateYear || '1st Year'}</strong> • Section: <strong>Section {student.section || student.academicDetail?.section || 'A'}</strong>
-              </p>
-              <div className="flex items-center justify-center sm:justify-start space-x-2 mt-2">
+
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1 text-xs text-blue-100 font-medium">
+                <span>Roll No: <strong className="text-white font-bold">{formatVal(student.rollNumber)}</strong></span>
+                <span>Adm No: <strong className="text-white font-bold">{formatVal(student.admissionNumber)}</strong></span>
+                <span>Group: <strong className="text-white font-bold">{formatBranchGroup(student.branchGroup)}</strong></span>
+                <span>Year: <strong className="text-white font-bold">{formatIntermediateYear(student.intermediateYear)}</strong></span>
+                <span>Section: <strong className="text-white font-bold">{formatSectionName(student.section)}</strong></span>
+              </div>
+
+              <div className="flex items-center justify-center sm:justify-start space-x-2 pt-1">
                 <StudentStatusBadge status={student.status} />
+                <span className="px-2.5 py-0.5 bg-white/10 text-white rounded-md text-[11px] font-extrabold border border-white/20">
+                  {documents.length} Certificates Uploaded
+                </span>
               </div>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2 shrink-0">
+          <div className="flex flex-wrap items-center justify-center md:justify-end gap-2.5 shrink-0">
             <button
               onClick={() => navigate(`/admin/students/${student.studentId}/id-card`)}
-              className="py-2.5 px-4 text-xs font-bold text-slate-900 bg-white hover:bg-slate-100 rounded-xl shadow-md transition flex items-center space-x-1.5 cursor-pointer"
+              className="py-2.5 px-4 text-xs font-extrabold text-slate-900 bg-white hover:bg-slate-100 rounded-xl shadow-md transition flex items-center space-x-1.5 cursor-pointer"
             >
               <CreditCard className="w-4 h-4 text-blue-600" />
-              <span>ID Card</span>
+              <span>Generate ID Card</span>
             </button>
 
             {isAdmin && (
               <>
                 <button
                   onClick={() => navigate(`/admin/students/${id}/edit`)}
-                  className="py-2.5 px-4 text-xs font-bold text-white bg-white/20 hover:bg-white/30 border border-white/30 rounded-xl transition flex items-center space-x-1.5 cursor-pointer"
+                  className="py-2.5 px-4 text-xs font-extrabold text-white bg-white/20 hover:bg-white/30 border border-white/30 rounded-xl transition flex items-center space-x-1.5 cursor-pointer backdrop-blur-md"
                 >
                   <Edit3 className="w-4 h-4" />
                   <span>Edit Profile</span>
                 </button>
                 <button
                   onClick={() => setShowDeleteModal(true)}
-                  className="p-2.5 text-white/90 hover:text-white bg-rose-500/30 hover:bg-rose-500/40 border border-white/20 rounded-xl transition cursor-pointer"
-                  title="Delete Student"
+                  className="p-2.5 text-white/90 hover:text-white bg-rose-500/30 hover:bg-rose-500/50 border border-white/20 rounded-xl transition cursor-pointer backdrop-blur-md"
+                  title="Delete Student Record"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -173,22 +301,23 @@ export const StudentProfile = () => {
           </div>
         </div>
 
-        {/* Profile Tabs Navigation */}
-        <div className="flex border-b border-slate-200 dark:border-slate-800 space-x-2 text-xs font-bold overflow-x-auto">
+        {/* Responsive Navigation Bar */}
+        <div className="flex border-b border-slate-200 dark:border-slate-800 space-x-1.5 text-xs font-extrabold overflow-x-auto pb-0.5">
           {[
-            { id: 'PERSONAL', label: '1. Personal Info', icon: User },
-            { id: 'CONTACT', label: '2. Contact Details', icon: Phone },
-            { id: 'PARENT', label: '3. Parent Details', icon: Users },
-            { id: 'ACADEMIC', label: '4. Academic Info', icon: BookOpen },
-            { id: 'CERTIFICATES', label: '5. Certificates & Documents', icon: Award },
+            { id: 'PERSONAL', label: 'A. Personal Information', icon: User },
+            { id: 'CONTACT', label: 'B. Contact Information', icon: Phone },
+            { id: 'PARENT', label: 'C. Parent & Guardian', icon: Users },
+            { id: 'ACADEMIC', label: 'D. Academic Information', icon: BookOpen },
+            { id: 'CERTIFICATES', label: `E. Certificates (${documents.length})`, icon: Award },
+            { id: 'ACCOUNT', label: 'F. Account & Security', icon: ShieldCheck },
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`py-3 px-5 rounded-t-2xl border-b-2 transition flex items-center space-x-2 cursor-pointer shrink-0 ${
+              className={`py-3 px-4 sm:px-5 rounded-t-2xl border-b-2 transition flex items-center space-x-2 cursor-pointer shrink-0 ${
                 activeTab === tab.id
-                  ? 'border-blue-600 text-blue-600 bg-white dark:bg-slate-900 shadow-xs'
-                  : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                  ? 'border-blue-600 text-blue-600 dark:text-blue-400 bg-white dark:bg-slate-900 shadow-xs'
+                  : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-slate-800/40'
               }`}
             >
               <tab.icon className="w-4 h-4" />
@@ -197,135 +326,454 @@ export const StudentProfile = () => {
           ))}
         </div>
 
-        {/* Tab Card Contents */}
-        <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-xl text-xs space-y-6 animate-fadeIn">
+        {/* Main Tab Details Card */}
+        <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-800 shadow-xl text-xs space-y-6 animate-fadeIn">
           
+          {/* TAB A: PERSONAL INFORMATION */}
           {activeTab === 'PERSONAL' && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="space-y-1">
-                <span className="text-[11px] font-bold text-slate-400 block">First Name</span>
-                <p className="font-extrabold text-slate-900 dark:text-white">{student.firstName || '-'}</p>
+            <div className="space-y-6">
+              <div className="flex items-center space-x-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                <User className="w-5 h-5 text-blue-600" />
+                <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                  1. Personal Information
+                </h2>
               </div>
-              <div className="space-y-1">
-                <span className="text-[11px] font-bold text-slate-400 block">Middle Name</span>
-                <p className="font-extrabold text-slate-900 dark:text-white">{student.middleName || '-'}</p>
-              </div>
-              <div className="space-y-1">
-                <span className="text-[11px] font-bold text-slate-400 block">Last Name</span>
-                <p className="font-extrabold text-slate-900 dark:text-white">{student.lastName || '-'}</p>
-              </div>
-              <div className="space-y-1">
-                <span className="text-[11px] font-bold text-slate-400 block">Date of Birth</span>
-                <p className="font-extrabold text-slate-900 dark:text-white">{student.dateOfBirth || '-'}</p>
-              </div>
-              <div className="space-y-1">
-                <span className="text-[11px] font-bold text-slate-400 block">Gender</span>
-                <p className="font-extrabold text-slate-900 dark:text-white">{student.gender || '-'}</p>
-              </div>
-              <div className="space-y-1">
-                <span className="text-[11px] font-bold text-slate-400 block">Blood Group</span>
-                <p className="font-extrabold text-slate-900 dark:text-white">{student.bloodGroup || '-'}</p>
-              </div>
-              <div className="p-3 bg-blue-50 dark:bg-blue-950/40 rounded-2xl border border-blue-200 dark:border-blue-900/40 col-span-full sm:col-span-2 flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] font-extrabold uppercase text-blue-600 block">Encrypted Aadhaar Number</span>
-                  <span className="font-mono font-bold text-slate-900 dark:text-white text-sm">{student.maskedAadhaar || 'XXXX XXXX 1234'}</span>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Roll Number</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.rollNumber)}</p>
                 </div>
-                <Lock className="w-4 h-4 text-blue-600" />
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Admission Number</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.admissionNumber)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">First Name</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.firstName)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Middle Name</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.middleName)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Last Name</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.lastName)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Gender</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.gender)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Date of Birth</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.dateOfBirth)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Blood Group</span>
+                  <p className="font-extrabold text-rose-600 dark:text-rose-400">{formatVal(student.bloodGroup)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Nationality</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.nationality || 'Indian')}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Religion</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.religion)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Caste Category</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.casteCategory)}</p>
+                </div>
+
+                {/* Aadhaar Number with Eye Toggle */}
+                <div className="p-3 bg-blue-50/80 dark:bg-blue-950/40 rounded-2xl border border-blue-200 dark:border-blue-900/40 flex items-center justify-between col-span-1 sm:col-span-2 lg:col-span-1">
+                  <div>
+                    <span className="text-[10px] font-extrabold uppercase text-blue-600 dark:text-blue-400 block">
+                      Aadhaar Number
+                    </span>
+                    <span className="font-mono font-bold text-slate-900 dark:text-white text-xs">
+                      {showAadhaar
+                        ? (student.aadhaarNumber || student.maskedAadhaar || 'Not Provided')
+                        : (student.maskedAadhaar || 'XXXX XXXX 1234')}
+                    </span>
+                  </div>
+                  {isAdmin && (
+                    <button
+                      onClick={() => setShowAadhaar(!showAadhaar)}
+                      className="p-1.5 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition cursor-pointer"
+                      title={showAadhaar ? "Mask Aadhaar" : "Show Full Aadhaar"}
+                    >
+                      {showAadhaar ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    </button>
+                  )}
+                </div>
+
+                {/* PAN Number with Eye Toggle */}
+                <div className="p-3 bg-blue-50/80 dark:bg-blue-950/40 rounded-2xl border border-blue-200 dark:border-blue-900/40 flex items-center justify-between col-span-1 sm:col-span-2 lg:col-span-1">
+                  <div>
+                    <span className="text-[10px] font-extrabold uppercase text-blue-600 dark:text-blue-400 block">
+                      PAN Number
+                    </span>
+                    <span className="font-mono font-bold text-slate-900 dark:text-white text-xs">
+                      {showPan
+                        ? (student.panNumber || student.maskedPan || 'Not Provided')
+                        : (student.maskedPan || 'XXXXXX1234')}
+                    </span>
+                  </div>
+                  {isAdmin && (
+                    <button
+                      onClick={() => setShowPan(!showPan)}
+                      className="p-1.5 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition cursor-pointer"
+                      title={showPan ? "Mask PAN" : "Show Full PAN"}
+                    >
+                      {showPan ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    </button>
+                  )}
+                </div>
+
+                <div className="space-y-1 col-span-full">
+                  <span className="text-[11px] font-bold text-slate-400 block">Identification Marks</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.identificationMarks)}</p>
+                </div>
               </div>
             </div>
           )}
 
+          {/* TAB B: CONTACT INFORMATION */}
           {activeTab === 'CONTACT' && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="space-y-1">
-                <span className="text-[11px] font-bold text-slate-400 block">Mobile Number</span>
-                <p className="font-extrabold text-slate-900 dark:text-white">{student.mobileNumber || '-'}</p>
+            <div className="space-y-6">
+              <div className="flex items-center space-x-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                <Phone className="w-5 h-5 text-blue-600" />
+                <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                  2. Contact Information
+                </h2>
               </div>
-              <div className="space-y-1">
-                <span className="text-[11px] font-bold text-slate-400 block">Email Address</span>
-                <p className="font-bold text-blue-600 dark:text-blue-400">{student.email || '-'}</p>
-              </div>
-              <div className="space-y-1 col-span-full">
-                <span className="text-[11px] font-bold text-slate-400 block">Residential Address</span>
-                <p className="font-extrabold text-slate-900 dark:text-white">{student.address || '-'}</p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Mobile Number</span>
+                  <p className="font-mono font-extrabold text-slate-900 dark:text-white">{formatVal(student.mobileNumber)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Alternate Mobile</span>
+                  <p className="font-mono font-extrabold text-slate-900 dark:text-white">{formatVal(student.alternateMobile)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Email Address</span>
+                  <p className="font-bold text-blue-600 dark:text-blue-400">{formatVal(student.email)}</p>
+                </div>
+
+                <div className="space-y-1 col-span-full">
+                  <span className="text-[11px] font-bold text-slate-400 block">Residential Address</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.address)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">City</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.city)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">District</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.district)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">State</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.state)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">PIN Code</span>
+                  <p className="font-mono font-extrabold text-slate-900 dark:text-white">{formatVal(student.pinCode)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Country</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.country || 'India')}</p>
+                </div>
               </div>
             </div>
           )}
 
+          {/* TAB C: PARENT / GUARDIAN DETAILS */}
           {activeTab === 'PARENT' && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="space-y-1">
-                <span className="text-[11px] font-bold text-slate-400 block">Father Name</span>
-                <p className="font-extrabold text-slate-900 dark:text-white">{student.fatherName || '-'}</p>
+            <div className="space-y-6">
+              <div className="flex items-center space-x-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                <Users className="w-5 h-5 text-blue-600" />
+                <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                  3. Parent / Guardian Details
+                </h2>
               </div>
-              <div className="space-y-1">
-                <span className="text-[11px] font-bold text-slate-400 block">Mother Name</span>
-                <p className="font-extrabold text-slate-900 dark:text-white">{student.motherName || '-'}</p>
-              </div>
-              <div className="space-y-1">
-                <span className="text-[11px] font-bold text-slate-400 block">Parent Mobile</span>
-                <p className="font-extrabold text-slate-900 dark:text-white">{student.parentMobile || '-'}</p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Father Name</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.fatherName)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Mother Name</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.motherName)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Parent Mobile</span>
+                  <p className="font-mono font-extrabold text-slate-900 dark:text-white">{formatVal(student.parentMobile || student.fatherMobile)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Parent Email</span>
+                  <p className="font-bold text-slate-700 dark:text-slate-300">{formatVal(student.parentEmail || student.fatherEmail)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Occupation</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.occupation || student.fatherOccupation)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Annual Income (₹)</span>
+                  <p className="font-mono font-extrabold text-emerald-600 dark:text-emerald-400 text-sm">
+                    {student.annualIncome ? `₹${Number(student.annualIncome).toLocaleString('en-IN')}` : 'Not Provided'}
+                  </p>
+                </div>
               </div>
             </div>
           )}
 
+          {/* TAB D: ACADEMIC INFORMATION */}
           {activeTab === 'ACADEMIC' && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="space-y-1">
-                <span className="text-[11px] font-bold text-slate-400 block">Intermediate Group</span>
-                <p className="font-extrabold text-blue-600 dark:text-blue-400">{student.branchGroup || 'MPC'}</p>
+            <div className="space-y-6">
+              <div className="flex items-center space-x-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                <BookOpen className="w-5 h-5 text-blue-600" />
+                <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                  4. Academic Information
+                </h2>
               </div>
-              <div className="space-y-1">
-                <span className="text-[11px] font-bold text-slate-400 block">Academic Year</span>
-                <p className="font-extrabold text-slate-900 dark:text-white">{student.intermediateYear || '1st Year'}</p>
-              </div>
-              <div className="space-y-1">
-                <span className="text-[11px] font-bold text-slate-400 block">Assigned Section</span>
-                <p className="font-extrabold text-slate-900 dark:text-white">Section {student.section || 'A'}</p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Intermediate Group / Branch</span>
+                  <p className="font-extrabold text-blue-600 dark:text-blue-400 text-sm">{formatVal(student.branchGroup)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Intermediate Year</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.intermediateYear)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Section</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">Section {formatVal(student.section)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Batch</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.batch)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Academic Year</span>
+                  <p className="font-extrabold text-blue-600 dark:text-blue-400">{formatVal(student.academicYear)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Admission Date</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.admissionDate)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Hostel / Day Scholar</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.hostelDayScholar)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Medium</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.medium)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Status</span>
+                  <div className="pt-0.5">
+                    <StudentStatusBadge status={student.status} />
+                  </div>
+                </div>
               </div>
             </div>
           )}
 
+          {/* TAB E: CERTIFICATES & DOCUMENTS */}
           {activeTab === 'CERTIFICATES' && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between border-b pb-3">
-                <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider">
-                  Uploaded PDF Documents ({documents.length})
-                </h3>
-                <button
-                  onClick={() => navigate(`/admin/certificates/upload?studentId=${student.studentId}`)}
-                  className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold flex items-center space-x-1 cursor-pointer"
-                >
-                  <Upload className="w-3.5 h-3.5" />
-                  <span>Upload Certificate</span>
-                </button>
+            <div className="space-y-6">
+              
+              {/* Header */}
+              <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
+                <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center space-x-2">
+                  <Award className="w-5 h-5 text-blue-600" />
+                  <span>Uploaded PDF Documents ({documents.length})</span>
+                </h2>
+                <p className="text-xs text-slate-500 font-medium mt-0.5">
+                  View, download, verify, replace, or manage attached PDF certificates.
+                </p>
               </div>
 
+              {/* Uploaded Documents List Grid */}
               {documents.length === 0 ? (
-                <p className="text-center py-8 text-slate-400 font-medium">No certificates uploaded for this student yet.</p>
+                <div className="p-8 text-center bg-slate-50 dark:bg-slate-800/40 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700 space-y-2">
+                  <FileText className="w-10 h-10 text-slate-400 mx-auto" />
+                  <p className="text-sm font-bold text-slate-700 dark:text-slate-200">No certificates uploaded yet.</p>
+                </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-4">
                   {documents.map((doc) => (
-                    <div key={doc.id} className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <FileText className="w-5 h-5 text-blue-600" />
-                        <div>
-                          <span className="font-bold text-slate-900 dark:text-white block">{doc.documentTypeName}</span>
-                          <span className="text-[10px] text-slate-400 block font-mono">{doc.originalFileName || 'certificate.pdf'}</span>
+                    <div
+                      key={doc.id}
+                      className="p-5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs hover:border-blue-300 transition"
+                    >
+                      <div className="flex items-start space-x-4 min-w-0">
+                        <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
+                          <FileText className="w-6 h-6" />
+                        </div>
+                        <div className="space-y-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="font-extrabold text-slate-900 dark:text-white text-sm">
+                              {doc.documentTypeName}
+                            </span>
+                            <CertificateStatusBadge status={doc.status} />
+                            <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-[10px] font-extrabold">
+                              {doc.category || 'ACADEMIC'}
+                            </span>
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-0.5 text-[11px] text-slate-500 font-medium">
+                            <span>Doc No: <strong className="text-slate-800 dark:text-slate-200">{formatVal(doc.documentNumber)}</strong></span>
+                            <span>Upload Date: <strong>{doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString() : '-'}</strong></span>
+                            <span>Verified By: <strong>{doc.verifiedBy || 'Pending Verification'}</strong></span>
+                            <span>Last Updated: <strong>{doc.updatedAt ? new Date(doc.updatedAt).toLocaleDateString() : '-'}</strong></span>
+                          </div>
+
+                          {doc.rejectionReason && (
+                            <p className="text-[11px] font-bold text-rose-600 bg-rose-50 dark:bg-rose-950/40 p-1.5 rounded-lg border border-rose-200 dark:border-rose-800 mt-1">
+                              Rejection Reason: {doc.rejectionReason}
+                            </p>
+                          )}
                         </div>
                       </div>
-                      <button
-                        onClick={() => setSelectedDoc(doc)}
-                        className="p-2 text-slate-400 hover:text-blue-600 rounded-lg hover:bg-white transition cursor-pointer"
-                        title="View Certificate"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
+
+                      {/* Action Buttons Toolbar */}
+                      <div className="flex flex-wrap items-center justify-end gap-2 shrink-0 border-t md:border-t-0 pt-3 md:pt-0 border-slate-200 dark:border-slate-700">
+                        <button
+                          onClick={() => setSelectedDoc(doc)}
+                          className="px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-blue-50 text-slate-700 dark:text-slate-300 hover:text-blue-600 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold transition flex items-center space-x-1 cursor-pointer"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>View PDF</span>
+                        </button>
+
+                        <button
+                          onClick={() => handleDownloadDocument(doc)}
+                          className="px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-emerald-50 text-slate-700 dark:text-slate-300 hover:text-emerald-600 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold transition flex items-center space-x-1 cursor-pointer"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          <span>Download PDF</span>
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setSelectedDocTypeId(doc.documentTypeId || doc.documentType?.id);
+                            setUploadModalOpen(true);
+                          }}
+                          className="px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-purple-50 text-slate-700 dark:text-slate-300 hover:text-purple-600 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold transition flex items-center space-x-1 cursor-pointer"
+                          title="Replace Document"
+                        >
+                          <RefreshCw className="w-3.5 h-3.5" />
+                          <span>Replace</span>
+                        </button>
+
+                        {/* Admin / Faculty Verification Controls */}
+                        {doc.status !== 'VERIFIED' && (
+                          <button
+                            onClick={() => handleVerifyDocument(doc.id)}
+                            disabled={actionLoadingId === doc.id}
+                            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1 cursor-pointer disabled:opacity-50"
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                            <span>Verify</span>
+                          </button>
+                        )}
+
+                        {isAdmin && (
+                          <button
+                            onClick={() => setDocToDelete(doc)}
+                            disabled={actionLoadingId === doc.id}
+                            className="p-1.5 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 text-rose-600 rounded-xl border border-rose-200 dark:border-rose-800 transition cursor-pointer"
+                            title="Delete Document (Admin Only)"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
               )}
+
+            </div>
+          )}
+
+          {/* TAB F: ACCOUNT INFORMATION */}
+          {activeTab === 'ACCOUNT' && (
+            <div className="space-y-6">
+              <div className="flex items-center space-x-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                <ShieldCheck className="w-5 h-5 text-blue-600" />
+                <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                  Account & System Information
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Username</span>
+                  <p className="font-mono font-extrabold text-blue-600 dark:text-blue-400">{formatVal(student.studentId)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Registered Email</span>
+                  <p className="font-bold text-slate-900 dark:text-white">{formatVal(student.email)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">User Role</span>
+                  <p className="font-extrabold text-blue-600 dark:text-blue-400">STUDENT</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Account Created Date</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">
+                    {student.createdAt ? new Date(student.createdAt).toLocaleString() : 'Not Provided'}
+                  </p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Last Profile Update</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">
+                    {student.updatedAt ? new Date(student.updatedAt).toLocaleString() : 'Not Provided'}
+                  </p>
+                </div>
+              </div>
             </div>
           )}
 
@@ -333,16 +781,44 @@ export const StudentProfile = () => {
 
       </div>
 
+      {/* Certificate PDF View Modal */}
       {selectedDoc && (
         <CertificatePreviewModal doc={selectedDoc} onClose={() => setSelectedDoc(null)} />
       )}
 
+      {/* Delete Student Modal */}
       {showDeleteModal && (
         <DeleteStudentModal
           student={student}
           loading={deleting}
           onClose={() => setShowDeleteModal(false)}
           onConfirm={handleDeleteConfirm}
+        />
+      )}
+
+      {/* Quick Certificate Upload Modal */}
+      {uploadModalOpen && (
+        <UploadCertificateModal
+          prefilledStudentId={student.studentId}
+          prefilledDocumentTypeId={selectedDocTypeId}
+          onClose={() => setUploadModalOpen(false)}
+          onUploaded={() => {
+            setUploadModalOpen(false);
+          }}
+        />
+      )}
+
+      {/* Delete Document Confirmation Modal */}
+      {docToDelete && (
+        <ConfirmationModal
+          isOpen={Boolean(docToDelete)}
+          title="Confirm Delete Document"
+          message={`Are you sure you want to permanently delete "${docToDelete.documentTypeName || 'this document'}"? This action cannot be undone.`}
+          confirmText="Delete Document"
+          variant="danger"
+          loading={actionLoadingId === docToDelete.id}
+          onClose={() => setDocToDelete(null)}
+          onConfirm={handleDeleteDocumentConfirmed}
         />
       )}
     </Layout>

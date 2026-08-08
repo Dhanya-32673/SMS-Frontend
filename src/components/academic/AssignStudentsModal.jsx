@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Search, UserPlus, X, CheckSquare, Square, Users, AlertCircle } from 'lucide-react';
 import { studentService } from '../../services/studentService';
 import { academicService } from '../../services/academicService';
+import { useToast } from '../../context/ToastContext';
+import { formatBranchGroup } from '../../utils/studentDataFormatter';
 
 export const AssignStudentsModal = ({ section, onClose, onAssigned }) => {
+  const { showSuccess, showError } = useToast();
   const [query, setQuery] = useState('');
   const [students, setStudents] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
@@ -58,10 +61,13 @@ export const AssignStudentsModal = ({ section, onClose, onAssigned }) => {
 
     try {
       await academicService.assignStudentsToSection(section.id, selectedIds);
-      onAssigned();
+      showSuccess(`${selectedIds.length} student(s) assigned successfully`);
+      if (onAssigned) onAssigned();
       onClose();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to assign students to section');
+      const msg = err.response?.data?.message || 'Failed to assign students to section';
+      setError(msg);
+      showError(msg);
     } finally {
       setSubmitting(false);
     }
@@ -151,7 +157,7 @@ export const AssignStudentsModal = ({ section, onClose, onAssigned }) => {
                       <div>
                         <p className="text-xs font-bold">{student.fullName || student.name}</p>
                         <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                          {student.studentId} • Roll: {student.rollNumber} • {student.branchGroup || 'MPC'}
+                          {student.studentId} • Roll: {student.rollNumber} • {formatBranchGroup(student.branchGroup)}
                         </p>
                       </div>
                     </div>

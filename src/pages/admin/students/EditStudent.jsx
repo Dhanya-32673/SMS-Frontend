@@ -4,10 +4,12 @@ import { ChevronRight, ArrowLeft, AlertCircle, Edit3 } from 'lucide-react';
 import StudentForm from '../../../components/students/StudentForm';
 import studentService from '../../../services/studentService';
 import AdminLayout from '../../../layouts/AdminLayout';
+import { useToast } from '../../../context/ToastContext';
 
 export const EditStudent = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { showSuccess, showError } = useToast();
 
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -42,11 +44,13 @@ export const EditStudent = () => {
           console.warn('Photo upload warning:', photoErr);
         }
       }
+      showSuccess('Student updated successfully');
       navigate(`/admin/students/${id}`);
     } catch (err) {
       console.error('Failed to update student:', err);
       const msg = err.response?.data?.message || err.message || 'Failed to update student.';
       setError(msg);
+      showError(msg);
     } finally {
       setSubmitting(false);
     }

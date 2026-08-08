@@ -3,6 +3,8 @@ import AdminLayout from '../../../layouts/AdminLayout';
 import FacultyLayout from '../../../layouts/FacultyLayout';
 import { useAuth } from '../../../context/AuthContext';
 import certificateService from '../../../services/certificateService';
+import { useDataRefresh } from '../../../utils/dataSync';
+import { formatSectionName, formatBranchGroup } from '../../../utils/studentDataFormatter';
 import facultyService from '../../../services/facultyService';
 import { AlertCircle, Plus, Search, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -72,6 +74,7 @@ export const MissingDocuments = () => {
   useEffect(() => {
     fetchMissing();
   }, [search, groupFilter, yearFilter, sectionFilter]);
+  useDataRefresh(['certificates', 'students'], fetchMissing);
 
   return (
     <Layout>
@@ -180,10 +183,10 @@ export const MissingDocuments = () => {
                       <td className="px-4 py-3.5 font-bold text-slate-900 dark:text-white">{st.fullName}</td>
                       <td className="px-4 py-3.5">
                         <span className="px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 rounded-md text-[10px] font-extrabold">
-                          {st.branchGroup || 'MPC'}
+                          {formatBranchGroup(st.branchGroup)}
                         </span>
                       </td>
-                      <td className="px-4 py-3.5 font-bold text-slate-800 dark:text-slate-200">Section {st.section || 'A'}</td>
+                      <td className="px-4 py-3.5 font-bold text-slate-800 dark:text-slate-200">{formatSectionName(st.section)}</td>
                       <td className="px-4 py-3.5 font-bold text-rose-600">{st.missingCount} Missing</td>
                       <td className="px-4 py-3.5">
                         <div className="w-28 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">

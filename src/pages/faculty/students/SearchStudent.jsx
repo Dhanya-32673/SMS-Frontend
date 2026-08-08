@@ -3,29 +3,44 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Eye, CreditCard, Users, BookOpen, AlertCircle } from 'lucide-react';
 import FacultyLayout from '../../../layouts/FacultyLayout';
 import studentService from '../../../services/studentService';
+import { formatSectionName, formatIntermediateYear } from '../../../utils/studentDataFormatter';
+
+import { useDebounce } from '../../../hooks/useDebounce';
 
 export const SearchStudent = () => {
   const navigate = useNavigate();
 
   const [query, setQuery] = useState('');
+  const debouncedQuery = useDebounce(query, 300);
   const [results, setResults] = useState([]);
   const [searched, setSearched] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (!query.trim()) return;
-    setLoading(true);
-    setSearched(true);
-    try {
-      const res = await studentService.searchStudents(query.trim());
-      setResults(res || []);
-    } catch (err) {
-      console.error('Search error:', err);
+  useEffect(() => {
+    if (!debouncedQuery.trim()) {
       setResults([]);
-    } finally {
-      setLoading(false);
+      setSearched(false);
+      return;
     }
+    const executeSearch = async () => {
+      setLoading(true);
+      setSearched(true);
+      try {
+        const res = await studentService.searchStudents(debouncedQuery.trim());
+        setResults(res || []);
+      } catch (err) {
+        console.error('Search error:', err);
+        setResults([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    executeSearch();
+  }, [debouncedQuery]);
+
+  const handleSearch = (e) => {
+    if (e) e.preventDefault();
   };
 
   const statusColor = (status) => {
@@ -131,7 +146,7 @@ export const SearchStudent = () => {
                       <div>
                         <span className="text-slate-400">Yr/Sec:</span>{' '}
                         <span className="font-bold text-slate-700">
-                          Yr {student.currentYear || '-'} ({student.section || '-'})
+                          {formatIntermediateYear(student.intermediateYear || student.currentYear)} • {formatSectionName(student.section)}
                         </span>
                       </div>
                     </div>

@@ -7,8 +7,12 @@ import CertificatePreviewModal from '../../../components/certificates/Certificat
 import certificateService from '../../../services/certificateService';
 import { Clock, CheckCircle2, XCircle, Eye } from 'lucide-react';
 
+import { useToast } from '../../../context/ToastContext';
+import { useDataRefresh } from '../../../utils/dataSync';
+
 export const PendingDocuments = () => {
   const { user } = useAuth();
+  const { showSuccess, showError } = useToast();
   const rawRole = (typeof user?.role === 'string' ? user.role : user?.role?.roleName || user?.role?.name || '').replace('ROLE_', '').toUpperCase();
   const Layout = rawRole === 'FACULTY' ? FacultyLayout : AdminLayout;
 
@@ -19,8 +23,6 @@ export const PendingDocuments = () => {
   const fetchPending = async () => {
     setLoading(true);
     try {
-      // Documents are saved as UPLOADED on upload, then admin verifies/rejects.
-      // We need BOTH statuses: UPLOADED (just submitted) + PENDING (re-queued).
       const [uploadedRes, pendingRes] = await Promise.allSettled([
         certificateService.getCertificates({ status: 'UPLOADED', size: 100 }),
         certificateService.getCertificates({ status: 'PENDING',  size: 100 }),
@@ -29,7 +31,6 @@ export const PendingDocuments = () => {
       const uploaded = uploadedRes.status === 'fulfilled' ? (uploadedRes.value?.content || []) : [];
       const pending  = pendingRes.status  === 'fulfilled' ? (pendingRes.value?.content  || []) : [];
 
-      // Merge and deduplicate by id, sort by uploadedAt descending
       const merged = [...uploaded, ...pending]
         .filter((doc, idx, arr) => arr.findIndex((d) => d.id === doc.id) === idx)
         .sort((a, b) => new Date(b.uploadedAt || 0) - new Date(a.uploadedAt || 0));
@@ -45,23 +46,29 @@ export const PendingDocuments = () => {
   useEffect(() => {
     fetchPending();
   }, []);
-
+  useDataRefresh(['certificates'], fetchPending);
 
   const handleVerify = async (id) => {
     try {
       await certificateService.verifyDocument(id);
-      fetchPending();
+      showSuccess('Certificate verified successfully');
+      setDocuments((prev) => prev.filter((d) => d.id !== id));
     } catch (err) {
       console.error('Verification failed:', err);
+      const msg = err.response?.data?.message || 'Failed to verify document';
+      showError(msg);
     }
   };
 
   const handleReject = async (id) => {
     try {
-      await certificateService.rejectDocument(id, 'Rejected by Administrator');
-      fetchPending();
+      await certificateService.rejectDocument(id, 'Rejected by Admin');
+      showSuccess('Certificate rejected successfully');
+      setDocuments((prev) => prev.filter((d) => d.id !== id));
     } catch (err) {
       console.error('Rejection failed:', err);
+      const msg = err.response?.data?.message || 'Failed to reject document';
+      showError(msg);
     }
   };
 

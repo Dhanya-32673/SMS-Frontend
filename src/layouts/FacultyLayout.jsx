@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import { useClickOutside, createToggleHandler } from '../hooks/useClickOutside';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -38,6 +39,21 @@ export const FacultyLayout = ({ children }) => {
   const [certificatesOpen, setCertificatesOpen] = useState(true);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+
+  // Refs for click-outside detection (wrap both trigger + panel)
+  const notificationRef = useRef(null);
+  const profileRef = useRef(null);
+
+  // Enterprise-grade: outside click auto-close + ESC key + cleanup
+  useClickOutside([
+    { ref: notificationRef, isOpen: notificationsOpen, setOpen: setNotificationsOpen },
+    { ref: profileRef, isOpen: profileDropdownOpen, setOpen: setProfileDropdownOpen },
+  ]);
+
+  // Mutual exclusion toggle handlers
+  const toggleNotifications = createToggleHandler(setNotificationsOpen, notificationsOpen, [setProfileDropdownOpen]);
+  const toggleProfile = createToggleHandler(setProfileDropdownOpen, profileDropdownOpen, [setNotificationsOpen]);
+
   const [globalSearch, setGlobalSearch] = useState('');
 
   const isActive = (path) => location.pathname === path;
@@ -74,14 +90,18 @@ export const FacultyLayout = ({ children }) => {
         }`}
       >
         {/* Sidebar Header Logo Card */}
-        <div className="p-5 border-b border-blue-100 dark:border-slate-800 bg-gradient-to-r from-blue-600 via-blue-600 to-blue-500 text-white flex items-center justify-between shadow-xs">
+        <div className="p-4 border-b border-blue-600 bg-blue-600 text-white flex items-center justify-between shadow-md">
           <Link to="/faculty/dashboard" className="flex items-center space-x-3 group">
-            <div className="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-md group-hover:scale-105 transition">
-              <GraduationCap className="w-6 h-6 text-white" />
+            <div className="w-20 h-20 rounded-2xl bg-white p-2 shadow-lg flex items-center justify-center shrink-0 border-2 border-white/30 group-hover:scale-105 transition">
+              <img
+                src="https://ookzjdmkoaunbrufvmvq.supabase.co/storage/v1/object/public/student-profile-photos/info/ChatGPT%20Image%20Aug%206,%202026,%2012_07_23%20AM.png"
+                alt="Bhashyam Logo"
+                className="w-full h-full object-contain"
+              />
             </div>
             <div>
-              <span className="font-black text-white text-lg tracking-tight block">SICMS</span>
-              <span className="text-[10px] text-blue-100 font-extrabold uppercase tracking-wider block">Faculty Portal</span>
+              <span className="font-black text-white text-xl tracking-wider block leading-tight">BHASHYAM</span>
+              <span className="text-[10px] text-blue-100 font-extrabold uppercase tracking-widest block mt-0.5">EDUCATIONAL INSTITUTION</span>
             </div>
           </Link>
           <button
@@ -96,21 +116,21 @@ export const FacultyLayout = ({ children }) => {
         <div className="flex-1 overflow-y-auto p-4 space-y-6 text-xs font-semibold">
           
           <div className="space-y-1">
-            <span className="px-3 text-[10px] font-extrabold uppercase tracking-widest text-blue-900/60 dark:text-blue-400 block mb-2">
-              Faculty Workspace
+            <span className="px-3 text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 block mb-2">
+              CORE OPERATIONS
             </span>
             <Link
               to="/faculty/dashboard"
-              className={`flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition ${
+              className={`flex items-center space-x-3.5 px-3.5 py-3 rounded-2xl transition-all ${
                 isActive('/faculty/dashboard')
-                  ? 'bg-blue-600 text-white font-extrabold shadow-md shadow-blue-500/25'
+                  ? 'bg-blue-600 text-white font-bold shadow-lg shadow-blue-600/30'
                   : 'text-slate-700 dark:text-slate-300 hover:bg-blue-100/70 dark:hover:bg-slate-800/60 hover:text-blue-700 dark:hover:text-white'
               }`}
             >
-              <div className={`p-1.5 rounded-lg ${isActive('/faculty/dashboard') ? 'bg-white/20 text-white' : 'bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400'}`}>
-                <LayoutDashboard className="w-4 h-4" />
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${isActive('/faculty/dashboard') ? 'bg-white/20 text-white' : 'bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400'}`}>
+                <LayoutDashboard className="w-5 h-5" />
               </div>
-              <span>Dashboard</span>
+              <span className="text-sm font-bold">Dashboard</span>
             </Link>
           </div>
 
@@ -321,27 +341,33 @@ export const FacultyLayout = ({ children }) => {
               {isDark ? <Sun className="w-4.5 h-4.5 text-amber-400" /> : <Moon className="w-4.5 h-4.5 text-slate-600" />}
             </button>
 
-            <div className="relative">
+            <div className="relative" ref={notificationRef}>
               <button
-                onClick={() => setNotificationsOpen(!notificationsOpen)}
+                onClick={toggleNotifications}
                 className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 relative transition cursor-pointer"
+                aria-expanded={notificationsOpen}
+                aria-haspopup="true"
+                aria-label="Notifications"
               >
                 <Bell className="w-4.5 h-4.5" />
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-600 rounded-full ring-2 ring-white dark:ring-slate-900" />
               </button>
 
               {notificationsOpen && (
-                <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl p-4 z-50 text-xs animate-fadeIn space-y-2">
+                <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl p-4 z-50 text-xs animate-dropdown-enter space-y-2" role="menu">
                   <span className="font-extrabold text-slate-900 dark:text-white uppercase tracking-wider block border-b pb-2">Faculty Notifications</span>
                   <p className="text-slate-500 text-[11px]">All student document reviews are up to date.</p>
                 </div>
               )}
             </div>
 
-            <div className="relative">
+            <div className="relative" ref={profileRef}>
               <button
-                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                onClick={toggleProfile}
                 className="flex items-center space-x-2.5 p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                aria-expanded={profileDropdownOpen}
+                aria-haspopup="true"
+                aria-label="User menu"
               >
                 <img
                   src={user?.profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
@@ -352,11 +378,11 @@ export const FacultyLayout = ({ children }) => {
                   <p className="text-xs font-bold text-slate-900 dark:text-white leading-tight">{user?.fullName || 'Faculty Staff'}</p>
                   <p className="text-[10px] text-blue-600 font-extrabold">FACULTY MEMBER</p>
                 </div>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden md:block" />
+                <ChevronDown className={`w-3.5 h-3.5 text-slate-400 hidden md:block transition-transform duration-200 ${profileDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
 
               {profileDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl py-2 z-50 text-xs animate-fadeIn">
+                <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl py-2 z-50 text-xs animate-dropdown-enter" role="menu">
                   <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800">
                     <p className="font-extrabold text-slate-900 dark:text-white">{user?.fullName}</p>
                     <p className="text-slate-400 text-[11px] truncate">{user?.email}</p>

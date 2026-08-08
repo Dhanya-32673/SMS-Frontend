@@ -5,8 +5,11 @@ import FacultyForm from '../../../components/faculty/FacultyForm';
 import facultyService from '../../../services/facultyService';
 import { UserPlus } from 'lucide-react';
 
+import { useToast } from '../../../context/ToastContext';
+
 export const AddFaculty = () => {
   const navigate = useNavigate();
+  const { showSuccess, showError } = useToast();
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -22,10 +25,13 @@ export const AddFaculty = () => {
           console.warn('Faculty photo upload warning:', photoErr);
         }
       }
+      showSuccess('Faculty added successfully');
       navigate('/admin/faculty');
     } catch (err) {
       console.error('Failed to create faculty:', err);
-      setErrorMsg(err.response?.data?.message || err.message || 'Failed to create faculty member.');
+      const msg = err.response?.data?.message || err.message || 'Failed to create faculty member.';
+      setErrorMsg(msg);
+      showError(msg);
     } finally {
       setSubmitting(false);
     }

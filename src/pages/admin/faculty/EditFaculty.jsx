@@ -5,9 +5,12 @@ import FacultyForm from '../../../components/faculty/FacultyForm';
 import facultyService from '../../../services/facultyService';
 import { Edit } from 'lucide-react';
 
+import { useToast } from '../../../context/ToastContext';
+
 export const EditFaculty = () => {
   const { facultyId } = useParams();
   const navigate = useNavigate();
+  const { showSuccess, showError } = useToast();
   const [facultyData, setFacultyData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -41,10 +44,13 @@ export const EditFaculty = () => {
           console.warn('Faculty photo update warning:', photoErr);
         }
       }
+      showSuccess('Faculty updated successfully');
       navigate(`/admin/faculty/${facultyId}`);
     } catch (err) {
       console.error('Failed to update faculty:', err);
-      setErrorMsg(err.response?.data?.message || err.message || 'Failed to update faculty.');
+      const msg = err.response?.data?.message || err.message || 'Failed to update faculty.';
+      setErrorMsg(msg);
+      showError(msg);
     } finally {
       setSubmitting(false);
     }

@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Upload, X, AlertCircle, FileText, CheckCircle2 } from 'lucide-react';
 import certificateService from '../../services/certificateService';
+import AnimatedFileUpload from '../common/AnimatedFileUpload';
+import { useToast } from '../../context/ToastContext';
 
 export const UploadCertificateModal = ({ prefilledStudentId, prefilledDocumentTypeId, onClose, onUploaded }) => {
+  const { showWarning } = useToast();
   const [studentId, setStudentId] = useState(prefilledStudentId || '');
   const [documentTypeId, setDocumentTypeId] = useState(prefilledDocumentTypeId || '');
   const [documentTypes, setDocumentTypes] = useState([]);
@@ -32,11 +35,13 @@ export const UploadCertificateModal = ({ prefilledStudentId, prefilledDocumentTy
     if (selectedFile) {
       if (selectedFile.type !== 'application/pdf' && !selectedFile.name.endsWith('.pdf')) {
         setError('Only PDF files (.pdf) are allowed.');
+        showWarning('Invalid file format. Please upload a PDF.');
         setFile(null);
         return;
       }
       if (selectedFile.size > 5 * 1024 * 1024) {
         setError('File size exceeds maximum 5 MB limit.');
+        showWarning('File size exceeds the limit.');
         setFile(null);
         return;
       }
@@ -49,6 +54,7 @@ export const UploadCertificateModal = ({ prefilledStudentId, prefilledDocumentTy
     e.preventDefault();
     if (!studentId || !documentTypeId || !file) {
       setError('Please select a student, document type, and PDF file.');
+      showWarning('Please fill all required fields.');
       return;
     }
 
@@ -140,21 +146,36 @@ export const UploadCertificateModal = ({ prefilledStudentId, prefilledDocumentTy
           </div>
 
           <div>
-            <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+            <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">
               Certificate PDF File * (Max 5 MB)
             </label>
-            <input
-              type="file"
+            <AnimatedFileUpload
+              selectedFile={file}
+              onFileSelect={(selected) => {
+                if (selected) {
+                  const isPdfExt = selected.name.toLowerCase().endsWith('.pdf');
+                  const isPdfMime = selected.type === 'application/pdf' || selected.type === '';
+                  if (!isPdfExt || !isPdfMime) {
+                    setError('Only PDF files (.pdf) are allowed.');
+                    setFile(null);
+                    return;
+                  }
+                  if (selected.size > 5 * 1024 * 1024) {
+                    setError('PDF file size exceeds maximum 5 MB limit.');
+                    setFile(null);
+                    return;
+                  }
+                  setError('');
+                  setFile(selected);
+                }
+              }}
+              onFileRemove={() => setFile(null)}
+              uploading={loading}
               accept=".pdf,application/pdf"
-              onChange={handleFileChange}
-              required
-              className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-600 file:text-white"
+              maxSizeMB={5}
+              label="Drag & drop PDF certificates or any document"
+              sublabel="or browse files on your computer"
             />
-            {file && (
-              <p className="text-[11px] font-mono text-emerald-600 mt-1 font-bold">
-                ✓ Selected: {file.name} ({(file.size / 1024).toFixed(1)} KB)
-              </p>
-            )}
           </div>
 
           <div>

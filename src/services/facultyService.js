@@ -37,6 +37,12 @@ const facultyService = {
     return response.data;
   },
 
+  // Remove/Delete section assignment
+  removeAssignment: async (facultyId, assignmentId) => {
+    const response = await api.delete(`/faculty/${facultyId}/assignments/${assignmentId}`);
+    return response.data;
+  },
+
   // Get assignments
   getAssignments: async (facultyId) => {
     const response = await api.get(`/faculty/${facultyId}/assignments`);

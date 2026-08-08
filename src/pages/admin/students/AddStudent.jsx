@@ -6,10 +6,12 @@ import studentService from '../../../services/studentService';
 import AdminLayout from '../../../layouts/AdminLayout';
 import FacultyLayout from '../../../layouts/FacultyLayout';
 import { useAuth } from '../../../context/AuthContext';
+import { useToast } from '../../../context/ToastContext';
 
 export const AddStudent = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { showSuccess, showError } = useToast();
   const Layout = user?.role === 'FACULTY' ? FacultyLayout : AdminLayout;
 
   const [submitting, setSubmitting] = useState(false);
@@ -27,11 +29,13 @@ export const AddStudent = () => {
           console.warn('Photo upload warning:', photoErr);
         }
       }
+      showSuccess('Student added successfully');
       navigate(`/admin/students/${createdStudent.studentId}`);
     } catch (err) {
       console.error('Failed to create student:', err);
       const msg = err.response?.data?.message || err.message || 'Failed to create student. Check duplicate Roll Number or Email.';
       setError(msg);
+      showError(msg);
     } finally {
       setSubmitting(false);
     }

@@ -18,28 +18,28 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
     middleName: initialValues.middleName || '',
     lastName: initialValues.lastName || '',
     fullName: initialValues.fullName || '',
-    gender: initialValues.gender || 'MALE',
+    gender: initialValues.gender || '',
     dateOfBirth: initialValues.dateOfBirth || '',
-    bloodGroup: initialValues.bloodGroup || 'O+',
-    nationality: initialValues.nationality || 'Indian',
-    religion: initialValues.religion || 'Hindu',
-    casteCategory: initialValues.casteCategory || 'General',
+    bloodGroup: initialValues.bloodGroup || '',
+    nationality: initialValues.nationality || '',
+    religion: initialValues.religion || '',
+    casteCategory: initialValues.casteCategory || '',
     aadhaarNumber: initialValues.aadhaarNumber || '',
     panNumber: initialValues.panNumber || '',
     identificationMarks: initialValues.identificationMarks || '',
     profilePhotoUrl: initialValues.profilePhotoUrl || '',
-    status: initialValues.status || 'ACTIVE',
+    status: initialValues.status || '',
 
     // Contact
     mobileNumber: initialValues.mobileNumber || '',
     alternateMobile: initialValues.alternateMobile || '',
     email: initialValues.email || '',
     address: initialValues.address || '',
-    city: initialValues.city || 'Hyderabad',
-    district: initialValues.district || 'Hyderabad',
-    state: initialValues.state || 'Telangana',
-    pinCode: initialValues.pinCode || '500001',
-    country: initialValues.country || 'India',
+    city: initialValues.city || '',
+    district: initialValues.district || '',
+    state: initialValues.state || '',
+    pinCode: initialValues.pinCode || '',
+    country: initialValues.country || '',
 
     // Parent
     fatherName: initialValues.fatherName || '',
@@ -51,18 +51,18 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
 
     // Academic
     universityId: initialValues.universityId || '',
-    department: initialValues.department || 'General',
-    branchGroup: initialValues.branchGroup || 'MPC',
-    intermediateYear: initialValues.intermediateYear || '1st Year',
-    semester: initialValues.semester || 1,
-    section: initialValues.section || 'A',
-    batch: initialValues.batch || '2026-2028',
-    academicYear: initialValues.academicYear || '2026-2027',
-    admissionDate: initialValues.admissionDate || new Date().toISOString().split('T')[0],
-    regulation: initialValues.regulation || 'R26',
-    admissionType: initialValues.admissionType || 'REGULAR',
-    hostelDayScholar: initialValues.hostelDayScholar || 'DAY_SCHOLAR',
-    medium: initialValues.medium || 'English',
+    department: initialValues.department || '',
+    branchGroup: initialValues.branchGroup || '',
+    intermediateYear: initialValues.intermediateYear || '',
+    semester: initialValues.semester || '',
+    section: initialValues.section || '',
+    batch: initialValues.batch || '',
+    academicYear: initialValues.academicYear || '',
+    admissionDate: initialValues.admissionDate || '',
+    regulation: initialValues.regulation || '',
+    admissionType: initialValues.admissionType || '',
+    hostelDayScholar: initialValues.hostelDayScholar || '',
+    medium: initialValues.medium || '',
   });
 
   useEffect(() => {
@@ -238,6 +238,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               onChange={(e) => handleChange('gender', e.target.value)}
               className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
             >
+              <option value="" disabled>Select Gender</option>
               <option value="MALE">Male</option>
               <option value="FEMALE">Female</option>
               <option value="OTHER">Other</option>
@@ -266,6 +267,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               onChange={(e) => handleChange('bloodGroup', e.target.value)}
               className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
             >
+              <option value="" disabled>Select Blood Group</option>
               {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map((bg) => (
                 <option key={bg} value={bg}>{bg}</option>
               ))}
@@ -424,6 +426,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               required
               value={formData.city}
               onChange={(e) => handleChange('city', e.target.value)}
+              placeholder="Enter City"
               className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
             />
           </div>
@@ -437,6 +440,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               required
               value={formData.district}
               onChange={(e) => handleChange('district', e.target.value)}
+              placeholder="Enter District"
               className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
             />
           </div>
@@ -450,6 +454,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               required
               value={formData.state}
               onChange={(e) => handleChange('state', e.target.value)}
+              placeholder="Enter State"
               className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
             />
           </div>
@@ -463,6 +468,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               required
               value={formData.pinCode}
               onChange={(e) => handleChange('pinCode', e.target.value)}
+              placeholder="Enter PIN Code"
               className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
             />
           </div>
@@ -476,6 +482,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               required
               value={formData.country}
               onChange={(e) => handleChange('country', e.target.value)}
+              placeholder="Enter Country"
               className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
             />
           </div>
@@ -587,6 +594,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               onChange={(e) => handleChange('branchGroup', e.target.value)}
               className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20 font-bold text-blue-600"
             >
+              <option value="" disabled>Select Group</option>
               {availableGroups.map(grp => (
                 <option key={grp} value={grp}>{grp}</option>
               ))}
@@ -602,6 +610,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               onChange={(e) => handleChange('intermediateYear', e.target.value)}
               className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20 font-semibold"
             >
+              <option value="" disabled>Select Year</option>
               {availableYears.map(yr => (
                 <option key={yr} value={yr}>{yr}</option>
               ))}
@@ -617,6 +626,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               onChange={(e) => handleChange('section', e.target.value)}
               className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20 font-bold text-slate-800 dark:text-slate-200"
             >
+              <option value="" disabled>Select Section</option>
               {availableSections.map(sec => (
                 <option key={sec} value={sec}>Section {sec}</option>
               ))}
@@ -673,6 +683,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               onChange={(e) => handleChange('hostelDayScholar', e.target.value)}
               className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
             >
+              <option value="" disabled>Select Hostel Type</option>
               <option value="DAY_SCHOLAR">Day Scholar</option>
               <option value="HOSTELLER">Hosteller</option>
             </select>
@@ -700,6 +711,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               onChange={(e) => handleChange('status', e.target.value)}
               className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
             >
+              <option value="" disabled>Select Status</option>
               <option value="ACTIVE">ACTIVE</option>
               <option value="INACTIVE">INACTIVE</option>
               <option value="COMPLETED">COMPLETED</option>
