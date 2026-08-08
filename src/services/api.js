@@ -64,6 +64,9 @@ api.get = function getWithCaching(url, config = {}) {
 // Request Interceptor: Attach Bearer Access Token
 api.interceptors.request.use(
   (config) => {
+    if (config.url && config.url.startsWith('/') && config.baseURL && config.baseURL.endsWith('/api')) {
+      config.url = config.url.replace(/^\//, '');
+    }
     const token = tokenUtils.getAccessToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
