@@ -4,7 +4,7 @@ import apiCache from '../utils/apiCache';
 import dataSync from '../utils/dataSync';
 import toast from '../utils/toastService';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD ? 'https://studnet-managament-system-backend.onrender.com/api' : 'http://localhost:8080/api');
 
 const pendingRequests = new Map();
 
