@@ -131,8 +131,8 @@ const Login = () => {
 
     try {
       const response = await login(formData.email, formData.password);
-      if (response && (response.requiresOtp || response.message)) {
-        showSuccess(response.message || 'OTP sent successfully.');
+      if (response) {
+        showSuccess(response.message || 'A 4-digit OTP has been sent to your email.');
         setStep(2);
         setOtp('');
         setCooldownSeconds(30);
@@ -226,7 +226,7 @@ const Login = () => {
       setLoading(true);
       setError('');
       const res = await googleLogin(response.credential);
-      if (res && (res.requiresOtp || res.message)) {
+      if (res) {
         if (res.email) {
           setFormData((prev) => ({ ...prev, email: res.email }));
         }
