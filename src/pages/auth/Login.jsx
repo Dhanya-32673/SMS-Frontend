@@ -64,7 +64,7 @@ const Login = () => {
   // Helper to extract dynamic cooldown seconds from backend rate-limit messages
   const parseCooldownSeconds = (msg) => {
     if (!msg) return 0;
-    const match = msg.match(/wait\s+(\d+)\s+seconds/i);
+    const match = msg.match(/(\d+)\s*(?:second|sec)/i) || msg.match(/wait\s+(\d+)/i);
     return match ? parseInt(match[1], 10) : 0;
   };
 
@@ -149,9 +149,10 @@ const Login = () => {
       showError(msg);
 
       const sec = parseCooldownSeconds(msg);
-      if (sec > 0) {
+      if (sec > 0 || (msg && (msg.toLowerCase().includes('otp') || msg.toLowerCase().includes('cooldown')))) {
         setStep(2);
-        setCooldownSeconds(sec);
+        if (sec > 0) setCooldownSeconds(sec);
+        setExpirySeconds(300);
       }
     } finally {
       setLoading(false);
