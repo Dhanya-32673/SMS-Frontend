@@ -132,6 +132,12 @@ const Login = () => {
     try {
       const response = await login(formData.email, formData.password);
       if (response) {
+        if (response.accessToken) {
+          showSuccess('Login successful! Redirecting...');
+          const targetRole = response.user?.role || 'ADMIN';
+          navigateByRole(targetRole);
+          return;
+        }
         showSuccess(response.message || 'A 4-digit OTP has been sent to your email.');
         setStep(2);
         setOtp('');
@@ -228,6 +234,12 @@ const Login = () => {
       setError('');
       const res = await googleLogin(response.credential);
       if (res) {
+        if (res.accessToken) {
+          showSuccess('Google Login successful! Redirecting...');
+          const targetRole = res.user?.role || 'ADMIN';
+          navigateByRole(targetRole);
+          return;
+        }
         if (res.email) {
           setFormData((prev) => ({ ...prev, email: res.email }));
         }
