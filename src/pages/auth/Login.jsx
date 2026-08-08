@@ -118,6 +118,20 @@ const Login = () => {
     if (error) setError('');
   };
 
+  const navigateByRole = (roleObj) => {
+    let rawRole = '';
+    if (typeof roleObj === 'string') rawRole = roleObj;
+    else if (roleObj?.roleName) rawRole = roleObj.roleName;
+    else if (roleObj?.name) rawRole = roleObj.name;
+
+    const role = (rawRole || '').replace('ROLE_', '').toUpperCase();
+    if (role === 'FACULTY') {
+      navigate('/faculty/dashboard', { replace: true });
+    } else {
+      navigate('/admin/dashboard', { replace: true });
+    }
+  };
+
   // Step 1: Submit email & password -> Backend sends 4-digit OTP
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -132,12 +146,6 @@ const Login = () => {
     try {
       const response = await login(formData.email, formData.password);
       if (response) {
-        if (response.accessToken) {
-          showSuccess('Login successful! Redirecting...');
-          const targetRole = response.user?.role || 'ADMIN';
-          navigateByRole(targetRole);
-          return;
-        }
         showSuccess(response.message || 'A 4-digit OTP has been sent to your email.');
         setStep(2);
         setOtp('');
@@ -182,17 +190,7 @@ const Login = () => {
       setCooldownSeconds(0);
       setExpirySeconds(0);
       
-      let rawRole = '';
-      if (typeof response?.user?.role === 'string') rawRole = response.user.role;
-      else if (response?.user?.role?.roleName) rawRole = response.user.role.roleName;
-      else if (response?.user?.role?.name) rawRole = response.user.role.name;
-
-      const role = rawRole.replace('ROLE_', '').toUpperCase();
-      if (role === 'FACULTY') {
-        navigate('/faculty/dashboard', { replace: true });
-      } else {
-        navigate('/admin/dashboard', { replace: true });
-      }
+      navigateByRole(response?.user?.role);
     } catch (err) {
       const msg = err.response?.data?.message || err.message || 'Invalid or expired OTP code.';
       setError(msg);
@@ -234,12 +232,6 @@ const Login = () => {
       setError('');
       const res = await googleLogin(response.credential);
       if (res) {
-        if (res.accessToken) {
-          showSuccess('Google Login successful! Redirecting...');
-          const targetRole = res.user?.role || 'ADMIN';
-          navigateByRole(targetRole);
-          return;
-        }
         if (res.email) {
           setFormData((prev) => ({ ...prev, email: res.email }));
         }

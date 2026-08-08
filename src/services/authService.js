@@ -4,17 +4,11 @@ import { tokenUtils } from '../utils/tokenUtils';
 export const authService = {
   login: async (email, password) => {
     const response = await api.post('/auth/login', { email, password });
-    if (response.data && response.data.accessToken) {
-      tokenUtils.saveAuth(response.data);
-    }
     return response.data;
   },
 
   googleLogin: async (idToken) => {
     const response = await api.post('/auth/google', { idToken });
-    if (response.data && response.data.accessToken) {
-      tokenUtils.saveAuth(response.data);
-    }
     return response.data;
   },
 
