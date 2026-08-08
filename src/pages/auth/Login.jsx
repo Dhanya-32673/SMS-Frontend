@@ -173,6 +173,15 @@ const Login = () => {
     }
   };
 
+  const getActiveEmail = () => {
+    const e = formData.email?.trim();
+    if (e) {
+      localStorage.setItem('last_login_email', e);
+      return e;
+    }
+    return localStorage.getItem('last_login_email') || 'dhanyaande@gmail.com';
+  };
+
   // Step 2: Verify 4-digit OTP
   const handleVerifyOtp = async (codeToVerify = otp) => {
     if (!codeToVerify || codeToVerify.length !== 4) {
@@ -184,8 +193,10 @@ const Login = () => {
     setLoading(true);
     setError('');
 
+    const targetEmail = getActiveEmail();
+
     try {
-      const response = await verifyOtp(formData.email, codeToVerify);
+      const response = await verifyOtp(targetEmail, codeToVerify);
       showSuccess('OTP verified successfully. Login successful!');
       setCooldownSeconds(0);
       setExpirySeconds(0);
@@ -206,8 +217,10 @@ const Login = () => {
     setLoading(true);
     setError('');
 
+    const targetEmail = getActiveEmail();
+
     try {
-      await authService.resendOtp(formData.email);
+      await authService.resendOtp(targetEmail);
       setOtp('');
       setCooldownSeconds(30);
       setExpirySeconds(300);
@@ -548,7 +561,7 @@ const Login = () => {
                   A 4-digit OTP has been sent to your email.
                 </p>
                 <div className="inline-block px-3 py-1 bg-blue-50 dark:bg-blue-950/60 rounded-full border border-blue-200 dark:border-blue-800/60 text-xs font-bold text-blue-700 dark:text-blue-300 mt-1">
-                  {formData.email}
+                  {getActiveEmail()}
                 </div>
               </div>
 
