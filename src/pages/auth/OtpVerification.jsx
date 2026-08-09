@@ -69,8 +69,8 @@ const OtpVerification = () => {
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
-    if (otp.length !== 6) {
-      setError('Please enter all 6 digits of the OTP code');
+    if (otp.length !== 4) {
+      setError('Please enter all 4 digits of the OTP code');
       return;
     }
 
@@ -128,8 +128,8 @@ const OtpVerification = () => {
           </h2>
           <p className="text-slate-500 text-xs mt-1">
             {step === 1 
-              ? 'Enter your registered email address to receive a 6-digit verification code.'
-              : `Enter the 6-digit code sent to ${email}`}
+              ? 'Enter your registered email address to receive a 4-digit verification code.'
+              : `Enter the 4-digit code sent to ${email}`}
           </p>
         </div>
 
@@ -182,7 +182,7 @@ const OtpVerification = () => {
           /* STEP 2: Enter & Verify OTP */
           <form onSubmit={handleVerifyOtp} className="space-y-6">
             <div>
-              <OtpInput value={otp} onChange={setOtp} length={6} disabled={loading} />
+              <OtpInput value={otp} onChange={setOtp} length={4} disabled={loading} />
               
               <div className="flex justify-between items-center text-xs mt-3 text-slate-500 font-medium">
                 <span>OTP expires in <strong className="text-slate-800">{formatTimer(expirySeconds)}</strong></span>
@@ -192,7 +192,7 @@ const OtpVerification = () => {
 
             <button
               type="submit"
-              disabled={loading || otp.length !== 6 || expirySeconds === 0}
+              disabled={loading || otp.length !== 4 || expirySeconds === 0}
               className="w-full py-3.5 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-lg shadow-blue-500/30 focus:ring-4 focus:ring-blue-500/20 focus:outline-none transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {loading ? 'Verifying OTP...' : 'Verify OTP'}
