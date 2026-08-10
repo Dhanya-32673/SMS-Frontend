@@ -171,18 +171,17 @@ api.interceptors.response.use(
     const url = originalRequest?.url || '';
     // The refresh retry is an internal transport concern; never notify for it.
     if (!url.includes('/auth/refresh')) {
-      const message = !error.response
-        ? 'Failed to connect to the server. Please try again.'
-        : error.response.status === 401 && (url.includes('/auth/login') || url.includes('/auth/google') || url.includes('/auth/otp/verify'))
-          ? getOperationMessage(url, method, true)
-          : error.response.status === 401
-          ? 'Session expired. Please login again.'
-          : error.response.status === 403
-            ? 'Unauthorized access.'
-            : ['post', 'put', 'patch', 'delete'].includes(method)
-              ? getOperationMessage(url, method, true)
-              : 'Something went wrong. Please try again.';
-      toast.error(message, { operation: `error:${method}:${url}` });
+      if (error.response?.status === 401) {
+        if (url.includes('/auth/login') || url.includes('/auth/google') || url.includes('/auth/otp/verify')) {
+          toast.error(getOperationMessage(url, method, true), { operation: `error:${method}:${url}` });
+        } else {
+          toast.error('Session expired. Please login again.', { operation: `error:${method}:${url}` });
+        }
+      } else if (error.response?.status === 403) {
+        toast.error('Unauthorized access.', { operation: `error:${method}:${url}` });
+      } else if (['post', 'put', 'patch', 'delete'].includes(method)) {
+        toast.error(getOperationMessage(url, method, true), { operation: `error:${method}:${url}` });
+      }
     }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
