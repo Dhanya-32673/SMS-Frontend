@@ -166,26 +166,15 @@ api.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
-
     const method = originalRequest?.method?.toLowerCase();
     const url = originalRequest?.url || '';
-    // The refresh retry is an internal transport concern; never notify for it.
-    if (!url.includes('/auth/refresh')) {
-      if (error.response?.status === 401) {
-        if (url.includes('/auth/login') || url.includes('/auth/google') || url.includes('/auth/otp/verify')) {
-          toast.error(getOperationMessage(url, method, true), { operation: `error:${method}:${url}` });
-        } else {
-          toast.error('Session expired. Please login again.', { operation: `error:${method}:${url}` });
-        }
-      } else if (error.response?.status === 403) {
-        toast.error('Unauthorized access.', { operation: `error:${method}:${url}` });
-      } else if (['post', 'put', 'patch', 'delete'].includes(method)) {
-        toast.error(getOperationMessage(url, method, true), { operation: `error:${method}:${url}` });
-      }
-    }
 
+    // Handle 401 Unauthorized with Refresh Token rotation
     if (error.response?.status === 401 && !originalRequest._retry) {
-      if (originalRequest.url.includes('/auth/login') || originalRequest.url.includes('/auth/refresh')) {
+      if (url.includes('/auth/login') || url.includes('/auth/google') || url.includes('/auth/verify-otp') || url.includes('/auth/refresh')) {
+        if (!url.includes('/auth/refresh')) {
+          toast.error(getOperationMessage(url, method, true), { operation: `error:${method}:${url}` });
+        }
         return Promise.reject(error);
       }
 
@@ -207,7 +196,7 @@ api.interceptors.response.use(
 
       if (!refreshToken) {
         tokenUtils.clearAuth();
-        window.location.href = '/login';
+        toast.error('Session expired. Please login again.', { operation: `error:${method}:${url}` });
         return Promise.reject(error);
       }
 
@@ -225,10 +214,19 @@ api.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null);
         tokenUtils.clearAuth();
-        window.location.href = '/login';
+        toast.error('Session expired. Please login again.', { operation: `error:${method}:${url}` });
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
+      }
+    }
+
+    // Other non-401 errors
+    if (!url.includes('/auth/refresh')) {
+      if (error.response?.status === 403) {
+        toast.error('Unauthorized access.', { operation: `error:${method}:${url}` });
+      } else if (['post', 'put', 'patch', 'delete'].includes(method)) {
+        toast.error(getOperationMessage(url, method, true), { operation: `error:${method}:${url}` });
       }
     }
 
