@@ -21,8 +21,14 @@ const getRequestCacheTtl = (config = {}) => {
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 60000,
+  timeout: 15000, // Fast 15-second timeout to prevent button getting stuck
 });
+
+export const warmupServer = () => {
+  api.get('/health', { timeout: 8000, cache: false })
+    .then(() => console.log('>>> [WARMUP] Backend server is active.'))
+    .catch(() => console.log('>>> [WARMUP] Backend warming up...'));
+};
 
 api.get = function getWithCaching(url, config = {}) {
   const requestKey = getRequestCacheKey('get', url, config);
@@ -61,9 +67,11 @@ api.get = function getWithCaching(url, config = {}) {
   return requestPromise;
 };
 
-// Request Interceptor: Attach Bearer Access Token
+// Request Interceptor: Attach Bearer Access Token & Timing Logs
 api.interceptors.request.use(
   (config) => {
+    config.metadata = { startTime: Date.now() };
+    console.log(`>>> [API START] ${config.method?.toUpperCase()} ${config.url}`);
     if (config.url && config.url.startsWith('/') && config.baseURL && config.baseURL.endsWith('/api')) {
       config.url = config.url.replace(/^\//, '');
     }
@@ -152,6 +160,8 @@ const getOperationMessage = (url = '', method = 'post', failed = false) => {
 
 api.interceptors.response.use(
   (response) => {
+    const duration = Date.now() - (response.config?.metadata?.startTime || Date.now());
+    console.log(`>>> [API END] ${response.config?.method?.toUpperCase()} ${response.config?.url} (${duration}ms)`);
     const method = response.config?.method?.toLowerCase();
     const url = response.config?.url || '';
     if (['post', 'put', 'patch', 'delete'].includes(method)) {
@@ -166,6 +176,8 @@ api.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
+    const duration = Date.now() - (originalRequest?.metadata?.startTime || Date.now());
+    console.warn(`>>> [API ERROR] ${originalRequest?.method?.toUpperCase()} ${originalRequest?.url} (${duration}ms):`, error.message);
     const method = originalRequest?.method?.toLowerCase();
     const url = originalRequest?.url || '';
 

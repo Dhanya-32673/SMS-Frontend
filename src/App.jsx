@@ -45,6 +45,8 @@ const RoleManagement = lazy(() => import('./pages/admin/security/RoleManagement'
 // Common User Profile Page (Lazy loaded)
 const UserProfile = lazy(() => import('./pages/common/UserProfile').then(m => ({ default: m.UserProfile })));
 
+import { warmupServer } from './services/api';
+
 const RouteFallback = () => (
   <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
     <div className="flex items-center space-x-3 text-blue-400 font-bold text-sm">
@@ -55,6 +57,11 @@ const RouteFallback = () => (
 );
 
 function App() {
+  React.useEffect(() => {
+    // Non-blocking ping to wake up Render free tier backend immediately when site is opened
+    warmupServer();
+  }, []);
+
   return (
     <BrowserRouter>
       <ToastProvider>

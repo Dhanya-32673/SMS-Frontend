@@ -135,6 +135,8 @@ const Login = () => {
   // Step 1: Submit email & password -> Backend sends 4-digit OTP
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
+
     if (!validate()) {
       showWarning('Please fill all required fields.');
       return;
@@ -149,14 +151,18 @@ const Login = () => {
         showSuccess(response.message || 'A 4-digit OTP has been sent to your email.');
         setStep(2);
         setOtp('');
-        setCooldownSeconds(30);
+        setCooldownSeconds(10);
         setExpirySeconds(300);
       }
     } catch (err) {
       let msg = 'Invalid email or password. Please try again.';
-      if (err.response?.data?.message) {
+      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+        msg = 'Server is waking up (Render cold-start). Please wait 5 seconds and click "Send Login OTP" again.';
+      } else if (err.message === 'Network Error') {
+        msg = 'Server is spinning up, please wait a moment and try again.';
+      } else if (err.response?.data?.message) {
         msg = err.response.data.message;
-      } else if (err.message && err.message !== 'Network Error') {
+      } else if (err.message) {
         msg = err.message;
       }
       setError(msg);
@@ -184,6 +190,8 @@ const Login = () => {
 
   // Step 2: Verify 4-digit OTP
   const handleVerifyOtp = async (codeToVerify = otp) => {
+    if (loading) return;
+
     if (!codeToVerify || codeToVerify.length !== 4) {
       setError('Please enter all 4 digits of the OTP.');
       showWarning('Please enter all 4 digits of the OTP.');
@@ -203,7 +211,14 @@ const Login = () => {
       
       navigateByRole(response?.user?.role);
     } catch (err) {
-      const msg = err.response?.data?.message || err.message || 'Invalid or expired OTP code.';
+      let msg = 'Invalid or expired OTP code.';
+      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+        msg = 'Network timeout while verifying OTP. Please try again.';
+      } else if (err.response?.data?.message) {
+        msg = err.response.data.message;
+      } else if (err.message) {
+        msg = err.message;
+      }
       setError(msg);
       showError(msg);
     } finally {
