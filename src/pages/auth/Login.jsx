@@ -118,7 +118,7 @@ const Login = () => {
       let msg = 'Invalid username or password';
       if (err.response?.data?.message) {
         msg = err.response.data.message;
-      } else if (err.message && err.message !== 'Network Error') {
+      } else if (err.message) {
         msg = err.message;
       }
       setError(msg);

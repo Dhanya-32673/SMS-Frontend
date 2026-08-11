@@ -112,14 +112,25 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const initAuth = async () => {
       const token = tokenUtils.getAccessToken();
+      const cachedUser = tokenUtils.getUser();
+
       if (token) {
+        if (cachedUser) {
+          setUser(cachedUser);
+          resetInactivityTimer(false);
+        }
         try {
           const currentUser = await authService.getCurrentUser();
-          setUser(currentUser);
-          resetInactivityTimer(false);
+          if (currentUser) {
+            setUser(currentUser);
+            tokenUtils.setUser(currentUser);
+            resetInactivityTimer(false);
+          }
         } catch (error) {
-          tokenUtils.clearAuth();
-          setUser(null);
+          if (!cachedUser) {
+            tokenUtils.clearAuth();
+            setUser(null);
+          }
         }
       } else {
         setUser(null);
