@@ -36,9 +36,16 @@ export const tokenUtils = {
   },
 
   saveAuth: (authData) => {
-    if (authData?.accessToken) sessionStorage.setItem(ACCESS_TOKEN_KEY, authData.accessToken);
-    if (authData?.refreshToken) sessionStorage.setItem(REFRESH_TOKEN_KEY, authData.refreshToken);
-    if (authData?.user) sessionStorage.setItem(USER_KEY, JSON.stringify(authData.user));
+    const token = authData?.token || authData?.accessToken;
+    if (token) {
+      sessionStorage.setItem(ACCESS_TOKEN_KEY, token);
+    }
+    if (authData?.refreshToken) {
+      sessionStorage.setItem(REFRESH_TOKEN_KEY, authData.refreshToken);
+    }
+    if (authData?.user) {
+      sessionStorage.setItem(USER_KEY, JSON.stringify(authData.user));
+    }
   },
 
   clearAuth: () => {

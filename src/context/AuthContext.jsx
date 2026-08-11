@@ -160,8 +160,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     setIsInactiveLoggedOut(false);
-    const data = await authService.login(email, password);
-    return data;
+    return await authService.login(email, password);
   };
 
   const googleLogin = async (idToken) => {
@@ -172,14 +171,15 @@ export const AuthProvider = ({ children }) => {
 
   const verifyOtp = async (email, otp) => {
     setIsInactiveLoggedOut(false);
-    const data = await authService.verifyOtp(email, otp, 'LOGIN');
-    setUser(data.user);
+    const data = await authService.verifyOtp(email, otp);
+    if (data.user) {
+      setUser(data.user);
+    } else {
+      const currentUser = await authService.getCurrentUser();
+      setUser(currentUser);
+    }
     resetInactivityTimer(true);
     return data;
-  };
-
-  const otpLogin = async (email, otp) => {
-    return verifyOtp(email, otp);
   };
 
   const logout = async () => {
@@ -209,7 +209,6 @@ export const AuthProvider = ({ children }) => {
     clearInactivityNotice: () => setIsInactiveLoggedOut(false),
     login,
     googleLogin,
-    otpLogin,
     verifyOtp,
     logout,
     resetInactivityTimer: () => resetInactivityTimer(true),
