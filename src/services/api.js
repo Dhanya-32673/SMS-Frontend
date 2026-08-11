@@ -4,7 +4,12 @@ import apiCache from '../utils/apiCache';
 import dataSync from '../utils/dataSync';
 import toast from '../utils/toastService';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD ? 'https://studnet-managament-system-backend.onrender.com/api' : 'http://localhost:8080/api');
+const rawEnvUrl = import.meta.env.VITE_API_BASE_URL;
+const isProduction = import.meta.env.PROD || (typeof window !== 'undefined' && !window.location.hostname.includes('localhost'));
+
+const API_BASE_URL = isProduction
+  ? (rawEnvUrl && !rawEnvUrl.includes('localhost') ? rawEnvUrl : 'https://studnet-managament-system-backend.onrender.com/api')
+  : (rawEnvUrl || 'http://localhost:8080/api');
 
 const pendingRequests = new Map();
 
