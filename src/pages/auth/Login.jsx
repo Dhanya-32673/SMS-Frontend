@@ -106,7 +106,7 @@ const Login = () => {
 
     try {
       const response = await login(email, password);
-      if (response && (response.otpRequired || response.success)) {
+      if (response && (response.requiresOtp || response.otpRequired || response.success)) {
         setStep('OTP');
         setExpirySeconds(300);
         setCooldownSeconds(30);
@@ -130,8 +130,8 @@ const Login = () => {
   // STEP 2: Verify OTP -> Calls POST /api/auth/verify-otp
   const handleOtpSubmit = async (e) => {
     e.preventDefault();
-    if (otp.length !== 6) {
-      setError('Please enter the complete 6-digit OTP code');
+    if (otp.length < 4) {
+      setError('Please enter the complete OTP code');
       return;
     }
 
@@ -190,7 +190,7 @@ const Login = () => {
 
       const resData = await googleLogin(response.credential);
 
-      if (resData && (resData.otpRequired || resData.success)) {
+      if (resData && (resData.requiresOtp || resData.otpRequired || resData.success)) {
         if (googleEmail) setEmail(googleEmail);
         setStep('OTP');
         setExpirySeconds(300);
@@ -297,7 +297,7 @@ const Login = () => {
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
               {step === 'LOGIN'
                 ? 'Enter your credentials to access Admin or Faculty workspace.'
-                : `Enter the 6-digit OTP sent to your email (${email}).`}
+                : `Enter the OTP sent to your email (${email}).`}
             </p>
           </div>
 
@@ -453,14 +453,14 @@ const Login = () => {
                 />
                 
                 <p className="text-[11px] text-slate-500 text-center font-medium">
-                  Enter the 6-digit OTP sent to your email.
+                  Enter the 4-digit OTP sent to your email.
                 </p>
               </div>
 
               {/* Verify OTP Button */}
               <button
                 type="submit"
-                disabled={loading || otp.length !== 6 || expirySeconds === 0}
+                disabled={loading || otp.length < 4 || expirySeconds === 0}
                 className="w-full py-3 px-6 bg-gradient-to-r from-emerald-600 via-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-600 text-white font-extrabold rounded-xl shadow-md shadow-emerald-500/30 hover:shadow-lg transition-all duration-200 disabled:opacity-50 cursor-pointer flex items-center justify-center space-x-2 text-sm"
               >
                 {loading ? (

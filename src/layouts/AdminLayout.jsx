@@ -324,8 +324,13 @@ export const AdminLayout = ({ children }) => {
         <div className="p-4 border-t border-blue-100 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 flex items-center justify-between">
           <div className="flex items-center space-x-3 overflow-hidden">
             <img
-              src={user?.profilePhotoUrl || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100'}
+              src={user?.profilePhotoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullName || 'Admin')}&background=2563eb&color=fff`}
               alt={user?.fullName || 'User'}
+              referrerPolicy="no-referrer"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullName || 'Admin')}&background=2563eb&color=fff`;
+              }}
               className="w-9 h-9 rounded-xl object-cover border-2 border-blue-600 shadow-xs shrink-0"
             />
             <div className="truncate">
@@ -446,8 +451,13 @@ export const AdminLayout = ({ children }) => {
                 aria-label="User menu"
               >
                 <img
-                  src={user?.profilePhotoUrl || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100'}
+                  src={user?.profilePhotoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullName || 'Admin')}&background=2563eb&color=fff`}
                   alt={user?.fullName || 'User Profile'}
+                  referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullName || 'Admin')}&background=2563eb&color=fff`;
+                  }}
                   className="w-8 h-8 rounded-xl object-cover border-2 border-blue-600 shadow-xs"
                 />
                 <div className="hidden md:block text-left">
