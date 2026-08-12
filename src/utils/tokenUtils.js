@@ -34,26 +34,41 @@ export const tokenUtils = {
     if (user) {
       localStorage.setItem(USER_KEY, JSON.stringify(user));
       sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+      if (user.email) {
+        localStorage.setItem("userEmail", user.email);
+      }
     }
   },
 
   saveAuth: (authData) => {
     const token = authData?.token || authData?.accessToken;
+    const user = authData?.user;
+    const refreshToken = authData?.refreshToken;
+
     if (token) {
+      localStorage.setItem(ACCESS_TOKEN_KEY, token);
       sessionStorage.setItem(ACCESS_TOKEN_KEY, token);
     }
-    if (authData?.refreshToken) {
-      sessionStorage.setItem(REFRESH_TOKEN_KEY, authData.refreshToken);
+    if (refreshToken) {
+      localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+      sessionStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
     }
-    if (authData?.user) {
-      sessionStorage.setItem(USER_KEY, JSON.stringify(authData.user));
+    if (user) {
+      localStorage.setItem(USER_KEY, JSON.stringify(user));
+      sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+      if (user.email) {
+        localStorage.setItem("userEmail", user.email);
+      }
     }
+    localStorage.removeItem("pendingEmail");
   },
 
   clearAuth: () => {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("pendingEmail");
     sessionStorage.removeItem(ACCESS_TOKEN_KEY);
     sessionStorage.removeItem(REFRESH_TOKEN_KEY);
     sessionStorage.removeItem(USER_KEY);
