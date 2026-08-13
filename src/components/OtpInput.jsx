@@ -18,7 +18,6 @@ const OtpInput = ({ value = '', onChange, length = 6, disabled = false }) => {
     const combined = newOtp.join('').trim();
     onChange(combined);
 
-    // Auto-focus next box
     if (val && index < length - 1) {
       inputRefs.current[index + 1]?.focus();
     }
@@ -47,7 +46,7 @@ const OtpInput = ({ value = '', onChange, length = 6, disabled = false }) => {
   };
 
   return (
-    <div className="flex justify-center gap-2 sm:gap-3 my-4">
+    <div className="flex justify-center gap-2 sm:gap-3.5 my-4">
       {Array.from({ length }).map((_, index) => (
         <input
           key={index}
@@ -61,7 +60,7 @@ const OtpInput = ({ value = '', onChange, length = 6, disabled = false }) => {
           onKeyDown={(e) => handleKeyDown(e, index)}
           onPaste={handlePaste}
           disabled={disabled}
-          className="w-11 h-13 sm:w-13 sm:h-15 text-center text-2xl font-bold bg-white border-2 border-slate-300 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all shadow-sm text-slate-800 disabled:bg-slate-100"
+          className="w-[48px] h-[48px] sm:w-[72px] sm:h-[72px] text-center text-2xl sm:text-3xl font-black bg-white border-2 border-[#dbeafe] rounded-[20px] focus:border-[#2563eb] focus:shadow-[0_0_0_5px_rgba(37,99,235,0.2)] focus:scale-[1.08] focus:-translate-y-[2px] focus:outline-none transition-all duration-200 text-slate-900 disabled:bg-slate-100"
         />
       ))}
     </div>

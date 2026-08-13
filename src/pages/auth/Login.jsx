@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { authService } from "../../services/authService";
 import OtpVerificationCard from "../../components/OtpVerificationCard";
+import { motion } from "framer-motion";
 import { 
   GraduationCap, 
   Mail, 
@@ -79,7 +80,6 @@ const Login = () => {
 
     try {
       if (roleTab === "ADMIN") {
-        // Admin Login: Credential validation -> OTP dispatch
         const response = await authService.adminLogin(email, password);
         const targetEmail = response.email || email;
         localStorage.setItem("pendingEmail", targetEmail);
@@ -87,7 +87,6 @@ const Login = () => {
         setStep("OTP");
         setSuccessMsg(response?.message || "OTP sent successfully to " + targetEmail);
       } else {
-        // Faculty Login: Direct JWT Login without OTP
         await authService.facultyLogin(email, password);
         setSuccessMsg("Faculty login successful. Redirecting to dashboard...");
         setTimeout(() => {
@@ -121,6 +120,7 @@ const Login = () => {
       <OtpVerificationCard
         email={targetEmail}
         length={4}
+        title="Admin Verification"
         onVerify={async (code) => {
           await authService.verifyAdminOtp(targetEmail, code);
           localStorage.removeItem("pendingEmail");
@@ -136,176 +136,198 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Background Decorative Elements */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-[#f8fbff] via-[#eef4ff] to-[#e8f1ff] p-4 sm:p-6 relative font-sans overflow-hidden">
+      {/* Dashboard Style Floating Blur Blobs */}
+      <div className="absolute top-10 left-1/4 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl pointer-events-none animate-pulse" />
+      <div className="absolute bottom-10 right-1/4 w-96 h-96 bg-indigo-400/20 rounded-full blur-3xl pointer-events-none animate-pulse" />
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-md z-10">
-        <div className="flex justify-center items-center gap-3 mb-2">
-          <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
-            <GraduationCap className="w-7 h-7 text-white" />
-          </div>
-          <span className="text-2xl font-bold text-white tracking-tight">SICMS Portal</span>
-        </div>
-        <h2 className="mt-4 text-center text-3xl font-extrabold text-white">
-          {roleTab === "ADMIN" ? "Sign in as Admin" : "Sign in as Faculty"}
-        </h2>
-        <p className="mt-2 text-center text-sm text-slate-400">
-          Student Information & Certificate Management System
-        </p>
-      </div>
-
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md z-10">
-        <div className="bg-slate-900/80 backdrop-blur-xl py-8 px-4 shadow-2xl shadow-black/50 border border-slate-800 sm:rounded-2xl sm:px-10">
+      <motion.div
+        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+        className="max-w-[560px] w-full bg-white rounded-[32px] border border-slate-200/80 shadow-[0_20px_60px_rgba(15,23,42,0.12)] p-8 sm:p-12 space-y-6 relative z-10"
+      >
+        {/* Top Header Section */}
+        <div className="text-center space-y-3">
           
-          {/* Notifications */}
-          {isInactiveLoggedOut && (
-            <div className="mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3 text-amber-400 text-sm">
-              <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-              <span>You were logged out due to inactivity for security reasons. Please log in again.</span>
-            </div>
-          )}
-
-          {error && (
-            <div className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-start gap-3 text-rose-400 text-sm">
-              <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-              <span>{error}</span>
-            </div>
-          )}
-
-          {successMsg && (
-            <div className="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-start gap-3 text-emerald-400 text-sm">
-              <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
-              <span>{successMsg}</span>
-            </div>
-          )}
-
-          {/* ROLE SELECTOR TABS */}
-          <div className="flex rounded-xl bg-slate-950 p-1 mb-6 border border-slate-800">
-            <button
-              type="button"
-              onClick={() => {
-                setRoleTab("ADMIN");
-                setError("");
-                setSuccessMsg("");
-              }}
-              className={"flex-1 py-2.5 rounded-lg text-xs font-extrabold transition-all flex items-center justify-center gap-2 cursor-pointer " + (
-                roleTab === "ADMIN"
-                  ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
-                  : "text-slate-400 hover:text-white"
-              )}
-            >
-              <ShieldCheck className="w-4 h-4" /> Admin (OTP Required)
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setRoleTab("FACULTY");
-                setError("");
-                setSuccessMsg("");
-              }}
-              className={"flex-1 py-2.5 rounded-lg text-xs font-extrabold transition-all flex items-center justify-center gap-2 cursor-pointer " + (
-                roleTab === "FACULTY"
-                  ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
-                  : "text-slate-400 hover:text-white"
-              )}
-            >
-              <UserCheck className="w-4 h-4" /> Faculty (Direct Login)
-            </button>
+          {/* Top Enterprise Security Pill */}
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-blue-50 text-blue-700 font-extrabold uppercase tracking-widest text-[11px] rounded-full border border-blue-200/60 shadow-xs">
+            <Lock className="w-3.5 h-3.5 text-blue-600" />
+            <span>ENTERPRISE SECURITY</span>
           </div>
 
-          {/* CREDENTIAL FORM */}
-          <form className="space-y-5" onSubmit={handleCredentialSubmit}>
-            <div>
-              <label className="block text-sm font-medium text-slate-300">
-                Email Address
-              </label>
-              <div className="mt-1.5 relative rounded-xl shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-slate-500" />
-                </div>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    if (fieldErrors.email) setFieldErrors({ ...fieldErrors, email: "" });
-                  }}
-                  placeholder="Enter your registered email"
-                  className={"block w-full pl-10 pr-3 py-2.5 bg-slate-950/60 border " + (
-                    fieldErrors.email ? "border-rose-500/80 focus:ring-rose-500" : "border-slate-800 focus:ring-blue-500 focus:border-blue-500"
-                  ) + " rounded-xl text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 transition-all"}
-                />
-              </div>
-              {fieldErrors.email && (
-                <p className="mt-1.5 text-xs text-rose-400">{fieldErrors.email}</p>
-              )}
-            </div>
+          {/* SICMS Dashboard Logo Box (80px x 80px, 20px radius, 360° rotation) */}
+          <div className="relative w-20 h-20 mx-auto flex items-center justify-center pt-1">
+            <motion.div
+              animate={{ rotate: 360, y: [-4, 4, -4] }}
+              transition={{
+                rotate: { repeat: Infinity, duration: 4, ease: "linear" },
+                y: { repeat: Infinity, duration: 3, ease: "easeInOut" },
+              }}
+              className="w-[80px] h-[80px] rounded-[20px] bg-gradient-to-tr from-[#2563eb] to-[#3b82f6] shadow-lg shadow-blue-500/30 flex items-center justify-center"
+              style={{ willChange: "transform" }}
+            >
+              <GraduationCap className="w-10 h-10 text-white" />
+            </motion.div>
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-300">
-                Password
-              </label>
-              <div className="mt-1.5 relative rounded-xl shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-slate-500" />
-                </div>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    if (fieldErrors.password) setFieldErrors({ ...fieldErrors, password: "" });
-                  }}
-                  placeholder="••••••••"
-                  className={"block w-full pl-10 pr-10 py-2.5 bg-slate-950/60 border " + (
-                    fieldErrors.password ? "border-rose-500/80 focus:ring-rose-500" : "border-slate-800 focus:ring-blue-500 focus:border-blue-500"
-                  ) + " rounded-xl text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 transition-all"}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300 transition-colors"
-                >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                </button>
-              </div>
-              {fieldErrors.password && (
-                <p className="mt-1.5 text-xs text-rose-400">{fieldErrors.password}</p>
-              )}
-            </div>
+          {/* 42px Dashboard Typography */}
+          <h1 className="text-3xl sm:text-[42px] leading-tight font-black text-slate-900 tracking-tight">
+            {roleTab === "ADMIN" ? "Admin Portal" : "Faculty Portal"}
+          </h1>
+          <p className="text-sm sm:text-base text-slate-500 text-center leading-relaxed">
+            Student Information & Certificate Management System
+          </p>
+        </div>
 
-            <div className="flex items-center justify-between">
-              <div className="text-sm">
-                <Link
-                  to="/reset-password?mode=faculty"
-                  className="font-medium text-blue-400 hover:text-blue-300 transition-colors"
-                >
-                  Forgot password?
-                </Link>
-              </div>
-            </div>
+        {/* Notifications */}
+        {isInactiveLoggedOut && (
+          <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex items-start gap-3 text-amber-700 text-xs font-semibold">
+            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-amber-500" />
+            <span>You were logged out due to inactivity for security reasons. Please log in again.</span>
+          </div>
+        )}
 
-            <div>
+        {error && (
+          <div className="p-4 rounded-2xl bg-red-50 border border-red-200 flex items-start gap-3 text-red-700 text-xs font-semibold">
+            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-red-500" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {successMsg && (
+          <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-start gap-3 text-emerald-700 text-xs font-semibold">
+            <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5 text-emerald-500" />
+            <span>{successMsg}</span>
+          </div>
+        )}
+
+        {/* Dashboard Role Selector Toggle Container */}
+        <div className="flex bg-slate-100 p-1.5 rounded-[18px] border border-slate-200/80 text-xs font-extrabold">
+          <button
+            type="button"
+            onClick={() => {
+              setRoleTab("ADMIN");
+              setError("");
+              setSuccessMsg("");
+            }}
+            className={"flex-1 py-3 rounded-[14px] transition-all flex items-center justify-center gap-2 cursor-pointer " + (
+              roleTab === "ADMIN"
+                ? "bg-white text-blue-600 shadow-md shadow-blue-500/10 font-bold"
+                : "text-slate-500 hover:text-slate-900"
+            )}
+          >
+            <ShieldCheck className="w-4 h-4" /> Admin (OTP Required)
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setRoleTab("FACULTY");
+              setError("");
+              setSuccessMsg("");
+            }}
+            className={"flex-1 py-3 rounded-[14px] transition-all flex items-center justify-center gap-2 cursor-pointer " + (
+              roleTab === "FACULTY"
+                ? "bg-white text-blue-600 shadow-md shadow-blue-500/10 font-bold"
+                : "text-slate-500 hover:text-slate-900"
+            )}
+          >
+            <UserCheck className="w-4 h-4" /> Faculty (Direct Login)
+          </button>
+        </div>
+
+        {/* Credentials Form (64px Inputs, 18px Radius) */}
+        <form className="space-y-5" onSubmit={handleCredentialSubmit}>
+          <div>
+            <label className="block text-xs font-extrabold uppercase tracking-widest text-slate-500 mb-2">
+              Email Address
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none text-slate-400">
+                <Mail className="h-5 w-5" />
+              </div>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (fieldErrors.email) setFieldErrors({ ...fieldErrors, email: "" });
+                }}
+                placeholder="Enter your registered email"
+                className={"block w-full pl-12 pr-4 h-[64px] bg-white border-2 " + (
+                  fieldErrors.email ? "border-red-500 focus:ring-red-500" : "border-slate-200 focus:border-blue-600 focus:shadow-[0_0_0_5px_rgba(37,99,235,0.15)]"
+                ) + " rounded-[18px] text-slate-900 font-semibold text-sm placeholder-slate-400 focus:outline-none transition-all duration-200"}
+              />
+            </div>
+            {fieldErrors.email && (
+              <p className="mt-1.5 text-xs text-red-500 font-semibold">{fieldErrors.email}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-xs font-extrabold uppercase tracking-widest text-slate-500 mb-2">
+              Password
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none text-slate-400">
+                <Lock className="h-5 w-5" />
+              </div>
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (fieldErrors.password) setFieldErrors({ ...fieldErrors, password: "" });
+                }}
+                placeholder="••••••••"
+                className={"block w-full pl-12 pr-12 h-[64px] bg-white border-2 " + (
+                  fieldErrors.password ? "border-red-500 focus:ring-red-500" : "border-slate-200 focus:border-blue-600 focus:shadow-[0_0_0_5px_rgba(37,99,235,0.15)]"
+                ) + " rounded-[18px] text-slate-900 font-semibold text-sm placeholder-slate-400 focus:outline-none transition-all duration-200"}
+              />
               <button
-                type="submit"
-                disabled={loading}
-                className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-lg shadow-blue-600/30 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
               >
-                {loading ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <>
-                    {roleTab === "ADMIN" ? "Send Login OTP" : "Sign in as Faculty"} <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
             </div>
-          </form>
+            {fieldErrors.password && (
+              <p className="mt-1.5 text-xs text-red-500 font-semibold">{fieldErrors.password}</p>
+            )}
+          </div>
 
-        </div>
-      </div>
+          <div className="flex items-center justify-end">
+            <Link
+              to="/reset-password?mode=faculty"
+              className="text-xs font-bold text-blue-600 hover:underline transition-colors"
+            >
+              Forgot password?
+            </Link>
+          </div>
+
+          {/* Dashboard CTA Button (64px Height, 18px Radius, Hover Lift & Shine) */}
+          <motion.button
+            type="submit"
+            disabled={loading}
+            whileHover={{ scale: loading ? 1 : 1.02, y: loading ? 0 : -3 }}
+            whileTap={{ scale: loading ? 1 : 0.98 }}
+            className="relative w-full h-[64px] rounded-[18px] text-white font-bold text-base sm:text-lg bg-gradient-to-r from-[#2563eb] to-[#3b82f6] hover:from-blue-700 hover:to-blue-600 shadow-[0_15px_40px_rgba(37,99,235,0.35)] overflow-hidden transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+            {/* Moving Light Shine Hover Effect */}
+            <div className="absolute inset-0 -translate-x-full hover:translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 ease-in-out pointer-events-none" />
+
+            {loading ? (
+              <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <>
+                <span>{roleTab === "ADMIN" ? "Send Login OTP" : "Sign in as Faculty"}</span>
+                <ArrowRight className="w-5 h-5" />
+              </>
+            )}
+          </motion.button>
+        </form>
+      </motion.div>
     </div>
   );
 };
