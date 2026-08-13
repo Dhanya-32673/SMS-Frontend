@@ -29,7 +29,7 @@ export const authService = {
     return response.data;
   },
 
-  // Step 2: Verify 6-digit OTP code & receive JWT tokens
+  // Step 2: Verify OTP code & receive JWT tokens
   verifyOtp: async (email, otp) => {
     const response = await api.post('/auth/verify-otp', { email, otp });
     if (response.data && (response.data.accessToken || response.data.token)) {
@@ -58,18 +58,44 @@ export const authService = {
   },
 
   forgotPassword: async (email) => {
-    const response = await api.post('/auth/forgot-password', { email });
-    return response.data;
+    console.log('[authService] Calling forgot-password endpoint for:', email);
+    try {
+      const response = await api.post('/auth/forgot-password', { email });
+      console.log('[authService] forgot-password response:', response.data);
+      return response.data;
+    } catch (err) {
+      console.error('[authService] forgot-password error:', err?.response?.data || err.message);
+      throw err;
+    }
+  },
+
+  verifyResetOtp: async (email, otp) => {
+    console.log('[authService] Calling verify-reset-otp for:', email);
+    try {
+      const response = await api.post('/auth/verify-reset-otp', { email, otp });
+      console.log('[authService] verify-reset-otp response:', response.data);
+      return response.data;
+    } catch (err) {
+      console.error('[authService] verify-reset-otp error:', err?.response?.data || err.message);
+      throw err;
+    }
   },
 
   resetPassword: async (email, otp, newPassword, confirmPassword) => {
-    const response = await api.post('/auth/reset-password', {
-      email,
-      otp,
-      newPassword,
-      confirmPassword,
-    });
-    return response.data;
+    console.log('[authService] Calling reset-password for:', email);
+    try {
+      const response = await api.post('/auth/reset-password', {
+        email,
+        otp,
+        newPassword,
+        confirmPassword,
+      });
+      console.log('[authService] reset-password response:', response.data);
+      return response.data;
+    } catch (err) {
+      console.error('[authService] reset-password error:', err?.response?.data || err.message);
+      throw err;
+    }
   },
 
   logout: async () => {

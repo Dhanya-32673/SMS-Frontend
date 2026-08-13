@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { authService } from '../../services/authService';
 import OtpInput from '../../components/OtpInput';
@@ -20,12 +20,15 @@ const ResetPassword = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !otp || !newPassword || !confirmPassword) {
+    const cleanEmail = email.trim();
+    const cleanOtp = otp.trim();
+
+    if (!cleanEmail || !cleanOtp || !newPassword || !confirmPassword) {
       setError('Please fill in all required fields');
       return;
     }
 
-    if (otp.length !== 6) {
+    if (cleanOtp.length !== 6) {
       setError('OTP must be a 6-digit number');
       return;
     }
@@ -44,13 +47,16 @@ const ResetPassword = () => {
     setError('');
 
     try {
-      await authService.resetPassword(email, otp, newPassword, confirmPassword);
+      console.log('[ResetPassword] Submitting reset password for:', cleanEmail);
+      await authService.resetPassword(cleanEmail, cleanOtp, newPassword, confirmPassword);
+      console.log('[ResetPassword] Password reset successful');
       setSuccess(true);
       setTimeout(() => {
         navigate('/login');
       }, 2500);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to reset password. Check your OTP and try again.');
+      console.error('[ResetPassword] Error resetting password:', err);
+      setError(err.response?.data?.message || 'Failed to reset password. Check your OTP code and try again.');
     } finally {
       setLoading(false);
     }

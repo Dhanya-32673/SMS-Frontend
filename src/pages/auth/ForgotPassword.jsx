@@ -11,7 +11,8 @@ const ForgotPassword = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+    const cleanEmail = email.trim();
+    if (!cleanEmail || !/\S+@\S+\.\S+/.test(cleanEmail)) {
       setError('Please enter a valid email address');
       return;
     }
@@ -20,10 +21,13 @@ const ForgotPassword = () => {
     setError('');
 
     try {
-      await authService.forgotPassword(email);
-      navigate(`/reset-password?email=${encodeURIComponent(email)}`);
+      console.log('[ForgotPassword] Requesting reset OTP for:', cleanEmail);
+      const res = await authService.forgotPassword(cleanEmail);
+      console.log('[ForgotPassword] API response:', res);
+      navigate(`/reset-password?email=${encodeURIComponent(cleanEmail)}`);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to request password reset.');
+      console.error('[ForgotPassword] Error requesting reset OTP:', err);
+      setError(err.response?.data?.message || 'Failed to request password reset. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -44,7 +48,7 @@ const ForgotPassword = () => {
           </div>
           <h2 className="text-2xl font-extrabold text-slate-900">Forgot Password</h2>
           <p className="text-slate-500 text-xs mt-1">
-            Enter your registered email address and we will send you a verification code to reset your password.
+            Enter your registered email address and we will send you a 6-digit verification code to reset your password.
           </p>
         </div>
 
@@ -68,7 +72,7 @@ const ForgotPassword = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
+                placeholder="Enter your registered email"
                 required
                 className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-600 transition-all"
               />
