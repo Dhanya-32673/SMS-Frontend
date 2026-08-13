@@ -8,7 +8,7 @@ const rawEnvUrl = import.meta.env.VITE_API_BASE_URL;
 const isProduction = import.meta.env.PROD || (typeof window !== 'undefined' && !window.location.hostname.includes('localhost'));
 
 const API_BASE_URL = isProduction
-  ? (rawEnvUrl && !rawEnvUrl.includes('localhost') ? rawEnvUrl : 'https://sicms-backend.onrender.com/api')
+  ? (rawEnvUrl && !rawEnvUrl.includes('localhost') ? rawEnvUrl : 'https://studnetmanagament-systembackend.onrender.com/api')
   : (rawEnvUrl || 'http://localhost:8080/api');
 
 const pendingRequests = new Map();

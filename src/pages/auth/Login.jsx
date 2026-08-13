@@ -124,7 +124,11 @@ const Login = () => {
   // Real Google OAuth Redirect to Spring Security Authorization Endpoint
   const handleGoogleSignIn = () => {
     setError("");
-    const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
+    const isProduction = import.meta.env.PROD || (typeof window !== 'undefined' && !window.location.hostname.includes('localhost'));
+    const rawEnvUrl = import.meta.env.VITE_API_URL;
+    const API_BASE_URL = isProduction
+      ? (rawEnvUrl && !rawEnvUrl.includes('localhost') ? rawEnvUrl : 'https://studnetmanagament-systembackend.onrender.com')
+      : (rawEnvUrl || 'http://localhost:8080');
     window.location.href = `${API_BASE_URL}/oauth2/authorization/google`;
   };
 
