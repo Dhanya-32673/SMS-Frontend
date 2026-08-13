@@ -11,6 +11,7 @@ import ForgotPassword from './pages/auth/ForgotPassword';
 import ResetPassword from './pages/auth/ResetPassword';
 import OAuth2RedirectHandler from './pages/auth/OAuth2RedirectHandler';
 import OAuthSuccess from './pages/auth/OAuthSuccess';
+import AdminOtp from './pages/auth/AdminOtp';
 
 // Dashboards (Lazy loaded)
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
@@ -75,6 +76,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
           <Route path="/oauth-success" element={<OAuthSuccess />} />
+          <Route path="/admin-otp" element={<AdminOtp />} />
           <Route path="/otp-verification" element={<OtpVerification />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />

@@ -1,0 +1,38 @@
+import React from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import OtpVerificationCard from '../../components/OtpVerificationCard';
+import { authService } from '../../services/authService';
+
+const AdminOtp = () => {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const email = searchParams.get('email') || localStorage.getItem('pendingEmail') || 'admin@sicms.edu';
+
+  const handleVerify = async (code) => {
+    await authService.verifyAdminOtp(email, code);
+    localStorage.removeItem('pendingEmail');
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    window.location.href = '/admin/dashboard';
+  };
+
+  const handleResend = async () => {
+    await authService.resendOtp(email);
+  };
+
+  const handleBack = () => {
+    navigate('/login', { replace: true });
+  };
+
+  return (
+    <OtpVerificationCard
+      email={email}
+      length={4}
+      title="Admin Security Verification"
+      onVerify={handleVerify}
+      onResend={handleResend}
+      onBack={handleBack}
+    />
+  );
+};
+
+export default AdminOtp;
