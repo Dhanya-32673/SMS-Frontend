@@ -44,7 +44,12 @@ export const StudentCertificatesModal = ({ student, onClose, onUpdated, isAdmin 
       setDocuments(docsData || []);
       setDocumentTypes(typesData || []);
     } catch (err) {
-      setError('Failed to load student certificate details');
+      if (err.response?.status === 404) {
+        setDocuments([]);
+      } else {
+        const msg = err.response?.data?.message || 'Failed to load student certificate details';
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }

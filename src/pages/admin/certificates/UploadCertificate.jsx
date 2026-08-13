@@ -120,7 +120,7 @@ export const UploadCertificate = () => {
       if (err.response?.status === 409) {
         const dupData = err.response.data || {};
         setDuplicateModalData({
-          existingCertificateId: dupData.existingCertificateId,
+          existingCertificateId: dupData.documentId || dupData.existingCertificateId,
           certificateType: dupData.certificateType || 'Selected Certificate Type',
           studentId: dupData.studentId || studentId,
         });
