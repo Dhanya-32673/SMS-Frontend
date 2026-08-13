@@ -115,10 +115,11 @@ export const OtpVerificationCard = ({
     setLoading(true);
     setErrorMsg('');
     try {
-      await onVerify(code);
       setIsSuccess(true);
-      setSuccessMsg('Verification successful!');
+      setSuccessMsg('Verification successful! Access granted.');
+      await onVerify(code);
     } catch (err) {
+      setIsSuccess(false);
       setIsError(true);
       setErrorMsg(err.message || 'Invalid verification code. Please try again.');
     } finally {
@@ -150,7 +151,7 @@ export const OtpVerificationCard = ({
       setOtpValues(Array(length).fill(''));
       setIsError(false);
       setIsSuccess(false);
-      setSuccessMsg('A new 6-digit verification code has been sent.');
+      setSuccessMsg('A new verification code has been sent.');
       inputRefs.current[0]?.focus();
     } catch (err) {
       setErrorMsg(err.message || 'Failed to resend verification code.');
@@ -174,8 +175,8 @@ export const OtpVerificationCard = ({
       {isSuccess && (
         <motion.div
           initial={{ scale: 0, opacity: 1 }}
-          animate={{ scale: 2.5, opacity: 0 }}
-          transition={{ duration: 1, ease: 'easeOut' }}
+          animate={{ scale: 3, opacity: 0 }}
+          transition={{ duration: 2.5, ease: 'easeOut' }}
           className="absolute w-72 h-72 rounded-full border-4 border-emerald-500/80 pointer-events-none z-0"
         />
       )}
@@ -211,8 +212,8 @@ export const OtpVerificationCard = ({
                   ? { scale: [1, 1.4, 1], opacity: [0.6, 1, 0.4] }
                   : { scale: [1, 1.15, 1], opacity: [0.3, 0.8, 0.3] }
               }
-              transition={{ repeat: Infinity, duration: isSuccess ? 0.8 : 2, ease: 'easeInOut' }}
-              className={`absolute inset-0 rounded-3xl ${isSuccess ? 'bg-emerald-500/30' : 'bg-blue-600/30'} blur-xl`}
+              transition={{ repeat: Infinity, duration: isSuccess ? 1.0 : 2, ease: 'easeInOut' }}
+              className={`absolute inset-0 rounded-3xl ${isSuccess ? 'bg-emerald-500/40' : 'bg-blue-600/30'} blur-xl`}
             />
 
             {/* Rotating Shield Container */}
@@ -224,7 +225,7 @@ export const OtpVerificationCard = ({
               }
               transition={
                 isSuccess
-                  ? { duration: 1.2, ease: 'easeInOut' }
+                  ? { duration: 1.5, ease: 'easeInOut' }
                   : {
                       rotate: { repeat: Infinity, duration: 3, ease: 'linear' },
                       y: { repeat: Infinity, duration: 3, ease: 'easeInOut' },
@@ -232,7 +233,7 @@ export const OtpVerificationCard = ({
               }
               className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg transition-colors duration-500 ${
                 isSuccess
-                  ? 'bg-gradient-to-tr from-emerald-600 to-emerald-400 shadow-emerald-500/40'
+                  ? 'bg-gradient-to-tr from-emerald-600 to-emerald-400 shadow-emerald-500/50'
                   : 'bg-gradient-to-tr from-blue-700 via-blue-600 to-blue-500 shadow-blue-500/35'
               }`}
               style={{ willChange: 'transform' }}
@@ -291,14 +292,14 @@ export const OtpVerificationCard = ({
               isError
                 ? { x: [-8, 8, -6, 6, -4, 4, 0] }
                 : isSuccess
-                ? { rotateY: [0, 360], scale: [1, 1.05, 1] }
+                ? { rotateY: [0, 360], scale: [1, 1.08, 1] }
                 : {}
             }
             transition={
               isError
                 ? { duration: 0.6 }
                 : isSuccess
-                ? { duration: 0.7, ease: 'easeInOut' }
+                ? { duration: 1.2, ease: 'easeInOut' }
                 : {}
             }
             className="flex justify-center items-center gap-2 sm:gap-3"
@@ -317,7 +318,7 @@ export const OtpVerificationCard = ({
                     isError
                       ? { rotateX: [-15, 15, -10, 10, 0] }
                       : isSuccess
-                      ? { scale: [1, 1.08, 1], rotateY: 360 }
+                      ? { scale: [1, 1.12, 1], rotateY: 360 }
                       : isJustTyped
                       ? { rotateX: [0, 180, 360], scale: [0.9, 1.15, 1] }
                       : isFocused
@@ -328,7 +329,7 @@ export const OtpVerificationCard = ({
                     isError
                       ? { duration: 0.5 }
                       : isSuccess
-                      ? { duration: 0.6, delay: index * 0.05 }
+                      ? { duration: 1.0, delay: index * 0.06 }
                       : isJustTyped
                       ? { duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }
                       : isFocused
@@ -352,12 +353,12 @@ export const OtpVerificationCard = ({
                     onFocus={() => setFocusedIndex(index)}
                     onBlur={() => setFocusedIndex(-1)}
                     onPaste={handlePaste}
-                    disabled={loading}
-                    className={`w-[48px] h-[48px] sm:w-[64px] sm:h-[64px] rounded-[16px] text-center font-bold text-xl sm:text-2xl transition-all duration-200 outline-none select-none ${
+                    disabled={loading || isSuccess}
+                    className={`w-[48px] h-[48px] sm:w-[64px] sm:h-[64px] rounded-[16px] text-center font-bold text-xl sm:text-2xl transition-all duration-300 outline-none select-none ${
                       isError
                         ? 'bg-white dark:bg-slate-900 border-2 border-red-500 text-red-600 shadow-[0_0_0_5px_rgba(239,68,68,0.25)]'
                         : isSuccess
-                        ? 'bg-white dark:bg-slate-900 border-2 border-emerald-500 text-emerald-600 shadow-[0_0_0_5px_rgba(16,185,129,0.25)]'
+                        ? 'bg-white dark:bg-slate-900 border-2 border-emerald-500 text-emerald-600 shadow-[0_0_0_5px_rgba(16,185,129,0.3)]'
                         : isFocused
                         ? 'bg-white dark:bg-slate-900 border-2 border-blue-600 text-slate-900 dark:text-white shadow-[0_0_0_5px_rgba(37,99,235,0.2)] -translate-y-[2px]'
                         : isFilled
@@ -367,7 +368,7 @@ export const OtpVerificationCard = ({
                   />
 
                   {/* Blinking Vertical Cursor for Focused Empty Box */}
-                  {isFocused && !digit && !loading && (
+                  {isFocused && !digit && !loading && !isSuccess && (
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                       <motion.span
                         animate={{ opacity: [1, 0, 1] }}
@@ -384,15 +385,24 @@ export const OtpVerificationCard = ({
           {/* Premium Verification Button */}
           <motion.button
             type="submit"
-            disabled={loading || otpValues.includes('')}
-            whileHover={{ scale: loading ? 1 : 1.02, y: loading ? 0 : -2 }}
-            whileTap={{ scale: loading ? 1 : 0.95 }}
-            className="relative w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 hover:from-blue-800 hover:to-blue-600 text-white font-bold text-base shadow-xl shadow-blue-500/30 overflow-hidden transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+            disabled={loading || isSuccess || otpValues.includes('')}
+            whileHover={{ scale: loading || isSuccess ? 1 : 1.02, y: loading || isSuccess ? 0 : -2 }}
+            whileTap={{ scale: loading || isSuccess ? 1 : 0.95 }}
+            className={`relative w-full py-4 px-6 rounded-2xl text-white font-bold text-base shadow-xl overflow-hidden transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer ${
+              isSuccess
+                ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 shadow-emerald-500/30'
+                : 'bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 shadow-blue-500/30'
+            }`}
           >
             {/* Moving Light Shine Hover Effect */}
             <div className="absolute inset-0 -translate-x-full hover:translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 ease-in-out pointer-events-none" />
 
-            {loading ? (
+            {isSuccess ? (
+              <div className="flex items-center space-x-2">
+                <Check className="w-5 h-5 text-white" />
+                <span>Verified! Redirecting...</span>
+              </div>
+            ) : loading ? (
               <div className="flex items-center space-x-2">
                 <Loader2 className="w-5 h-5 animate-spin text-white" />
                 <span>Verifying...</span>
@@ -413,7 +423,7 @@ export const OtpVerificationCard = ({
               <button
                 type="button"
                 onClick={handleResend}
-                disabled={loading}
+                disabled={loading || isSuccess}
                 className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer transition-all duration-200"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />

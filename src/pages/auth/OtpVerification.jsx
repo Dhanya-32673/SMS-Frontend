@@ -45,6 +45,7 @@ const OtpVerification = () => {
         length={6}
         onVerify={async (code) => {
           const response = await otpLogin(email, code);
+          await new Promise((resolve) => setTimeout(resolve, 3000));
           if (response.user.role === 'ADMIN') {
             navigate('/admin/dashboard');
           } else {
