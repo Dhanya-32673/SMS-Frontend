@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, Lock, CheckCircle2, XCircle, AlertCircle, ShieldCheck, Key } from 'lucide-react';
+import { Eye, EyeOff, Lock, CheckCircle2, XCircle, AlertCircle, ShieldCheck, Key, Loader2 } from 'lucide-react';
 import { authService } from '../../services/authService';
 import { useToast } from '../../context/ToastContext';
 
@@ -242,7 +242,11 @@ export const ChangePasswordForm = () => {
           disabled={loading}
           className="py-3 px-6 bg-gradient-to-r from-blue-600 via-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white font-extrabold rounded-xl shadow-md shadow-blue-500/30 hover:shadow-lg transition cursor-pointer disabled:opacity-50 flex items-center space-x-2"
         >
-          <Key className="w-4 h-4" />
+          {loading ? (
+            <Loader2 className="w-4 h-4 animate-spin text-white" />
+          ) : (
+            <Key className="w-4 h-4" />
+          )}
           <span>{loading ? 'Updating Password...' : 'Update Password'}</span>
         </button>
 
