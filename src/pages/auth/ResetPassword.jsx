@@ -115,23 +115,29 @@ const ResetPassword = () => {
             <span>ENTERPRISE SECURITY</span>
           </div>
 
-          {/* SICMS Dashboard Logo Box (80px x 80px, 20px radius, 360° rotation) */}
-          <div className="relative w-20 h-20 mx-auto flex items-center justify-center pt-1">
-            <motion.div
-              animate={{ rotate: 360, y: [-4, 4, -4] }}
-              transition={{
-                rotate: { repeat: Infinity, duration: 4, ease: "linear" },
-                y: { repeat: Infinity, duration: 3, ease: "easeInOut" },
-              }}
-              className="w-[80px] h-[80px] rounded-[20px] bg-gradient-to-tr from-[#2563eb] to-[#3b82f6] shadow-lg shadow-blue-500/30 flex items-center justify-center"
-              style={{ willChange: "transform" }}
-            >
-              {mode === 'FACULTY' ? (
-                <ShieldAlert className="w-10 h-10 text-white" />
-              ) : (
-                <ShieldCheck className="w-10 h-10 text-white" />
-              )}
-            </motion.div>
+          {/* Bhashyam Educational Institution Logo Header */}
+          <div className="flex flex-col items-center justify-center pt-2">
+            <div className="bg-[#2563eb] rounded-2xl p-3.5 px-6 shadow-xl shadow-blue-500/25 border border-blue-500/30 flex items-center gap-4">
+              <div className="w-12 h-12 bg-white rounded-xl p-1.5 flex items-center justify-center shadow-md shrink-0">
+                <img
+                  src="https://ookzjdmkoaunbrufvmvq.supabase.co/storage/v1/object/public/student-profile-photos/info/ChatGPT%20Image%20Aug%206,%202026,%2012_07_23%20AM.png"
+                  alt="Bhashyam Educational Institution"
+                  className="w-full h-full object-contain"
+                  loading="eager"
+                  onError={(e) => {
+                    e.target.classList.add('hidden');
+                    if (e.target.nextSibling) e.target.nextSibling.classList.remove('hidden');
+                  }}
+                />
+                <div className="hidden w-full h-full rounded-lg bg-blue-50 flex items-center justify-center">
+                  <ShieldCheck className="w-7 h-7 text-blue-600" />
+                </div>
+              </div>
+              <div className="text-left">
+                <span className="font-black text-white text-2xl tracking-wider block leading-none">BHASHYAM</span>
+                <span className="text-[10px] text-blue-100 font-extrabold uppercase tracking-widest block mt-1">EDUCATIONAL INSTITUTION</span>
+              </div>
+            </div>
           </div>
 
           {/* 42px Dashboard Typography */}

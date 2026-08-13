@@ -198,45 +198,29 @@ export const OtpVerificationCard = ({
             <span>ENTERPRISE SECURITY</span>
           </div>
 
-          {/* SICMS Dashboard Logo Box (80px x 80px, 20px radius, 360° rotation) */}
-          <div className="relative w-20 h-20 mx-auto flex items-center justify-center pt-1">
-            <motion.div
-              animate={
-                isSuccess
-                  ? { scale: [1, 1.4, 1], opacity: [0.6, 1, 0.4] }
-                  : { scale: [1, 1.15, 1], opacity: [0.3, 0.8, 0.3] }
-              }
-              transition={{ repeat: Infinity, duration: isSuccess ? 1.0 : 2, ease: 'easeInOut' }}
-              className={`absolute inset-0 rounded-[20px] ${isSuccess ? 'bg-emerald-500/40' : 'bg-blue-600/30'} blur-xl`}
-            />
-
-            <motion.div
-              animate={
-                isSuccess
-                  ? { rotate: 720, scale: [1, 1.25, 0.95, 1], y: [0, -10, 0] }
-                  : { rotate: 360, y: [-4, 4, -4] }
-              }
-              transition={
-                isSuccess
-                  ? { duration: 1.5, ease: 'easeInOut' }
-                  : {
-                      rotate: { repeat: Infinity, duration: 3, ease: 'linear' },
-                      y: { repeat: Infinity, duration: 3, ease: 'easeInOut' },
-                    }
-              }
-              className={`w-[80px] h-[80px] rounded-[20px] flex items-center justify-center shadow-lg transition-colors duration-500 ${
-                isSuccess
-                  ? 'bg-gradient-to-tr from-emerald-600 to-emerald-400 shadow-emerald-500/50'
-                  : 'bg-gradient-to-tr from-[#2563eb] to-[#3b82f6] shadow-lg shadow-blue-500/30'
-              }`}
-              style={{ willChange: 'transform' }}
-            >
-              {isSuccess ? (
-                <Check className="w-9 h-9 text-white stroke-[3]" />
-              ) : (
-                <ShieldCheck className="w-9 h-9 text-white" />
-              )}
-            </motion.div>
+          {/* Bhashyam Educational Institution Logo Header */}
+          <div className="flex flex-col items-center justify-center pt-2">
+            <div className="bg-[#2563eb] rounded-2xl p-3.5 px-6 shadow-xl shadow-blue-500/25 border border-blue-500/30 flex items-center gap-4">
+              <div className="w-12 h-12 bg-white rounded-xl p-1.5 flex items-center justify-center shadow-md shrink-0">
+                <img
+                  src="https://ookzjdmkoaunbrufvmvq.supabase.co/storage/v1/object/public/student-profile-photos/info/ChatGPT%20Image%20Aug%206,%202026,%2012_07_23%20AM.png"
+                  alt="Bhashyam Educational Institution"
+                  className="w-full h-full object-contain"
+                  loading="eager"
+                  onError={(e) => {
+                    e.target.classList.add('hidden');
+                    if (e.target.nextSibling) e.target.nextSibling.classList.remove('hidden');
+                  }}
+                />
+                <div className="hidden w-full h-full rounded-lg bg-blue-50 flex items-center justify-center">
+                  <GraduationCap className="w-7 h-7 text-blue-600" />
+                </div>
+              </div>
+              <div className="text-left">
+                <span className="font-black text-white text-2xl tracking-wider block leading-none">BHASHYAM</span>
+                <span className="text-[10px] text-blue-100 font-extrabold uppercase tracking-widest block mt-1">EDUCATIONAL INSTITUTION</span>
+              </div>
+            </div>
           </div>
 
           {/* 42px Dashboard Typography */}
