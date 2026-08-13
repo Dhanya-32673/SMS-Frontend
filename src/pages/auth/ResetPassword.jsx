@@ -99,7 +99,7 @@ const ResetPassword = () => {
             onClick={() => { setMode('FACULTY'); setError(''); }}
             className={`flex-1 py-2 rounded-xl transition-all ${mode === 'FACULTY' ? 'bg-white text-amber-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
           >
-            Admin Approval
+            Admin User
           </button>
         </div>
 
