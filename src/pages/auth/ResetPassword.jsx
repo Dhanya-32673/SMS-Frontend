@@ -92,14 +92,14 @@ const ResetPassword = () => {
             onClick={() => { setMode('STANDARD'); setError(''); }}
             className={`flex-1 py-2 rounded-xl transition-all ${mode === 'STANDARD' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
           >
-            General User Reset
+            General User
           </button>
           <button
             type="button"
             onClick={() => { setMode('FACULTY'); setError(''); }}
             className={`flex-1 py-2 rounded-xl transition-all ${mode === 'FACULTY' ? 'bg-white text-amber-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
           >
-            Faculty Admin Approval
+            Admin Approval
           </button>
         </div>
 
