@@ -226,7 +226,7 @@ export const OtpVerificationCard = ({
                 isSuccess
                   ? { duration: 1.2, ease: 'easeInOut' }
                   : {
-                      rotate: { repeat: Infinity, duration: 4, ease: 'linear' },
+                      rotate: { repeat: Infinity, duration: 3, ease: 'linear' },
                       y: { repeat: Infinity, duration: 3, ease: 'easeInOut' },
                     }
               }
