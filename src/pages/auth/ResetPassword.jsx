@@ -8,9 +8,9 @@ const ResetPassword = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const initialMode = searchParams.get('mode') === 'faculty' ? 'FACULTY' : 'STANDARD';
+  const initialMode = searchParams.get('mode') === 'standard' ? 'STANDARD' : 'FACULTY';
 
-  const [mode, setMode] = useState(initialMode); // 'STANDARD' | 'FACULTY'
+  const [mode, setMode] = useState(initialMode); // 'FACULTY' | 'STANDARD'
   const [email, setEmail] = useState(searchParams.get('email') || '');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
