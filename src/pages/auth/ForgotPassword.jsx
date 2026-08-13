@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../../services/authService';
-import { Mail, ArrowLeft, KeyRound, AlertCircle, ShieldAlert, CheckCircle2, UserCheck } from 'lucide-react';
+import { Mail, ArrowLeft, KeyRound, AlertCircle, ShieldAlert, CheckCircle2, UserCheck, ShieldCheck } from 'lucide-react';
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
@@ -53,10 +53,16 @@ const ForgotPassword = () => {
     <div className="min-h-screen w-full flex items-center justify-center bg-slate-100 p-4 font-sans">
       <div className="max-w-md w-full bg-white rounded-3xl shadow-xl border border-slate-200 p-8 sm:p-10 space-y-6">
         
-        <Link to="/login" className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors">
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Login</span>
-        </Link>
+        <div className="flex items-center justify-between text-xs font-bold text-slate-500">
+          <Link to="/login" className="inline-flex items-center gap-2 hover:text-slate-800 transition-colors">
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Login</span>
+          </Link>
+          <Link to="/reset-password?mode=faculty" className="inline-flex items-center gap-1.5 text-amber-600 hover:text-amber-700 transition-colors">
+            <ShieldCheck className="w-4 h-4" />
+            <span>Admin Reset Page</span>
+          </Link>
+        </div>
 
         {/* Role Toggle Selector */}
         <div className="flex bg-slate-100 p-1 rounded-2xl border border-slate-200/80 text-xs font-extrabold">
@@ -109,9 +115,9 @@ const ForgotPassword = () => {
             </p>
             <Link
               to={`/reset-password?mode=faculty&email=${encodeURIComponent(email)}`}
-              className="inline-block w-full py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md transition-all text-center mt-2"
+              className="inline-block w-full py-3 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-xs shadow-md transition-all text-center mt-2 cursor-pointer"
             >
-              Go to Admin Approval & Reset Page
+              Go to Admin Approval & Reset Page →
             </Link>
           </div>
         ) : (
