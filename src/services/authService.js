@@ -2,6 +2,27 @@ import api from './api';
 import { tokenUtils } from '../utils/tokenUtils';
 
 export const authService = {
+  adminLogin: async (email, password) => {
+    const response = await api.post('/auth/admin/login', { email, password });
+    return response.data;
+  },
+
+  verifyAdminOtp: async (email, otp) => {
+    const response = await api.post('/auth/admin/verify-otp', { email, otp });
+    if (response.data && (response.data.accessToken || response.data.token)) {
+      tokenUtils.saveAuth(response.data);
+    }
+    return response.data;
+  },
+
+  facultyLogin: async (email, password) => {
+    const response = await api.post('/auth/faculty/login', { email, password });
+    if (response.data && (response.data.accessToken || response.data.token)) {
+      tokenUtils.saveAuth(response.data);
+    }
+    return response.data;
+  },
+
   // Step 1: Validate email & password, triggers OTP send
   login: async (email, password) => {
     const response = await api.post('/auth/login', { email, password });
