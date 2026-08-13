@@ -46,7 +46,7 @@ const OtpInput = ({ value = '', onChange, length = 6, disabled = false }) => {
   };
 
   return (
-    <div className="flex justify-center gap-2 sm:gap-3.5 my-4">
+    <div className="flex justify-center gap-2 sm:gap-2.5 my-2">
       {Array.from({ length }).map((_, index) => (
         <input
           key={index}
@@ -60,7 +60,7 @@ const OtpInput = ({ value = '', onChange, length = 6, disabled = false }) => {
           onKeyDown={(e) => handleKeyDown(e, index)}
           onPaste={handlePaste}
           disabled={disabled}
-          className="w-[48px] h-[48px] sm:w-[72px] sm:h-[72px] text-center text-2xl sm:text-3xl font-black bg-white border-2 border-[#dbeafe] rounded-[20px] focus:border-[#2563eb] focus:shadow-[0_0_0_5px_rgba(37,99,235,0.2)] focus:scale-[1.08] focus:-translate-y-[2px] focus:outline-none transition-all duration-200 text-slate-900 disabled:bg-slate-100"
+          className="w-[40px] h-[40px] sm:w-[54px] sm:h-[54px] text-center text-lg sm:text-xl font-black bg-white border-2 border-[#dbeafe] rounded-[14px] focus:border-[#2563eb] focus:shadow-[0_0_0_4px_rgba(37,99,235,0.15)] focus:scale-[1.06] focus:-translate-y-[1px] focus:outline-none transition-all duration-200 text-slate-900 disabled:bg-slate-100"
         />
       ))}
     </div>

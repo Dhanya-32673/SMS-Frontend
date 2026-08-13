@@ -140,10 +140,10 @@ const Login = () => {
       title={roleTab === "ADMIN" ? "Admin Portal" : "Faculty Portal"}
       subtitle="Student Information & Certificate Management System"
     >
-      <div className="w-full max-w-[460px] mx-auto space-y-6">
+      <div className="w-full max-w-[430px] mx-auto space-y-4 my-auto">
         
-        {/* Tab Switcher at Top of Card */}
-        <div className="bg-[#f1f5f9] rounded-[18px] p-1.5 flex h-[56px] w-full border border-slate-200/80 text-xs font-extrabold">
+        {/* Tab Switcher at Top of Card (Height 48px, Font size 14px/xs) */}
+        <div className="bg-[#f1f5f9] rounded-[14px] p-1 flex h-[48px] w-full border border-slate-200/80 text-xs font-bold">
           <button
             type="button"
             onClick={() => {
@@ -151,13 +151,13 @@ const Login = () => {
               setError("");
               setSuccessMsg("");
             }}
-            className={"flex-1 py-2.5 rounded-[14px] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer " + (
+            className={"flex-1 py-2 rounded-[10px] transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer " + (
               roleTab === "ADMIN"
-                ? "bg-gradient-to-r from-[#2563eb] to-[#3b82f6] text-white shadow-md font-bold"
+                ? "bg-gradient-to-r from-[#2563eb] to-[#3b82f6] text-white shadow-sm font-bold"
                 : "text-slate-500 hover:text-slate-900"
             )}
           >
-            <ShieldCheck className="w-4 h-4" /> Admin (OTP Required)
+            <ShieldCheck className="w-3.5 h-3.5" /> Admin (OTP Required)
           </button>
           <button
             type="button"
@@ -166,71 +166,71 @@ const Login = () => {
               setError("");
               setSuccessMsg("");
             }}
-            className={"flex-1 py-2.5 rounded-[14px] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer " + (
+            className={"flex-1 py-2 rounded-[10px] transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer " + (
               roleTab === "FACULTY"
-                ? "bg-gradient-to-r from-[#2563eb] to-[#3b82f6] text-white shadow-md font-bold"
+                ? "bg-gradient-to-r from-[#2563eb] to-[#3b82f6] text-white shadow-sm font-bold"
                 : "text-slate-500 hover:text-slate-900"
             )}
           >
-            <UserCheck className="w-4 h-4" /> Faculty (Direct Login)
+            <UserCheck className="w-3.5 h-3.5" /> Faculty (Direct Login)
           </button>
         </div>
 
-        {/* Center Shield Icon (112px, soft blue circular container with floating Y animation) */}
-        <div className="text-center pt-2">
+        {/* Center Shield Icon (Size 84px, Icon 38px, Floating Y Animation) */}
+        <div className="text-center pt-1">
           <motion.div
             animate={{ y: [-4, 4, -4] }}
             transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-            className="w-[112px] h-[112px] rounded-full bg-[#eff6ff] flex items-center justify-center mx-auto shadow-inner border border-blue-100"
+            className="w-[84px] h-[84px] rounded-full bg-[#eff6ff] flex items-center justify-center mx-auto shadow-inner border border-blue-100"
           >
             {roleTab === "ADMIN" ? (
-              <ShieldCheck className="w-14 h-14 text-[#2563eb]" />
+              <ShieldCheck className="w-9 h-9 text-[#2563eb]" />
             ) : (
-              <UserCheck className="w-14 h-14 text-[#2563eb]" />
+              <UserCheck className="w-9 h-9 text-[#2563eb]" />
             )}
           </motion.div>
 
-          {/* Page Title & Subtitle */}
-          <h2 className="text-3xl sm:text-[36px] font-black text-slate-900 tracking-tight mt-4">
+          {/* Page Title & Subtitle (Title 28px/36px, Subtitle 14px/15px) */}
+          <h2 className="text-2xl sm:text-[28px] font-black text-slate-900 tracking-tight mt-2.5">
             {roleTab === "ADMIN" ? "Welcome Admin!" : "Welcome Faculty!"}
           </h2>
-          <p className="text-slate-500 text-sm font-medium max-w-[340px] mx-auto mt-1">
+          <p className="text-slate-500 text-xs sm:text-sm font-medium max-w-[300px] mx-auto mt-0.5">
             {roleTab === "ADMIN" ? "Enter your credentials to receive OTP" : "Enter your credentials to access portal"}
           </p>
         </div>
 
         {/* Notifications */}
         {isInactiveLoggedOut && (
-          <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex items-start gap-3 text-amber-700 text-xs font-semibold">
-            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-amber-500" />
+          <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-2 text-amber-700 text-xs font-semibold">
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-500" />
             <span>You were logged out due to inactivity for security reasons. Please log in again.</span>
           </div>
         )}
 
         {error && (
-          <div className="p-4 rounded-2xl bg-red-50 border border-red-200 flex items-start gap-3 text-red-700 text-xs font-semibold">
-            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-red-500" />
+          <div className="p-3 rounded-xl bg-red-50 border border-red-200 flex items-start gap-2 text-red-700 text-xs font-semibold">
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-500" />
             <span>{error}</span>
           </div>
         )}
 
         {successMsg && (
-          <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-start gap-3 text-emerald-700 text-xs font-semibold">
-            <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5 text-emerald-500" />
+          <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex items-start gap-2 text-emerald-700 text-xs font-semibold">
+            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-emerald-500" />
             <span>{successMsg}</span>
           </div>
         )}
 
-        {/* Form Fields (60px Inputs, 18px Radius) */}
-        <form className="space-y-4" onSubmit={handleCredentialSubmit}>
+        {/* Form Fields (Height 50px, Radius 14px, Icon 18px) */}
+        <form className="space-y-3.5" onSubmit={handleCredentialSubmit}>
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               Email Address
             </label>
-            <div className={"h-[60px] bg-white border " + (
+            <div className={"h-[50px] bg-white border " + (
               fieldErrors.email ? "border-red-500 focus-within:ring-red-500" : "border-slate-200 focus-within:border-[#2563eb] focus-within:ring-4 focus-within:ring-[#2563eb]/15"
-            ) + " rounded-[18px] flex items-center px-4.5 gap-3 transition-all duration-200"}>
-              <Mail className="w-5 h-5 text-slate-400 shrink-0" />
+            ) + " rounded-[14px] flex items-center px-4 gap-2.5 transition-all duration-200"}>
+              <Mail className="w-4.5 h-4.5 text-slate-400 shrink-0" />
               <input
                 type="email"
                 value={email}
@@ -239,7 +239,7 @@ const Login = () => {
                   if (fieldErrors.email) setFieldErrors({ ...fieldErrors, email: "" });
                 }}
                 placeholder="Enter your registered email"
-                className="w-full bg-transparent text-slate-900 font-semibold text-sm placeholder-slate-400 focus:outline-none"
+                className="w-full bg-transparent text-slate-900 font-semibold text-xs sm:text-sm placeholder-slate-400 focus:outline-none"
               />
             </div>
             {fieldErrors.email && (
@@ -248,13 +248,13 @@ const Login = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               Password
             </label>
-            <div className={"h-[60px] bg-white border " + (
+            <div className={"h-[50px] bg-white border " + (
               fieldErrors.password ? "border-red-500 focus-within:ring-red-500" : "border-slate-200 focus-within:border-[#2563eb] focus-within:ring-4 focus-within:ring-[#2563eb]/15"
-            ) + " rounded-[18px] flex items-center px-4.5 gap-3 transition-all duration-200"}>
-              <Lock className="w-5 h-5 text-slate-400 shrink-0" />
+            ) + " rounded-[14px] flex items-center px-4 gap-2.5 transition-all duration-200"}>
+              <Lock className="w-4.5 h-4.5 text-slate-400 shrink-0" />
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
@@ -263,14 +263,14 @@ const Login = () => {
                   if (fieldErrors.password) setFieldErrors({ ...fieldErrors, password: "" });
                 }}
                 placeholder="Enter your password"
-                className="w-full bg-transparent text-slate-900 font-semibold text-sm placeholder-slate-400 focus:outline-none"
+                className="w-full bg-transparent text-slate-900 font-semibold text-xs sm:text-sm placeholder-slate-400 focus:outline-none"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="text-slate-400 hover:text-slate-700 transition-colors cursor-pointer shrink-0"
               >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
               </button>
             </div>
             {fieldErrors.password && (
@@ -278,7 +278,7 @@ const Login = () => {
             )}
           </div>
 
-          <div className="flex items-center justify-end pt-1">
+          <div className="flex items-center justify-end pt-0.5">
             <Link
               to="/reset-password?mode=faculty"
               className="text-xs font-bold text-[#2563eb] hover:underline transition-colors"
@@ -287,27 +287,27 @@ const Login = () => {
             </Link>
           </div>
 
-          {/* Primary CTA Button (60px Height, 18px Radius, Hover Lift & Shadow) */}
+          {/* Primary CTA Button (Height 52px, Radius 14px, Font size 14px/16px) */}
           <motion.button
             type="submit"
             disabled={loading}
             whileHover={{ scale: loading ? 1 : 1.01, y: loading ? 0 : -2 }}
             whileTap={{ scale: loading ? 1 : 0.98 }}
-            className="w-full h-[60px] rounded-[18px] text-white font-bold text-base bg-gradient-to-r from-[#2563eb] to-[#3b82f6] hover:from-blue-700 hover:to-blue-600 shadow-[0_15px_35px_rgba(37,99,235,0.28)] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed mt-6"
+            className="w-full h-[52px] rounded-[14px] text-white font-bold text-sm bg-gradient-to-r from-[#2563eb] to-[#3b82f6] hover:from-blue-700 hover:to-blue-600 shadow-[0_12px_28px_rgba(37,99,235,0.25)] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed mt-4"
           >
             {loading ? (
-              <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
               <>
                 <span>{roleTab === "ADMIN" ? "Send Login OTP" : "Sign in as Faculty"}</span>
-                <ArrowRight className="w-5 h-5" />
+                <ArrowRight className="w-4 h-4" />
               </>
             )}
           </motion.button>
         </form>
 
-        {/* Footer Trust Line */}
-        <div className="pt-6 border-t border-slate-100 flex items-center justify-center text-slate-400 text-xs font-medium gap-2">
+        {/* Footer Trust Line (Font size 11px/12px) */}
+        <div className="pt-4 border-t border-slate-100 flex items-center justify-center text-slate-400 text-[11px] font-bold gap-1.5">
           <span>🔒</span>
           <span>Secure • Encrypted • Trusted</span>
         </div>

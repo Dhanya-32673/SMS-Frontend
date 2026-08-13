@@ -181,21 +181,21 @@ export const OtpVerificationCard = ({
 
   return (
     <AuthLayout title={title} subtitle={subtitle}>
-      <div className="w-full max-w-[460px] mx-auto space-y-6">
+      <div className="w-full max-w-[430px] mx-auto space-y-4 my-auto">
         
         {/* Back Link */}
         {onBack && (
           <button
             onClick={onBack}
-            className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back to Login</span>
           </button>
         )}
 
-        {/* Center Shield Icon (112px, soft blue circular container with floating Y animation) */}
-        <div className="text-center pt-2">
+        {/* Center Shield Icon (Size 84px, Icon 38px, Floating Y Animation) */}
+        <div className="text-center pt-1">
           <motion.div
             animate={
               isSuccess
@@ -203,27 +203,27 @@ export const OtpVerificationCard = ({
                 : { y: [-4, 4, -4] }
             }
             transition={{ repeat: Infinity, duration: isSuccess ? 1.0 : 4, ease: "easeInOut" }}
-            className={`w-[112px] h-[112px] rounded-full flex items-center justify-center mx-auto shadow-inner border transition-colors duration-500 ${
+            className={`w-[84px] h-[84px] rounded-full flex items-center justify-center mx-auto shadow-inner border transition-colors duration-500 ${
               isSuccess
                 ? 'bg-emerald-50 border-emerald-200 text-emerald-600'
                 : 'bg-[#eff6ff] border-blue-100 text-[#2563eb]'
             }`}
           >
             {isSuccess ? (
-              <Check className="w-14 h-14 text-emerald-600 stroke-[3]" />
+              <Check className="w-9 h-9 text-emerald-600 stroke-[3]" />
             ) : (
-              <ShieldCheck className="w-14 h-14 text-[#2563eb]" />
+              <ShieldCheck className="w-9 h-9 text-[#2563eb]" />
             )}
           </motion.div>
 
           {/* Page Title & Subtitle */}
-          <h2 className="text-3xl sm:text-[36px] font-black text-slate-900 tracking-tight mt-4">
+          <h2 className="text-2xl sm:text-[28px] font-black text-slate-900 tracking-tight mt-2.5">
             {isSuccess ? "Verified!" : "Verify OTP Code"}
           </h2>
-          <p className="text-slate-500 text-sm font-medium max-w-[360px] mx-auto mt-1">
+          <p className="text-slate-500 text-xs sm:text-sm font-medium max-w-[320px] mx-auto mt-0.5">
             Enter the {length}-digit security code sent to
           </p>
-          <div className="inline-block mt-1 px-3 py-1 bg-blue-50 text-blue-700 font-mono font-bold text-xs rounded-full border border-blue-200/60">
+          <div className="inline-block mt-1 px-3 py-0.5 bg-blue-50 text-blue-700 font-mono font-bold text-xs rounded-full border border-blue-200/60">
             {email || "your email"}
           </div>
         </div>
@@ -232,39 +232,39 @@ export const OtpVerificationCard = ({
         <AnimatePresence mode="wait">
           {errorMsg && (
             <motion.div
-              initial={{ opacity: 0, y: -8 }}
+              initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              className="p-4 rounded-2xl bg-red-50 border border-red-200 flex items-center gap-3 text-red-700 text-xs font-semibold"
+              exit={{ opacity: 0, y: -6 }}
+              className="p-3 rounded-xl bg-red-50 border border-red-200 flex items-center gap-2 text-red-700 text-xs font-semibold"
             >
-              <AlertCircle className="w-4.5 h-4.5 text-red-500 shrink-0" />
+              <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
               <span>{errorMsg}</span>
             </motion.div>
           )}
 
           {successMsg && (
             <motion.div
-              initial={{ opacity: 0, y: -8 }}
+              initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center gap-3 text-emerald-700 text-xs font-semibold"
+              exit={{ opacity: 0, y: -6 }}
+              className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-2 text-emerald-700 text-xs font-semibold"
             >
-              <CheckCircle2 className="w-4.5 h-4.5 text-emerald-500 shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
               <span>{successMsg}</span>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* OTP Input Boxes (68px Size, 18px Radius, 3D Flip on Entry) */}
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="flex items-center justify-center gap-2.5 sm:gap-3.5 my-2">
+        {/* OTP Input Boxes (54px Size, 14px Radius, 3D Flip on Entry, 10px Gap) */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="flex items-center justify-center gap-2 sm:gap-2.5 my-1">
             {Array.from({ length }).map((_, index) => (
               <motion.div
                 key={index}
                 animate={{
                   rotateX: isFlipped[index] ? 360 : 0,
                   scale: activeBoxIndex === index ? 1.06 : 1,
-                  y: activeBoxIndex === index ? -2 : 0,
+                  y: activeBoxIndex === index ? -1 : 0,
                 }}
                 transition={{ duration: 0.3 }}
                 className="relative"
@@ -281,13 +281,13 @@ export const OtpVerificationCard = ({
                   onFocus={() => setActiveBoxIndex(index)}
                   onPaste={handlePaste}
                   disabled={loading || isSuccess}
-                  className={`w-[48px] h-[48px] sm:w-[68px] sm:h-[68px] text-center text-2xl sm:text-3xl font-black bg-white rounded-[18px] border-2 transition-all duration-200 outline-none ${
+                  className={`w-[40px] h-[40px] sm:w-[54px] sm:h-[54px] text-center text-lg sm:text-xl font-black bg-white rounded-[14px] border-2 transition-all duration-200 outline-none ${
                     isError
                       ? 'border-red-500 text-red-600 bg-red-50/20'
                       : isSuccess
                       ? 'border-emerald-500 text-emerald-600 bg-emerald-50/20'
                       : activeBoxIndex === index
-                      ? 'border-[#2563eb] shadow-[0_0_0_5px_rgba(37,99,235,0.15)] text-slate-900'
+                      ? 'border-[#2563eb] shadow-[0_0_0_4px_rgba(37,99,235,0.15)] text-slate-900'
                       : otpValues[index]
                       ? 'border-blue-400 text-slate-900'
                       : 'border-[#dbeafe] text-slate-900'
@@ -298,11 +298,11 @@ export const OtpVerificationCard = ({
           </div>
 
           {/* Resend Code Timer Section */}
-          <div className="flex items-center justify-between text-xs font-semibold text-slate-500 pt-1">
+          <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500 pt-0.5">
             <span>Didn't receive the code?</span>
             {cooldown > 0 ? (
               <span className="flex items-center gap-1 text-slate-400 font-mono">
-                <Clock className="w-3.5 h-3.5" />
+                <Clock className="w-3 h-3" />
                 Resend in {cooldown}s
               </span>
             ) : (
@@ -312,39 +312,39 @@ export const OtpVerificationCard = ({
                 disabled={loading}
                 className="text-[#2563eb] font-bold hover:underline flex items-center gap-1 cursor-pointer"
               >
-                <RefreshCw className="w-3.5 h-3.5" />
+                <RefreshCw className="w-3 h-3" />
                 Resend Code
               </button>
             )}
           </div>
 
-          {/* Primary CTA Button (60px Height, 18px Radius, Hover Lift & Shadow) */}
+          {/* Primary CTA Button (Height 52px, Radius 14px, Font size 14px) */}
           <motion.button
             type="submit"
             disabled={loading || otpValues.includes('')}
             whileHover={{ scale: loading || otpValues.includes('') ? 1 : 1.01, y: loading || otpValues.includes('') ? 0 : -2 }}
             whileTap={{ scale: loading || otpValues.includes('') ? 1 : 0.98 }}
-            className={`w-full h-[60px] rounded-[18px] font-bold text-base shadow-[0_15px_35px_rgba(37,99,235,0.28)] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+            className={`w-full h-[52px] rounded-[14px] font-bold text-sm shadow-[0_12px_28px_rgba(37,99,235,0.25)] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
               isSuccess
                 ? 'bg-emerald-600 text-white shadow-emerald-500/25'
                 : 'bg-gradient-to-r from-[#2563eb] to-[#3b82f6] text-white hover:from-blue-700 hover:to-blue-600'
             }`}
           >
             {loading ? (
-              <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : isSuccess ? (
               <span>Verification Successful!</span>
             ) : (
               <>
                 <span>Verify & Continue</span>
-                <ArrowRight className="w-5 h-5" />
+                <ArrowRight className="w-4 h-4" />
               </>
             )}
           </motion.button>
         </form>
 
         {/* Footer Trust Line */}
-        <div className="pt-6 border-t border-slate-100 flex items-center justify-center text-slate-400 text-xs font-medium gap-2">
+        <div className="pt-4 border-t border-slate-100 flex items-center justify-center text-slate-400 text-[11px] font-bold gap-1.5">
           <span>🔒</span>
           <span>Secure • Encrypted • Trusted</span>
         </div>
