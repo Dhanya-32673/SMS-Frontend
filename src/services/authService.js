@@ -98,6 +98,23 @@ export const authService = {
     }
   },
 
+  changePassword: async ({ currentPassword, newPassword, confirmPassword, confirmNewPassword }) => {
+    console.log('[authService] Calling change-password endpoint');
+    try {
+      const response = await api.post('/auth/change-password', {
+        currentPassword,
+        newPassword,
+        confirmPassword: confirmPassword || confirmNewPassword,
+        confirmNewPassword: confirmNewPassword || confirmPassword,
+      });
+      console.log('[authService] change-password response:', response.data);
+      return response.data;
+    } catch (err) {
+      console.error('[authService] change-password error:', err?.response?.data || err.message);
+      throw err;
+    }
+  },
+
   logout: async () => {
     try {
       const refreshToken = tokenUtils.getRefreshToken();
