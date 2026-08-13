@@ -69,6 +69,39 @@ export const authService = {
     }
   },
 
+  requestFacultyPasswordReset: async ({ facultyEmail, employeeId, reason }) => {
+    console.log('[authService] Requesting faculty password reset for:', facultyEmail);
+    try {
+      const response = await api.post('/auth/faculty/forgot-password', {
+        facultyEmail,
+        employeeId,
+        reason,
+      });
+      console.log('[authService] faculty forgot-password response:', response.data);
+      return response.data;
+    } catch (err) {
+      console.error('[authService] faculty forgot-password error:', err?.response?.data || err.message);
+      throw err;
+    }
+  },
+
+  adminResetFacultyPassword: async ({ facultyEmail, otp, newPassword, confirmPassword }) => {
+    console.log('[authService] Admin resetting faculty password for:', facultyEmail);
+    try {
+      const response = await api.post('/admin/faculty/reset-password', {
+        facultyEmail,
+        otp,
+        newPassword,
+        confirmPassword,
+      });
+      console.log('[authService] admin reset faculty password response:', response.data);
+      return response.data;
+    } catch (err) {
+      console.error('[authService] admin reset faculty password error:', err?.response?.data || err.message);
+      throw err;
+    }
+  },
+
   verifyResetOtp: async (email, otp) => {
     console.log('[authService] Calling verify-reset-otp for:', email);
     try {
