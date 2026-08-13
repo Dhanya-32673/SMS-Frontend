@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { authService } from '../../services/authService';
 import OtpInput from '../../components/OtpInput';
-import { Lock, Eye, EyeOff, ArrowLeft, CheckCircle2, AlertCircle, ShieldCheck } from 'lucide-react';
+import { Lock, Eye, EyeOff, ArrowLeft, CheckCircle2, AlertCircle, ShieldCheck, ShieldAlert } from 'lucide-react';
 
 const ResetPassword = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
+  const initialMode = searchParams.get('mode') === 'faculty' ? 'FACULTY' : 'STANDARD';
+
+  const [mode, setMode] = useState(initialMode); // 'STANDARD' | 'FACULTY'
   const [email, setEmail] = useState(searchParams.get('email') || '');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -47,8 +50,19 @@ const ResetPassword = () => {
     setError('');
 
     try {
-      console.log('[ResetPassword] Submitting reset password for:', cleanEmail);
-      await authService.resetPassword(cleanEmail, cleanOtp, newPassword, confirmPassword);
+      if (mode === 'FACULTY') {
+        console.log('[ResetPassword] Submitting Admin Faculty reset for:', cleanEmail);
+        await authService.adminResetFacultyPassword({
+          facultyEmail: cleanEmail,
+          otp: cleanOtp,
+          newPassword,
+          confirmPassword,
+        });
+      } else {
+        console.log('[ResetPassword] Submitting standard reset for:', cleanEmail);
+        await authService.resetPassword(cleanEmail, cleanOtp, newPassword, confirmPassword);
+      }
+      
       console.log('[ResetPassword] Password reset successful');
       setSuccess(true);
       setTimeout(() => {
@@ -56,14 +70,14 @@ const ResetPassword = () => {
       }, 2500);
     } catch (err) {
       console.error('[ResetPassword] Error resetting password:', err);
-      setError(err.response?.data?.message || 'Failed to reset password. Check your OTP code and try again.');
+      setError(err.response?.data?.message || 'Failed to reset password. Please check the OTP code and try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-slate-100 p-4">
+    <div className="min-h-screen w-full flex items-center justify-center bg-slate-100 p-4 font-sans">
       <div className="max-w-md w-full bg-white rounded-3xl shadow-xl border border-slate-200 p-8 sm:p-10 space-y-6">
         
         <Link to="/login" className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors">
@@ -71,13 +85,35 @@ const ResetPassword = () => {
           <span>Back to Login</span>
         </Link>
 
+        {/* Mode Selector */}
+        <div className="flex bg-slate-100 p-1 rounded-2xl border border-slate-200/80 text-xs font-extrabold">
+          <button
+            type="button"
+            onClick={() => { setMode('STANDARD'); setError(''); }}
+            className={`flex-1 py-2 rounded-xl transition-all ${mode === 'STANDARD' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
+          >
+            General User Reset
+          </button>
+          <button
+            type="button"
+            onClick={() => { setMode('FACULTY'); setError(''); }}
+            className={`flex-1 py-2 rounded-xl transition-all ${mode === 'FACULTY' ? 'bg-white text-amber-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
+          >
+            Faculty Admin Approval
+          </button>
+        </div>
+
         <div className="text-center">
-          <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/30">
-            <ShieldCheck className="w-7 h-7 text-white" />
+          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg ${mode === 'FACULTY' ? 'bg-amber-500 shadow-amber-500/30' : 'bg-indigo-600 shadow-indigo-500/30'}`}>
+            {mode === 'FACULTY' ? <ShieldAlert className="w-7 h-7 text-white" /> : <ShieldCheck className="w-7 h-7 text-white" />}
           </div>
-          <h2 className="text-2xl font-extrabold text-slate-900">Reset Password</h2>
-          <p className="text-slate-500 text-xs mt-1">
-            Enter the 6-digit code sent to your email and set your new password.
+          <h2 className="text-2xl font-extrabold text-slate-900">
+            {mode === 'FACULTY' ? 'Admin Faculty Reset' : 'Reset Password'}
+          </h2>
+          <p className="text-slate-500 text-xs mt-1 leading-relaxed">
+            {mode === 'FACULTY'
+              ? 'Enter the Faculty Email, the 6-digit OTP code sent to the Admin email, and the new password.'
+              : 'Enter the 6-digit code sent to your email and set your new password.'}
           </p>
         </div>
 
@@ -100,22 +136,22 @@ const ResetPassword = () => {
             {/* Email Address */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
-                Email Address
+                {mode === 'FACULTY' ? 'Faculty Email Address' : 'Email Address'}
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Registered Email"
+                placeholder={mode === 'FACULTY' ? "faculty.email@college.edu" : "Registered Email"}
                 required
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
 
             {/* OTP Code */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
-                6-Digit Verification Code
+                {mode === 'FACULTY' ? '6-Digit Admin Authorization OTP' : '6-Digit Verification Code'}
               </label>
               <OtpInput value={otp} onChange={setOtp} length={6} disabled={loading} />
             </div>
@@ -135,7 +171,7 @@ const ResetPassword = () => {
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="At least 8 characters"
                   required
-                  className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
                 <button
                   type="button"
@@ -162,7 +198,7 @@ const ResetPassword = () => {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Re-enter new password"
                   required
-                  className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
             </div>
@@ -170,9 +206,9 @@ const ResetPassword = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-lg shadow-indigo-500/30 focus:ring-4 focus:ring-indigo-500/20 focus:outline-none transition-all flex items-center justify-center gap-2 disabled:opacity-70 mt-2"
+              className={`w-full py-3.5 px-6 rounded-xl font-bold text-xs text-white shadow-lg focus:ring-4 focus:outline-none transition-all flex items-center justify-center gap-2 disabled:opacity-70 mt-2 ${mode === 'FACULTY' ? 'bg-amber-600 hover:bg-amber-700 shadow-amber-500/30' : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-500/30'}`}
             >
-              {loading ? 'Resetting Password...' : 'Reset Password'}
+              {loading ? 'Resetting Password...' : mode === 'FACULTY' ? 'Approve & Reset Faculty Password' : 'Reset Password'}
             </button>
           </form>
         )}

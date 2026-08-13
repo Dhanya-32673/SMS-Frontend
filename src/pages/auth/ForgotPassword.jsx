@@ -107,6 +107,12 @@ const ForgotPassword = () => {
             <p className="text-[11px] text-slate-500 pt-2 border-t border-emerald-200/60">
               Please contact your System Administrator to verify your request and reset your credentials.
             </p>
+            <Link
+              to={`/reset-password?mode=faculty&email=${encodeURIComponent(email)}`}
+              className="inline-block w-full py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md transition-all text-center mt-2"
+            >
+              Go to Admin Approval & Reset Page
+            </Link>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
