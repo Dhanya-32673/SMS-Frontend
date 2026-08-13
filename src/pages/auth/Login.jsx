@@ -352,7 +352,7 @@ const Login = () => {
               <div className="flex items-center justify-between">
                 <div className="text-sm">
                   <Link
-                    to="/forgot-password"
+                    to="/reset-password?mode=faculty"
                     className="font-medium text-blue-400 hover:text-blue-300 transition-colors"
                   >
                     Forgot password?
