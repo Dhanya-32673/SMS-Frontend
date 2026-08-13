@@ -171,7 +171,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.rollNumber}
               onChange={(e) => handleChange('rollNumber', e.target.value)}
               placeholder="e.g. 26INT101"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -184,7 +184,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.admissionNumber}
               onChange={(e) => handleChange('admissionNumber', e.target.value)}
               placeholder="e.g. ADM202688"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -198,7 +198,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.firstName}
               onChange={(e) => handleChange('firstName', e.target.value)}
               placeholder="First Name"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -211,7 +211,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.middleName}
               onChange={(e) => handleChange('middleName', e.target.value)}
               placeholder="Middle Name"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -225,7 +225,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.lastName}
               onChange={(e) => handleChange('lastName', e.target.value)}
               placeholder="Last Name"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -236,7 +236,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
             <select
               value={formData.gender}
               onChange={(e) => handleChange('gender', e.target.value)}
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             >
               <option value="" disabled>Select Gender</option>
               <option value="MALE">Male</option>
@@ -254,7 +254,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               required
               value={formData.dateOfBirth}
               onChange={(e) => handleChange('dateOfBirth', e.target.value)}
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -265,7 +265,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
             <select
               value={formData.bloodGroup}
               onChange={(e) => handleChange('bloodGroup', e.target.value)}
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             >
               <option value="" disabled>Select Blood Group</option>
               {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map((bg) => (
@@ -283,7 +283,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.nationality}
               onChange={(e) => handleChange('nationality', e.target.value)}
               placeholder="e.g. Indian"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -296,7 +296,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.religion}
               onChange={(e) => handleChange('religion', e.target.value)}
               placeholder="e.g. Hindu / Muslim / Christian"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -309,7 +309,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.casteCategory}
               onChange={(e) => handleChange('casteCategory', e.target.value)}
               placeholder="e.g. General / OBC / SC / ST"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -323,7 +323,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.aadhaarNumber}
               onChange={(e) => handleChange('aadhaarNumber', e.target.value)}
               placeholder="12 digit Aadhaar"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -337,7 +337,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.panNumber}
               onChange={(e) => handleChange('panNumber', e.target.value.toUpperCase())}
               placeholder="10 char PAN (e.g. ABCDE1234F)"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -350,7 +350,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.identificationMarks}
               onChange={(e) => handleChange('identificationMarks', e.target.value)}
               placeholder="e.g. Mole on left cheek"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
         </div>
@@ -372,7 +372,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.mobileNumber}
               onChange={(e) => handleChange('mobileNumber', e.target.value)}
               placeholder="e.g. 9876543210"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -385,7 +385,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.alternateMobile}
               onChange={(e) => handleChange('alternateMobile', e.target.value)}
               placeholder="Secondary contact"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -399,7 +399,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.email}
               onChange={(e) => handleChange('email', e.target.value)}
               placeholder="e.g. student@college.edu"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -413,7 +413,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.address}
               onChange={(e) => handleChange('address', e.target.value)}
               placeholder="Street address / House No"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -427,7 +427,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.city}
               onChange={(e) => handleChange('city', e.target.value)}
               placeholder="Enter City"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -441,7 +441,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.district}
               onChange={(e) => handleChange('district', e.target.value)}
               placeholder="Enter District"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -455,7 +455,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.state}
               onChange={(e) => handleChange('state', e.target.value)}
               placeholder="Enter State"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -469,7 +469,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.pinCode}
               onChange={(e) => handleChange('pinCode', e.target.value)}
               placeholder="Enter PIN Code"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -483,7 +483,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.country}
               onChange={(e) => handleChange('country', e.target.value)}
               placeholder="Enter Country"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
         </div>
@@ -505,7 +505,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.fatherName}
               onChange={(e) => handleChange('fatherName', e.target.value)}
               placeholder="Father's full name"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -519,7 +519,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.motherName}
               onChange={(e) => handleChange('motherName', e.target.value)}
               placeholder="Mother's full name"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -533,7 +533,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.parentMobile}
               onChange={(e) => handleChange('parentMobile', e.target.value)}
               placeholder="Parent mobile number"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -546,7 +546,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.parentEmail}
               onChange={(e) => handleChange('parentEmail', e.target.value)}
               placeholder="Parent email"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -559,7 +559,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.occupation}
               onChange={(e) => handleChange('occupation', e.target.value)}
               placeholder="e.g. Business / Government Employee"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -573,7 +573,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.annualIncome}
               onChange={(e) => handleChange('annualIncome', e.target.value)}
               placeholder="e.g. 500000"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
         </div>
@@ -592,7 +592,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
             <select
               value={formData.branchGroup}
               onChange={(e) => handleChange('branchGroup', e.target.value)}
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20 font-bold text-blue-600"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 font-bold text-blue-600"
             >
               <option value="" disabled>Select Group</option>
               {availableGroups.map(grp => (
@@ -608,7 +608,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
             <select
               value={formData.intermediateYear}
               onChange={(e) => handleChange('intermediateYear', e.target.value)}
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20 font-semibold"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 font-semibold"
             >
               <option value="" disabled>Select Year</option>
               {availableYears.map(yr => (
@@ -624,7 +624,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
             <select
               value={formData.section}
               onChange={(e) => handleChange('section', e.target.value)}
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20 font-bold text-slate-800 dark:text-slate-200"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 font-bold text-slate-800 dark:text-slate-200"
             >
               <option value="" disabled>Select Section</option>
               {availableSections.map(sec => (
@@ -643,7 +643,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.batch}
               onChange={(e) => handleChange('batch', e.target.value)}
               placeholder="e.g. 2026-2028"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -657,7 +657,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.academicYear}
               onChange={(e) => handleChange('academicYear', e.target.value)}
               placeholder="e.g. 2026-2027"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -670,7 +670,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               required
               value={formData.admissionDate}
               onChange={(e) => handleChange('admissionDate', e.target.value)}
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -681,7 +681,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
             <select
               value={formData.hostelDayScholar}
               onChange={(e) => handleChange('hostelDayScholar', e.target.value)}
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             >
               <option value="" disabled>Select Hostel Type</option>
               <option value="DAY_SCHOLAR">Day Scholar</option>
@@ -698,7 +698,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               value={formData.medium}
               onChange={(e) => handleChange('medium', e.target.value)}
               placeholder="e.g. English / Telugu"
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -709,7 +709,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
             <select
               value={formData.status}
               onChange={(e) => handleChange('status', e.target.value)}
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-[#5b50e5] focus:ring-2 focus:ring-[#5b50e5]/20"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
             >
               <option value="" disabled>Select Status</option>
               <option value="ACTIVE">ACTIVE</option>
@@ -733,7 +733,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
         <button
           type="submit"
           disabled={submitting}
-          className="px-6 py-2.5 text-xs font-bold text-white bg-[#5b50e5] hover:bg-[#4b40d5] rounded-xl shadow-md shadow-indigo-500/20 disabled:opacity-50 flex items-center"
+          className="px-6 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/25 disabled:opacity-50 flex items-center cursor-pointer"
         >
           {submitting ? (
             <>
