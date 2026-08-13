@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import { authService } from "../../services/authService";
 import OtpVerificationCard from "../../components/OtpVerificationCard";
 import AuthLayout from "../../components/auth/AuthLayout";
+import GoogleAuthModal from "../../components/auth/GoogleAuthModal";
 import { motion } from "framer-motion";
 import { 
   Mail, 
@@ -37,6 +38,7 @@ const Login = () => {
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
+  const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -106,42 +108,29 @@ const Login = () => {
     }
   };
 
-  const handleGoogleSignIn = async () => {
+  const handleOpenGoogleModal = () => {
     setError("");
-    setLoading(true);
+    setIsGoogleModalOpen(true);
+  };
 
-    try {
-      // Prompt for Google account email or mock Google ID token in dev environment
-      const userGoogleEmail = prompt("Enter your Google Account email:", email || "admin@sicms.edu");
-      if (!userGoogleEmail || !userGoogleEmail.trim()) {
-        setLoading(false);
-        return;
-      }
+  const handleGoogleModalSubmit = async (cleanEmail) => {
+    // Construct Google ID Token JWT payload structure for GoogleAuthService
+    const mockHeader = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
+    const mockPayload = btoa(JSON.stringify({
+      sub: "google_user_" + Date.now(),
+      email: cleanEmail,
+      name: cleanEmail.split("@")[0].toUpperCase() + " User",
+      email_verified: true
+    }));
+    const dummyIdToken = `${mockHeader}.${mockPayload}.dummy_signature`;
 
-      const cleanEmail = userGoogleEmail.trim().toLowerCase();
-      
-      // Construct Google ID Token JWT payload structure for GoogleAuthService
-      const mockHeader = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
-      const mockPayload = btoa(JSON.stringify({
-        sub: "google_user_" + Date.now(),
-        email: cleanEmail,
-        name: cleanEmail.split("@")[0].toUpperCase() + " User",
-        email_verified: true
-      }));
-      const dummyIdToken = `${mockHeader}.${mockPayload}.dummy_signature`;
-
-      const response = await authService.googleLogin(dummyIdToken);
-      const targetEmail = response?.email || cleanEmail;
-      
-      localStorage.setItem("pendingEmail", targetEmail);
-      setEmail(targetEmail);
-      setStep("OTP");
-      setSuccessMsg(response?.message || "Google login verified. OTP security code sent to " + targetEmail);
-    } catch (err) {
-      setError(err.response?.data?.message || err.message || "Google sign-in failed. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    const response = await authService.googleLogin(dummyIdToken);
+    const targetEmail = response?.email || cleanEmail;
+    
+    localStorage.setItem("pendingEmail", targetEmail);
+    setEmail(targetEmail);
+    setStep("OTP");
+    setSuccessMsg(response?.message || "Google login verified. OTP security code sent to " + targetEmail);
   };
 
   const handleBackToLogin = () => {
@@ -355,7 +344,7 @@ const Login = () => {
         {/* Google Sign In Button */}
         <motion.button
           type="button"
-          onClick={handleGoogleSignIn}
+          onClick={handleOpenGoogleModal}
           disabled={loading}
           whileHover={{ scale: loading ? 1 : 1.01, y: loading ? 0 : -1 }}
           whileTap={{ scale: loading ? 1 : 0.98 }}
@@ -389,6 +378,14 @@ const Login = () => {
         </div>
 
       </div>
+
+      {/* Custom Enterprise Google Auth Modal */}
+      <GoogleAuthModal
+        isOpen={isGoogleModalOpen}
+        onClose={() => setIsGoogleModalOpen(false)}
+        onSubmit={handleGoogleModalSubmit}
+        defaultEmail={email || "admin@sicms.edu"}
+      />
     </AuthLayout>
   );
 };
