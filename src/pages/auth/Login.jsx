@@ -42,8 +42,12 @@ const Login = () => {
   // Check query params for Google auth errors
   useEffect(() => {
     const googleErr = searchParams.get("error");
-    if (googleErr === "google_unauthorized") {
-      setError("Your Google account is not authorized for SICMS access.");
+    if (googleErr === "google_unauthorized" || googleErr === "google_not_authorized") {
+      setError("Your Google account is not authorized for SICMS access. Please contact the administrator.");
+    } else if (googleErr === "role_not_allowed") {
+      setError("Your role is not authorized for portal access. Please contact the administrator.");
+    } else if (googleErr === "account_disabled") {
+      setError("Your account is disabled. Please contact the administrator.");
     } else if (googleErr === "google_failed") {
       setError("Google sign-in failed or was cancelled. Please try again.");
     }
