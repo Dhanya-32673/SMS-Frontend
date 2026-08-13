@@ -9,6 +9,7 @@ import Login from './pages/auth/Login';
 import OtpVerification from './pages/auth/OtpVerification';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import ResetPassword from './pages/auth/ResetPassword';
+import OAuth2RedirectHandler from './pages/auth/OAuth2RedirectHandler';
 
 // Dashboards (Lazy loaded)
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
@@ -71,6 +72,7 @@ function App() {
           {/* Public Authentication Routes */}
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
           <Route path="/otp-verification" element={<OtpVerification />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
@@ -125,11 +127,11 @@ function App() {
             }
           />
 
-          {/* Part 3 Certificate Routes */}
+          {/* Certificate Management Routes */}
           <Route
             path="/admin/certificates"
             element={
-              <RoleRoute allowedRoles={['ADMIN', 'FACULTY']}>
+              <RoleRoute allowedRoles={['ADMIN']}>
                 <AllCertificates />
               </RoleRoute>
             }
@@ -145,7 +147,7 @@ function App() {
           <Route
             path="/admin/certificates/pending"
             element={
-              <RoleRoute allowedRoles={['ADMIN', 'FACULTY']}>
+              <RoleRoute allowedRoles={['ADMIN']}>
                 <PendingDocuments />
               </RoleRoute>
             }
@@ -153,7 +155,7 @@ function App() {
           <Route
             path="/admin/certificates/missing"
             element={
-              <RoleRoute allowedRoles={['ADMIN', 'FACULTY']}>
+              <RoleRoute allowedRoles={['ADMIN']}>
                 <MissingDocuments />
               </RoleRoute>
             }
@@ -161,7 +163,7 @@ function App() {
           <Route
             path="/admin/certificates/verified"
             element={
-              <RoleRoute allowedRoles={['ADMIN', 'FACULTY']}>
+              <RoleRoute allowedRoles={['ADMIN']}>
                 <VerifiedDocuments />
               </RoleRoute>
             }
@@ -169,13 +171,13 @@ function App() {
           <Route
             path="/admin/certificates/types"
             element={
-              <RoleRoute allowedRoles={['ADMIN', 'FACULTY']}>
+              <RoleRoute allowedRoles={['ADMIN']}>
                 <CertificateTypes />
               </RoleRoute>
             }
           />
 
-          {/* Part 4 Faculty & Academic Management Routes */}
+          {/* Faculty Management Routes */}
           <Route
             path="/admin/faculty"
             element={
@@ -193,42 +195,28 @@ function App() {
             }
           />
           <Route
-            path="/admin/faculty/:facultyId"
+            path="/admin/faculty/:id"
             element={
-              <RoleRoute allowedRoles={['ADMIN', 'FACULTY']}>
+              <RoleRoute allowedRoles={['ADMIN']}>
                 <FacultyProfile />
               </RoleRoute>
             }
           />
           <Route
-            path="/admin/faculty/:facultyId/edit"
+            path="/admin/faculty/:id/edit"
             element={
               <RoleRoute allowedRoles={['ADMIN']}>
                 <EditFaculty />
               </RoleRoute>
             }
           />
-          <Route
-            path="/admin/departments"
-            element={
-              <RoleRoute allowedRoles={['ADMIN']}>
-                <GroupManagement />
-              </RoleRoute>
-            }
-          />
+
+          {/* Academic Management Routes */}
           <Route
             path="/admin/academic/groups"
             element={
               <RoleRoute allowedRoles={['ADMIN']}>
                 <GroupManagement />
-              </RoleRoute>
-            }
-          />
-          <Route
-            path="/admin/sections"
-            element={
-              <RoleRoute allowedRoles={['ADMIN']}>
-                <SectionManagement />
               </RoleRoute>
             }
           />
@@ -240,8 +228,10 @@ function App() {
               </RoleRoute>
             }
           />
+
+          {/* Security Management Routes */}
           <Route
-            path="/admin/roles"
+            path="/admin/security/roles"
             element={
               <RoleRoute allowedRoles={['ADMIN']}>
                 <RoleManagement />
@@ -249,7 +239,7 @@ function App() {
             }
           />
 
-          {/* Faculty Routes */}
+          {/* Faculty Dashboard & Dedicated Student Search */}
           <Route
             path="/faculty/dashboard"
             element={
@@ -261,7 +251,7 @@ function App() {
           <Route
             path="/faculty/students/search"
             element={
-              <RoleRoute allowedRoles={['FACULTY', 'ADMIN']}>
+              <RoleRoute allowedRoles={['FACULTY']}>
                 <SearchStudent />
               </RoleRoute>
             }
@@ -269,37 +259,29 @@ function App() {
           <Route
             path="/faculty/students/:id"
             element={
-              <RoleRoute allowedRoles={['FACULTY', 'ADMIN']}>
+              <RoleRoute allowedRoles={['FACULTY']}>
                 <FacultyStudentProfile />
               </RoleRoute>
             }
           />
-          <Route
-            path="/faculty/students/:id/id-card"
-            element={
-              <RoleRoute allowedRoles={['FACULTY', 'ADMIN']}>
-                <StudentIdCard />
-              </RoleRoute>
-            }
-          />
 
-          {/* Common User Profile & Change Password Route */}
+          {/* Shared Common Profile */}
           <Route
             path="/profile"
             element={
-              <RoleRoute allowedRoles={['ADMIN', 'FACULTY', 'STUDENT']}>
+              <RoleRoute allowedRoles={['ADMIN', 'FACULTY']}>
                 <UserProfile />
               </RoleRoute>
             }
           />
 
-          {/* Catch-all Fallback */}
+          {/* Catch-all redirect */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
-      </Suspense>
-      </AuthProvider>
-    </ToastProvider>
-  </BrowserRouter>
+          </Suspense>
+        </AuthProvider>
+      </ToastProvider>
+    </BrowserRouter>
   );
 }
 

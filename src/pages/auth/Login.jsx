@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { authService } from "../../services/authService";
 import OtpVerificationCard from "../../components/OtpVerificationCard";
@@ -19,6 +19,7 @@ import {
 
 const Login = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { isAuthenticated, user, isInactiveLoggedOut } = useAuth();
 
   // Selected Role Tab: "ADMIN" | "FACULTY"
@@ -37,6 +38,16 @@ const Login = () => {
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
+
+  // Check query params for Google auth errors
+  useEffect(() => {
+    const googleErr = searchParams.get("error");
+    if (googleErr === "google_unauthorized") {
+      setError("Your Google account is not authorized for SICMS access.");
+    } else if (googleErr === "google_failed") {
+      setError("Google sign-in failed or was cancelled. Please try again.");
+    }
+  }, [searchParams]);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -106,36 +117,11 @@ const Login = () => {
     }
   };
 
-  // 1-Click Instant Google Authentication (Zero Typing, Zero Popups)
-  const handleGoogleSignIn = async () => {
+  // Real Google OAuth Redirect to Spring Security Authorization Endpoint
+  const handleGoogleSignIn = () => {
     setError("");
-    setLoading(true);
-
-    try {
-      const targetGoogleEmail = email || "admin@sicms.edu";
-
-      // Construct Google ID Token JWT payload structure for GoogleAuthService
-      const mockHeader = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
-      const mockPayload = btoa(JSON.stringify({
-        sub: "google_user_admin_" + Date.now(),
-        email: targetGoogleEmail,
-        name: "ADMIN GOOGLE USER",
-        email_verified: true
-      }));
-      const dummyIdToken = `${mockHeader}.${mockPayload}.dummy_signature`;
-
-      const response = await authService.googleLogin(dummyIdToken);
-      const targetEmail = response?.email || targetGoogleEmail;
-      
-      localStorage.setItem("pendingEmail", targetEmail);
-      setEmail(targetEmail);
-      setStep("OTP");
-      setSuccessMsg(response?.message || "Google Single Sign-On verified. Security OTP code sent to " + targetEmail);
-    } catch (err) {
-      setError(err.response?.data?.message || err.message || "Google sign-in failed. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
+    window.location.href = `${API_BASE_URL}/oauth2/authorization/google`;
   };
 
   const handleBackToLogin = () => {
@@ -145,7 +131,7 @@ const Login = () => {
     localStorage.removeItem("pendingEmail");
   };
 
-  // Render Premium OTP Verification Card when Admin or Google Login submits credentials
+  // Render Premium OTP Verification Card when Admin submits credentials
   if (step === "OTP") {
     const targetEmail = email || localStorage.getItem("pendingEmail") || "your email";
     return (
@@ -346,7 +332,7 @@ const Login = () => {
           </span>
         </div>
 
-        {/* Google Sign In Button (1-Click Instant Login) */}
+        {/* Google OAuth Button */}
         <motion.button
           type="button"
           onClick={handleGoogleSignIn}
@@ -373,7 +359,7 @@ const Login = () => {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
             />
           </svg>
-          <span>Sign in with Google</span>
+          <span>Continue with Google</span>
         </motion.button>
 
         {/* Footer Trust Line */}
