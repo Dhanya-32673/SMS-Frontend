@@ -135,7 +135,7 @@ function App() {
           <Route
             path="/admin/certificates"
             element={
-              <RoleRoute allowedRoles={['ADMIN']}>
+              <RoleRoute allowedRoles={['ADMIN', 'FACULTY']}>
                 <AllCertificates />
               </RoleRoute>
             }
@@ -151,7 +151,7 @@ function App() {
           <Route
             path="/admin/certificates/pending"
             element={
-              <RoleRoute allowedRoles={['ADMIN']}>
+              <RoleRoute allowedRoles={['ADMIN', 'FACULTY']}>
                 <PendingDocuments />
               </RoleRoute>
             }
@@ -159,7 +159,7 @@ function App() {
           <Route
             path="/admin/certificates/missing"
             element={
-              <RoleRoute allowedRoles={['ADMIN']}>
+              <RoleRoute allowedRoles={['ADMIN', 'FACULTY']}>
                 <MissingDocuments />
               </RoleRoute>
             }
@@ -167,7 +167,7 @@ function App() {
           <Route
             path="/admin/certificates/verified"
             element={
-              <RoleRoute allowedRoles={['ADMIN']}>
+              <RoleRoute allowedRoles={['ADMIN', 'FACULTY']}>
                 <VerifiedDocuments />
               </RoleRoute>
             }
@@ -175,7 +175,7 @@ function App() {
           <Route
             path="/admin/certificates/types"
             element={
-              <RoleRoute allowedRoles={['ADMIN']}>
+              <RoleRoute allowedRoles={['ADMIN', 'FACULTY']}>
                 <CertificateTypes />
               </RoleRoute>
             }
