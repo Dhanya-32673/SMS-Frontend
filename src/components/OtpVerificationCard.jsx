@@ -193,7 +193,8 @@ export const OtpVerificationCard = ({
       setSuccessMsg('A new verification code has been sent.');
       inputRefs.current[0]?.focus();
     } catch (err) {
-      setErrorMsg(err.message || 'Failed to resend verification code.');
+      const msg = err.response?.data?.message || err.message || 'Failed to resend verification code.';
+      setErrorMsg(msg);
     } finally {
       setLoading(false);
     }
