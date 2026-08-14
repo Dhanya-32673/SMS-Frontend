@@ -45,11 +45,18 @@ export const FacultyManagement = () => {
       showSuccess('Faculty deleted successfully');
       setFacultyToDelete(null);
       setFacultyList((prev) => prev.filter((f) => f.id !== targetId));
+      fetchFaculty();
     } catch (err) {
       console.error('Failed to delete faculty:', err);
       const msg = err.response?.data?.message || err.message || 'Failed to delete faculty';
-      setError(msg);
-      showError(msg);
+      if (err.response?.status === 404 || msg.toLowerCase().includes('not found')) {
+        setFacultyToDelete(null);
+        setFacultyList((prev) => prev.filter((f) => f.id !== targetId));
+        showSuccess('Faculty record removed.');
+      } else {
+        setError(msg);
+        showError(msg);
+      }
     } finally {
       setDeleting(false);
     }
@@ -184,7 +191,10 @@ export const FacultyManagement = () => {
                             <Edit3 className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => setFacultyToDelete(fac)}
+                            onClick={() => {
+                              setError('');
+                              setFacultyToDelete(fac);
+                            }}
                             className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg transition cursor-pointer"
                             title="Delete Faculty"
                           >

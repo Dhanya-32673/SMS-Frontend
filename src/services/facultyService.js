@@ -3,7 +3,7 @@ import api from './api';
 const facultyService = {
   // Search & list faculty
   getFacultyList: async (params) => {
-    const response = await api.get('/faculty', { params });
+    const response = await api.get('/faculty', { params, cache: false });
     return response.data;
   },
 
