@@ -7,6 +7,7 @@ import { useToast } from '../../../context/ToastContext';
 import StudentStatusBadge from '../../../components/students/StudentStatusBadge';
 import studentService from '../../../services/studentService';
 import DeleteStudentModal from '../../../components/students/DeleteStudentModal';
+import ExportExcelButton from '../../../components/students/ExportExcelButton';
 import {
   Users,
   UserPlus,
@@ -121,13 +122,16 @@ export const AllStudents = () => {
           </div>
 
           {isAdmin && (
-            <Link
-              to="/admin/students/add"
-              className="py-2.5 px-4 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md inline-flex items-center space-x-2 transition cursor-pointer self-start sm:self-auto"
-            >
-              <UserPlus className="w-4 h-4" />
-              <span>Add New Student</span>
-            </Link>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 self-stretch sm:self-auto">
+              <ExportExcelButton className="w-full sm:w-auto" />
+              <Link
+                to="/admin/students/add"
+                className="py-2.5 px-4 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md inline-flex items-center justify-center space-x-2 transition cursor-pointer w-full sm:w-auto"
+              >
+                <UserPlus className="w-4 h-4" />
+                <span>Add New Student</span>
+              </Link>
+            </div>
           )}
         </div>
 

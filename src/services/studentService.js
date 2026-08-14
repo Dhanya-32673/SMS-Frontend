@@ -54,6 +54,15 @@ export const studentService = {
     apiCache.clear('/academic/sections');
     return response.data;
   },
+
+  exportStudentsToExcel: async () => {
+    const response = await api.get('/admin/students/export/excel', {
+      responseType: 'blob',
+      cache: false,
+      timeout: 60000,
+    });
+    return response;
+  },
 };
 
 export default studentService;
