@@ -56,7 +56,7 @@ export const studentService = {
   },
 
   exportStudentsToExcel: async () => {
-    const response = await api.get('/admin/students/export/excel', {
+    const response = await api.get('/students/export/excel', {
       responseType: 'blob',
       cache: false,
       timeout: 60000,

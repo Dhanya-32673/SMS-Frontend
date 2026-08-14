@@ -12,7 +12,7 @@ export const ExportExcelButton = ({ className = '' }) => {
   // Button status states: 'IDLE' | 'LOADING' | 'DOWNLOADED'
   const [status, setStatus] = useState('IDLE');
 
-  // Strict role verification: only ADMIN or SUPER_ADMIN can view and use
+  // Role verification: ADMIN, SUPER_ADMIN, and FACULTY can view and use
   const rawRole = (
     typeof user?.role === 'string'
       ? user.role
@@ -22,7 +22,10 @@ export const ExportExcelButton = ({ className = '' }) => {
     .toUpperCase();
 
   const isAuthorized =
-    contextIsAdmin || rawRole === 'ADMIN' || rawRole === 'SUPER_ADMIN';
+    contextIsAdmin ||
+    rawRole === 'ADMIN' ||
+    rawRole === 'SUPER_ADMIN' ||
+    rawRole === 'FACULTY';
 
   if (!isAuthorized) {
     return null;

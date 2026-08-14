@@ -121,19 +121,32 @@ export const AllStudents = () => {
             </p>
           </div>
 
-          {isAdmin && (
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 self-stretch sm:self-auto">
-              <ExportExcelButton className="w-full sm:w-auto" />
-              <Link
-                to="/admin/students/add"
-                className="py-2.5 px-4 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md inline-flex items-center justify-center space-x-2 transition cursor-pointer w-full sm:w-auto"
-              >
-                <UserPlus className="w-4 h-4" />
-                <span>Add New Student</span>
-              </Link>
-            </div>
-          )}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 self-stretch sm:self-auto">
+            <ExportExcelButton className="w-full sm:w-auto" />
+            <Link
+              to="/admin/students/add"
+              className="py-2.5 px-4 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md inline-flex items-center justify-center space-x-2 transition cursor-pointer w-full sm:w-auto"
+            >
+              <UserPlus className="w-4 h-4" />
+              <span>Add New Student</span>
+            </Link>
+          </div>
         </div>
+
+        {/* Faculty Scoped Indicator Banner */}
+        {!isAdmin && (
+          <div className="bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800/60 rounded-2xl p-3.5 px-4 flex items-center justify-between shadow-xs">
+            <div className="flex items-center space-x-2.5">
+              <div className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
+              <span className="text-xs font-bold text-blue-900 dark:text-blue-200">
+                Showing students from your assigned section(s)
+              </span>
+            </div>
+            <span className="text-[11px] font-medium text-blue-600 dark:text-blue-400">
+              Assigned Sections & Created Students
+            </span>
+          </div>
+        )}
 
         {/* Filter & Search Bar */}
         <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
@@ -212,8 +225,22 @@ export const AllStudents = () => {
                   </tr>
                 ) : students.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-12 text-center text-slate-400 font-medium">
-                      No student profiles found.
+                    <td colSpan={7} className="py-16 text-center text-slate-400">
+                      <div className="flex flex-col items-center justify-center space-y-3">
+                        <div className="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-950/50 flex items-center justify-center text-blue-500 shadow-inner">
+                          <Users className="w-7 h-7" />
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                            {!isAdmin ? 'No students assigned to you yet.' : 'No student profiles found.'}
+                          </p>
+                          <p className="text-xs text-slate-400">
+                            {!isAdmin
+                              ? 'Contact college administration to assign sections or add new students.'
+                              : 'Try adjusting your search queries or filter criteria.'}
+                          </p>
+                        </div>
+                      </div>
                     </td>
                   </tr>
                 ) : (
@@ -294,7 +321,7 @@ export const AllStudents = () => {
           </div>
 
           {/* Pagination */}
-          {totalPages > 1 && (
+          {totalPages > 1 && students.length > 0 && (
             <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
               <span className="text-slate-500">
                 Page <strong>{page + 1}</strong> of <strong>{totalPages}</strong> ({totalElements} Total Students)
