@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { authService } from '../../services/authService';
 import OtpInput from '../../components/OtpInput';
@@ -14,6 +14,8 @@ import {
   ShieldAlert,
   Mail,
   Check,
+  CheckCircle2,
+  Send,
   ArrowRight
 } from 'lucide-react';
 
@@ -31,8 +33,54 @@ const ResetPassword = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [countdown, setCountdown] = useState(0);
+  const [infoMsg, setInfoMsg] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    let timer;
+    if (countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [countdown]);
+
+  const handleSendOtp = async () => {
+    const cleanEmail = email.trim();
+    if (!cleanEmail || !/\S+@\S+\.\S+/.test(cleanEmail)) {
+      setError('Please enter a valid email address first');
+      return;
+    }
+
+    setSendingOtp(true);
+    setError('');
+    setInfoMsg('');
+
+    try {
+      if (mode === 'FACULTY') {
+        await authService.requestFacultyPasswordReset({
+          facultyEmail: cleanEmail,
+          employeeId: '',
+          reason: 'Faculty password reset request',
+        });
+        setInfoMsg('Authorization OTP sent to Admin email (bhashyamgnt.edu@gmail.com)');
+      } else {
+        await authService.forgotPassword(cleanEmail);
+        setInfoMsg(`6-digit verification code sent to ${cleanEmail}`);
+      }
+      setOtpSent(true);
+      setCountdown(60);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to send OTP. Please check the email address and try again.');
+    } finally {
+      setSendingOtp(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -102,7 +150,7 @@ const ResetPassword = () => {
         <div className="bg-[#f1f5f9] rounded-[12px] p-1 flex h-[42px] w-full border border-slate-200/80 text-[11px] font-extrabold">
           <button
             type="button"
-            onClick={() => { setMode('STANDARD'); setError(''); }}
+            onClick={() => { setMode('STANDARD'); setError(''); setInfoMsg(''); }}
             className={`flex-1 py-1 rounded-[9px] transition-all duration-300 cursor-pointer ${
               mode === 'STANDARD' ? 'bg-gradient-to-r from-[#2563eb] to-[#3b82f6] text-white shadow-sm font-bold' : 'text-slate-500 hover:text-slate-900'
             }`}
@@ -111,7 +159,7 @@ const ResetPassword = () => {
           </button>
           <button
             type="button"
-            onClick={() => { setMode('FACULTY'); setError(''); }}
+            onClick={() => { setMode('FACULTY'); setError(''); setInfoMsg(''); }}
             className={`flex-1 py-1 rounded-[9px] transition-all duration-300 cursor-pointer ${
               mode === 'FACULTY' ? 'bg-gradient-to-r from-[#2563eb] to-[#3b82f6] text-white shadow-sm font-bold' : 'text-slate-500 hover:text-slate-900'
             }`}
@@ -140,8 +188,8 @@ const ResetPassword = () => {
           </h2>
           <p className="text-slate-500 text-[11px] sm:text-xs font-medium max-w-[300px] mx-auto mt-0.5">
             {mode === 'FACULTY'
-              ? 'Enter Faculty Email, 6-digit OTP code, and new password'
-              : 'Enter 6-digit code sent to your email and set new password'}
+              ? 'Enter Faculty Email, click Send OTP, and enter admin authorization code'
+              : 'Enter email, click Send OTP, and enter verification code'}
           </p>
         </div>
 
@@ -149,6 +197,7 @@ const ResetPassword = () => {
         <AnimatePresence mode="wait">
           {error && (
             <motion.div
+              key="err"
               initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
@@ -156,6 +205,18 @@ const ResetPassword = () => {
             >
               <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
               <span>{error}</span>
+            </motion.div>
+          )}
+          {infoMsg && (
+            <motion.div
+              key="info"
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              className="p-2.5 rounded-xl bg-blue-50 border border-blue-200 flex items-center gap-2 text-blue-800 text-xs font-semibold"
+            >
+              <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
+              <span>{infoMsg}</span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -177,12 +238,19 @@ const ResetPassword = () => {
           /* Form Fields (Height 46px, Radius 12px) */
           <form onSubmit={handleSubmit} className="space-y-2">
             
-            {/* Email Address */}
+            {/* Email Address with Send OTP Button */}
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-700 mb-0.5">
-                {mode === 'FACULTY' ? 'Faculty Email Address' : 'Email Address'}
-              </label>
-              <div className="h-[46px] bg-white border border-slate-200 focus-within:border-[#2563eb] focus-within:ring-2 focus-within:ring-[#2563eb]/15 rounded-[12px] flex items-center px-3 gap-2 transition-all duration-200">
+              <div className="flex items-center justify-between mb-0.5">
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-700">
+                  {mode === 'FACULTY' ? 'Faculty Email Address' : 'Email Address'}
+                </label>
+                {otpSent && countdown > 0 && (
+                  <span className="text-[10px] font-bold text-blue-600">
+                    Resend in {countdown}s
+                  </span>
+                )}
+              </div>
+              <div className="h-[46px] bg-white border border-slate-200 focus-within:border-[#2563eb] focus-within:ring-2 focus-within:ring-[#2563eb]/15 rounded-[12px] flex items-center pl-3 pr-1.5 gap-2 transition-all duration-200">
                 <Mail className="w-4 h-4 text-slate-400 shrink-0" />
                 <input
                   type="email"
@@ -190,8 +258,28 @@ const ResetPassword = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={mode === 'FACULTY' ? "faculty.email@college.edu" : "Registered Email"}
                   required
-                  className="w-full bg-transparent text-slate-900 font-semibold text-xs placeholder-slate-400 focus:outline-none"
+                  className="w-full bg-transparent text-slate-900 font-semibold text-xs placeholder-slate-400 focus:outline-none min-w-0"
                 />
+                <button
+                  type="button"
+                  onClick={handleSendOtp}
+                  disabled={sendingOtp || (otpSent && countdown > 0)}
+                  className="h-[34px] px-3 rounded-[8px] bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-bold text-[11px] whitespace-nowrap transition-all duration-200 flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0 shadow-sm"
+                >
+                  {sendingOtp ? (
+                    <>
+                      <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span>Sending...</span>
+                    </>
+                  ) : otpSent && countdown > 0 ? (
+                    <span>{countdown}s</span>
+                  ) : (
+                    <>
+                      <Send className="w-3 h-3" />
+                      <span>{otpSent ? 'Resend OTP' : 'Send OTP'}</span>
+                    </>
+                  )}
+                </button>
               </div>
             </div>
 
