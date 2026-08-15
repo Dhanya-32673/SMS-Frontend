@@ -188,7 +188,7 @@ api.interceptors.response.use(
 
     // Handle 401 Unauthorized with Refresh Token rotation
     if (error.response?.status === 401 && !originalRequest._retry) {
-      if (url.includes('/auth/login') || url.includes('/auth/google') || url.includes('/auth/verify-otp') || url.includes('/auth/refresh')) {
+      if (url.includes('/auth/') || url.includes('/reset-password')) {
         if (!url.includes('/auth/refresh')) {
           toast.error(getOperationMessage(url, method, true), { operation: `error:${method}:${url}` });
         }

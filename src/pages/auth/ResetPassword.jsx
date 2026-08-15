@@ -102,6 +102,16 @@ const ResetPassword = () => {
       return;
     }
 
+    const hasUpper = /[A-Z]/.test(newPassword);
+    const hasLower = /[a-z]/.test(newPassword);
+    const hasDigit = /[0-9]/.test(newPassword);
+    const hasSpecial = /[^A-Za-z0-9]/.test(newPassword);
+
+    if (!hasUpper || !hasLower || !hasDigit || !hasSpecial) {
+      setError('Password must contain uppercase, lowercase, a number, and a special character (e.g. Dhanya@123)');
+      return;
+    }
+
     if (newPassword !== confirmPassword) {
       setError('New password and confirm password do not match');
       return;

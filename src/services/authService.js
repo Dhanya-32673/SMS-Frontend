@@ -88,7 +88,7 @@ export const authService = {
   adminResetFacultyPassword: async ({ facultyEmail, otp, newPassword, confirmPassword }) => {
     console.log('[authService] Admin resetting faculty password for:', facultyEmail);
     try {
-      const response = await api.post('/admin/faculty/reset-password', {
+      const response = await api.post('/auth/faculty/reset-password', {
         facultyEmail,
         otp,
         newPassword,
