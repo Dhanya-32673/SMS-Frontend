@@ -116,7 +116,7 @@ export const UserProfile = () => {
 
               <div className="space-y-1">
                 <span className="text-[11px] font-bold text-slate-400 block">Email Address</span>
-                <p className="font-bold text-blue-600 dark:text-blue-400">{user?.email || 'admin@college.edu'}</p>
+                <p className="font-bold text-blue-600 dark:text-blue-400">{user?.email || 'bhashyamgnt.edu@gmail.com'}</p>
               </div>
 
               <div className="space-y-1">

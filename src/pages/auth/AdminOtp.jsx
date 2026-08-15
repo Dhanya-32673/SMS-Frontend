@@ -6,7 +6,7 @@ import { authService } from '../../services/authService';
 const AdminOtp = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const email = searchParams.get('email') || localStorage.getItem('pendingEmail') || 'admin@sicms.edu';
+  const email = searchParams.get('email') || localStorage.getItem('pendingEmail') || 'bhashyamgnt.edu@gmail.com';
 
   const handleVerify = async (code) => {
     await authService.verifyAdminOtp(email, code);
