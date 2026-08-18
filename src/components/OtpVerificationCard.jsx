@@ -23,6 +23,8 @@ export const OtpVerificationCard = ({
 }) => {
   const [otpValues, setOtpValues] = useState(Array(length).fill(''));
   const [activeBoxIndex, setActiveBoxIndex] = useState(0);
+  const [clickWobbleIndex, setClickWobbleIndex] = useState(null);
+  const [isFlipped, setIsFlipped] = useState(Array(length).fill(false));
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
@@ -52,6 +54,23 @@ export const OtpVerificationCard = ({
 
   const handleBoxFocus = (index) => {
     setActiveBoxIndex(index);
+    setClickWobbleIndex(index);
+    setTimeout(() => setClickWobbleIndex(null), 300);
+  };
+
+  const triggerCardFlip = (index) => {
+    setIsFlipped((prev) => {
+      const next = [...prev];
+      next[index] = true;
+      return next;
+    });
+    setTimeout(() => {
+      setIsFlipped((prev) => {
+        const next = [...prev];
+        next[index] = false;
+        return next;
+      });
+    }, 450);
   };
 
   const handleInputChange = (index, value) => {
@@ -66,6 +85,7 @@ export const OtpVerificationCard = ({
     setOtpValues(newValues);
 
     if (value) {
+      triggerCardFlip(index);
       if (index < length - 1) {
         setActiveBoxIndex(index + 1);
         inputRefs.current[index + 1]?.focus();
@@ -182,7 +202,18 @@ export const OtpVerificationCard = ({
 
   return (
     <AuthLayout title={title} subtitle={subtitle}>
-      <div className="w-full max-w-[420px] mx-auto space-y-4 my-auto px-1 sm:px-0">
+      
+      {/* Expanding Green Verification Ring on Success */}
+      {isSuccess && (
+        <motion.div
+          initial={{ scale: 0, opacity: 1 }}
+          animate={{ scale: 3, opacity: 0 }}
+          transition={{ duration: 2.2, ease: 'easeOut' }}
+          className="absolute w-72 h-72 rounded-full border-4 border-emerald-500/80 pointer-events-none z-0 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+        />
+      )}
+
+      <div className="w-full max-w-[430px] mx-auto space-y-4 my-auto relative z-10 px-1 sm:px-0" style={{ perspective: '1000px' }}>
         
         {/* Back Link */}
         {onBack && (
@@ -196,25 +227,47 @@ export const OtpVerificationCard = ({
           </button>
         )}
 
-        {/* Center Icon */}
+        {/* Center Shield Icon (Continuous 360° rotation, Blue pulse glow, 720° spin on success) */}
         <div className="text-center pt-0.5 relative">
+          
+          {/* Blue/Green Pulse Glow Overlay */}
           <motion.div
             animate={
               isSuccess
-                ? { scale: [1, 1.15, 1] }
-                : { y: [-3, 3, -3] }
+                ? { scale: [1, 1.4, 1], opacity: [0.6, 1, 0.4] }
+                : { scale: [1, 1.18, 1], opacity: [0.3, 0.8, 0.3] }
             }
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-            className={`w-[76px] h-[76px] sm:w-[84px] sm:h-[84px] rounded-full flex items-center justify-center mx-auto shadow-md transition-colors duration-300 ${
+            transition={{ repeat: Infinity, duration: isSuccess ? 1.0 : 2, ease: 'easeInOut' }}
+            className={`absolute top-0.5 left-1/2 -translate-x-1/2 w-[80px] h-[80px] sm:w-[88px] sm:h-[88px] rounded-full ${
+              isSuccess ? 'bg-emerald-500/40' : 'bg-blue-600/30'
+            } blur-xl pointer-events-none`}
+          />
+
+          <motion.div
+            animate={
               isSuccess
-                ? 'bg-gradient-to-tr from-emerald-600 to-emerald-400 text-white shadow-emerald-500/20'
-                : 'bg-[#eff6ff] text-[#2563eb] border border-blue-100 shadow-blue-500/10'
+                ? { rotate: 720, scale: [1, 1.25, 0.95, 1], y: [0, -8, 0] }
+                : { rotate: 360, y: [-4, 4, -4] }
+            }
+            transition={
+              isSuccess
+                ? { duration: 1.4, ease: 'easeInOut' }
+                : {
+                    rotate: { repeat: Infinity, duration: 8, ease: 'linear' },
+                    y: { repeat: Infinity, duration: 3, ease: 'easeInOut' },
+                  }
+            }
+            className={`w-[78px] h-[78px] sm:w-[84px] sm:h-[84px] rounded-full flex items-center justify-center mx-auto shadow-lg transition-colors duration-500 relative z-10 ${
+              isSuccess
+                ? 'bg-gradient-to-tr from-emerald-600 to-emerald-400 shadow-emerald-500/40 text-white'
+                : 'bg-gradient-to-tr from-[#2563eb] to-[#3b82f6] shadow-blue-500/30 text-white'
             }`}
+            style={{ willChange: 'transform' }}
           >
             {isSuccess ? (
               <Check className="w-8 h-8 sm:w-9 sm:h-9 text-white stroke-[3]" />
             ) : (
-              <ShieldCheck className="w-8 h-8 sm:w-9 sm:h-9 text-[#2563eb]" />
+              <ShieldCheck className="w-8 h-8 sm:w-9 sm:h-9 text-white" />
             )}
           </motion.div>
 
@@ -257,46 +310,68 @@ export const OtpVerificationCard = ({
           )}
         </AnimatePresence>
 
-        {/* OTP Input Section */}
+        {/* OTP Input Section (With 3D Digit Flip and Horizontal Error Shake) */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <motion.div
             animate={
-              isError ? { x: [-8, 8, -6, 6, -3, 3, 0] } : {}
+              isError
+                ? { x: [-8, 8, -6, 6, -3, 3, 0] }
+                : isSuccess
+                ? { rotateY: [0, 360], scale: [1, 1.05, 1] }
+                : {}
             }
-            transition={{ duration: 0.5 }}
+            transition={{ duration: isError ? 0.6 : isSuccess ? 0.8 : 0.4 }}
             className="flex items-center justify-center gap-2 sm:gap-3 my-2"
+            style={{ transformStyle: 'preserve-3d' }}
           >
             {Array.from({ length }).map((_, index) => {
+              const flipped = isFlipped[index];
+              const wobbling = clickWobbleIndex === index;
               const active = activeBoxIndex === index;
               const filled = Boolean(otpValues[index]);
 
               return (
-                <input
+                <motion.div
                   key={index}
-                  ref={(el) => (inputRefs.current[index] = el)}
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  maxLength={1}
-                  autoComplete={index === 0 ? "one-time-code" : "off"}
-                  value={otpValues[index]}
-                  onChange={(e) => handleInputChange(index, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(index, e)}
-                  onFocus={() => handleBoxFocus(index)}
-                  onPaste={handlePaste}
-                  disabled={loading || isSuccess}
-                  className={`w-12 h-14 sm:w-14 sm:h-16 text-center text-xl sm:text-2xl font-black bg-white rounded-xl border-2 transition-all duration-200 outline-none ${
-                    isError
-                      ? 'border-red-500 text-red-600 bg-red-50/20 shadow-[0_0_0_3px_rgba(239,68,68,0.2)]'
-                      : isSuccess
-                      ? 'border-emerald-500 text-emerald-600 bg-emerald-50/20 shadow-[0_0_0_3px_rgba(16,185,129,0.2)]'
-                      : active
-                      ? 'border-[#2563eb] shadow-[0_0_0_3px_rgba(37,99,235,0.18)] text-slate-900'
-                      : filled
-                      ? 'border-blue-400 text-slate-900 bg-blue-50/20'
-                      : 'border-slate-200 text-slate-900 hover:border-slate-300'
-                  }`}
-                />
+                  animate={{
+                    rotateX: flipped ? [0, 180, 360] : 0,
+                    rotateY: wobbling ? [0, 10, 0] : 0,
+                    scale: flipped ? [0.9, 1.15, 1.0] : active ? 1.06 : 1,
+                    y: active ? -1 : 0,
+                  }}
+                  transition={{
+                    duration: flipped ? 0.45 : 0.35,
+                    ease: flipped ? [0.34, 1.56, 0.64, 1] : "easeInOut",
+                  }}
+                  className="relative"
+                  style={{ transformStyle: 'preserve-3d', willChange: 'transform' }}
+                >
+                  <input
+                    ref={(el) => (inputRefs.current[index] = el)}
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={1}
+                    autoComplete={index === 0 ? "one-time-code" : "off"}
+                    value={otpValues[index]}
+                    onChange={(e) => handleInputChange(index, e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(index, e)}
+                    onFocus={() => handleBoxFocus(index)}
+                    onPaste={handlePaste}
+                    disabled={loading || isSuccess}
+                    className={`w-12 h-14 sm:w-14 sm:h-16 text-center text-xl sm:text-2xl font-black bg-white rounded-[14px] border-2 transition-all duration-200 outline-none ${
+                      isError
+                        ? 'border-red-500 text-red-600 bg-red-50/20 shadow-[0_0_0_4px_rgba(239,68,68,0.2)]'
+                        : isSuccess
+                        ? 'border-emerald-500 text-emerald-600 bg-emerald-50/20 shadow-[0_0_0_4px_rgba(16,185,129,0.2)]'
+                        : active
+                        ? 'border-[#2563eb] shadow-[0_0_0_4px_rgba(37,99,235,0.18)] text-slate-900'
+                        : filled
+                        ? 'border-blue-400 text-slate-900 bg-blue-50/15'
+                        : 'border-[#dbeafe] text-slate-900 hover:border-blue-200'
+                    }`}
+                  />
+                </motion.div>
               );
             })}
           </motion.div>
@@ -322,18 +397,21 @@ export const OtpVerificationCard = ({
             )}
           </div>
 
-          {/* Primary CTA Button */}
+          {/* Primary CTA Button with Shine Hover Effect */}
           <motion.button
             type="submit"
             disabled={loading || otpValues.includes('') || isSuccess}
-            whileHover={{ scale: loading || otpValues.includes('') ? 1 : 1.01 }}
+            whileHover={{ scale: loading || otpValues.includes('') ? 1 : 1.01, y: loading || otpValues.includes('') ? 0 : -1 }}
             whileTap={{ scale: loading || otpValues.includes('') ? 1 : 0.98 }}
-            className={`w-full h-[48px] sm:h-[50px] rounded-xl font-bold text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_20px_rgba(37,99,235,0.2)] ${
+            className={`relative overflow-hidden w-full h-[50px] rounded-[14px] font-bold text-xs sm:text-sm shadow-[0_10px_24px_rgba(37,99,235,0.22)] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
               isSuccess
                 ? 'bg-emerald-600 text-white shadow-emerald-500/25'
                 : 'bg-gradient-to-r from-[#2563eb] to-[#3b82f6] text-white hover:from-blue-700 hover:to-blue-600'
             }`}
           >
+            {/* Moving Light Shine Hover Effect */}
+            <div className="absolute inset-0 -translate-x-full hover:translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-1000 ease-in-out pointer-events-none" />
+
             {loading ? (
               <div className="w-4.5 h-4.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : isSuccess ? (

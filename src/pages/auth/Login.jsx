@@ -144,6 +144,7 @@ const Login = () => {
         onVerify={async (code) => {
           await authService.verifyAdminOtp(targetEmail, code);
           localStorage.removeItem("pendingEmail");
+          await new Promise((resolve) => setTimeout(resolve, 1500));
           navigate("/admin/dashboard", { replace: true });
         }}
         onResend={async () => {

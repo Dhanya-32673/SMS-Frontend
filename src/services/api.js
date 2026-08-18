@@ -158,10 +158,13 @@ const getMutationScopes = (url = '') => {
 
 const getOperationMessage = (url = '', method = 'post', failed = false) => {
   const action = method.toLowerCase();
-  const prefix = failed ? 'Failed to ' : '';
-  if (url.includes('/auth/login') || url.includes('/auth/google') || url.includes('/auth/otp/verify')) return failed ? 'Login failed. Please check your credentials.' : 'Login successful.';
-  if (url.includes('/auth/logout')) return failed ? 'Logout failed.' : 'Logout successful.';
-  if (url.includes('/auth/otp/send')) return failed ? 'Failed to send verification code.' : 'Verification code sent successfully.';
+  if (url.includes('/auth/')) {
+    if (url.includes('login') || url.includes('google')) return failed ? 'Login failed. Please check your credentials.' : 'Logged in successfully.';
+    if (url.includes('logout')) return failed ? 'Logout failed.' : 'Logout successful.';
+    if (url.includes('verify')) return failed ? 'Verification failed. Please try again.' : 'Verification successful.';
+    if (url.includes('send') || url.includes('resend') || url.includes('otp')) return failed ? 'Failed to send verification code.' : 'Verification code sent successfully.';
+    return failed ? 'Authentication failed.' : 'Success.';
+  }
   if (url.includes('/profile/change-password') || url.includes('/reset-password')) return failed ? 'Failed to change password.' : 'Password changed successfully.';
   if (url.includes('/students')) {
     if (url.includes('/photo')) return failed ? 'Failed to update student.' : 'Profile updated successfully.';
@@ -203,7 +206,7 @@ api.interceptors.response.use(
     console.log(`>>> [API END] ${response.config?.method?.toUpperCase()} ${response.config?.url} (${duration}ms)`);
     const method = response.config?.method?.toLowerCase();
     const url = response.config?.url || '';
-    if (['post', 'put', 'patch', 'delete'].includes(method)) {
+    if (['post', 'put', 'patch', 'delete'].includes(method) && !url.includes('/auth/')) {
       toast.success(getOperationMessage(url, method), { operation: `${method}:${url}` });
     }
     if (['post', 'put', 'patch', 'delete'].includes(method) && !url.startsWith('/auth/')) {

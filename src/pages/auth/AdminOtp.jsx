@@ -11,6 +11,7 @@ const AdminOtp = () => {
   const handleVerify = async (code) => {
     await authService.verifyAdminOtp(email, code);
     localStorage.removeItem('pendingEmail');
+    await new Promise((resolve) => setTimeout(resolve, 1500));
     navigate('/admin/dashboard', { replace: true });
   };
 
