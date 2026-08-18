@@ -8,18 +8,32 @@ import {
   AlertCircle, 
   Clock,
   ArrowRight,
-  Check
+  Check,
+  Lock
 } from 'lucide-react';
 import AuthLayout from './auth/AuthLayout';
 
+/**
+ * Enterprise-Grade OTP Verification Component
+ * Features:
+ * - 360° continuously rotating floating security shield with 2s glow pulse
+ * - Sequential staggered entrance animation for OTP input boxes
+ * - Click focus 3D wobble: rotateY(0deg -> 10deg -> 0deg) + 1.08 scale + brand blue glow
+ * - Custom blinking cursor for active empty boxes
+ * - 3D Card-Flip digit entry: rotateX(0deg -> 180deg -> 360deg) + scale(0.9 -> 1.15 -> 1.0) + glow burst
+ * - Error state: horizontal shake translateX(-8px -> 8px -> -6px -> 6px -> 0) + red glow + digit shake
+ * - Success state: 360° sync rotateY + 720° shield celebration spin + expanding green verification ring
+ * - Primary CTA with moving light shine, scale hover/active, and 1s continuous spinner
+ * - Resend countdown with 30s timer & aria accessibility
+ */
 export const OtpVerificationCard = ({
   email = '',
-  length = 4,
+  length = 6,
   onVerify,
   onResend,
   onBack,
-  title = 'Admin Security Verification',
-  subtitle = 'Student Information & Certificate Management System'
+  title = 'Security Verification',
+  subtitle = 'Enter the one-time verification code'
 }) => {
   const [otpValues, setOtpValues] = useState(Array(length).fill(''));
   const [activeBoxIndex, setActiveBoxIndex] = useState(0);
@@ -40,7 +54,7 @@ export const OtpVerificationCard = ({
     inputRefs.current = inputRefs.current.slice(0, length);
     const timer = setTimeout(() => {
       inputRefs.current[0]?.focus();
-    }, 200);
+    }, 250);
     return () => clearTimeout(timer);
   }, [length]);
 
@@ -224,10 +238,10 @@ export const OtpVerificationCard = ({
 
       {/* Main OTP Card with Fade-in and Slide Upward */}
       <motion.div
-        initial={{ opacity: 0, y: 24, scale: 0.98 }}
+        initial={{ opacity: 0, y: 24, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-[440px] mx-auto space-y-4 my-auto relative z-10 px-1 sm:px-0"
+        transition={{ duration: 0.45, ease: 'easeOut' }}
+        className="w-full max-w-[480px] mx-auto space-y-5 my-auto relative z-10 px-1 sm:px-0 font-sans"
         style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}
       >
         
@@ -236,15 +250,15 @@ export const OtpVerificationCard = ({
           <button
             type="button"
             onClick={onBack}
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors cursor-pointer"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
+            <ArrowLeft className="w-4 h-4" />
             <span>Back to Login</span>
           </button>
         )}
 
         {/* Security Shield Icon Section */}
-        <div className="text-center pt-0.5 relative">
+        <div className="text-center pt-1 relative">
           
           {/* Blue/Green Glow Pulse (Every 2s) */}
           <motion.div
@@ -254,7 +268,7 @@ export const OtpVerificationCard = ({
                 : { scale: [1, 1.25, 1], opacity: [0.25, 0.75, 0.25] }
             }
             transition={{ repeat: Infinity, duration: isSuccess ? 1.0 : 2, ease: 'easeInOut' }}
-            className={`absolute top-0.5 left-1/2 -translate-x-1/2 w-[84px] h-[84px] sm:w-[92px] sm:h-[92px] rounded-full ${
+            className={`absolute top-1 left-1/2 -translate-x-1/2 w-[88px] h-[88px] sm:w-[96px] sm:h-[96px] rounded-full ${
               isSuccess ? 'bg-emerald-500/40' : 'bg-blue-600/30'
             } blur-xl pointer-events-none`}
           />
@@ -274,29 +288,29 @@ export const OtpVerificationCard = ({
                     y: { repeat: Infinity, duration: 3.5, ease: 'easeInOut' },
                   }
             }
-            className={`w-[80px] h-[80px] sm:w-[86px] sm:h-[86px] rounded-full flex items-center justify-center mx-auto shadow-lg transition-colors duration-500 relative z-10 ${
+            className={`w-[80px] h-[80px] sm:w-[88px] sm:h-[88px] rounded-full flex items-center justify-center mx-auto shadow-xl transition-colors duration-500 relative z-10 ${
               isSuccess
                 ? 'bg-gradient-to-tr from-emerald-600 to-emerald-400 shadow-emerald-500/40 text-white'
-                : 'bg-gradient-to-tr from-[#2563eb] to-[#3b82f6] shadow-blue-500/30 text-white'
+                : 'bg-gradient-to-tr from-blue-700 via-blue-600 to-blue-500 shadow-blue-500/35 text-white'
             }`}
             style={{ willChange: 'transform' }}
           >
             {isSuccess ? (
-              <Check className="w-8 h-8 sm:w-9 sm:h-9 text-white stroke-[3]" />
+              <Check className="w-9 h-9 sm:w-10 sm:h-10 text-white stroke-[3]" />
             ) : (
-              <ShieldCheck className="w-8 h-8 sm:w-9 sm:h-9 text-white" />
+              <ShieldCheck className="w-9 h-9 sm:w-10 sm:h-10 text-white" />
             )}
           </motion.div>
 
-          {/* Page Title & Subtitle */}
-          <h2 className="text-2xl sm:text-[26px] font-black text-slate-900 tracking-tight mt-2.5">
+          {/* Heading (36px Bold) & Subtitle (16px) */}
+          <h1 className="text-2xl sm:text-3xl lg:text-[36px] font-bold text-slate-900 dark:text-white tracking-tight mt-3">
             {isSuccess ? "Verified!" : "Enter Security Code"}
-          </h2>
-          <p className="text-slate-500 text-xs sm:text-sm font-medium max-w-[320px] mx-auto mt-0.5">
-            Enter the {length}-digit security code sent to your registered email
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-base font-medium max-w-sm mx-auto mt-1">
+            Enter the {length}-digit security verification code sent to
           </p>
-          <div className="inline-block mt-1.5 px-3 py-0.5 bg-blue-50 text-blue-700 font-mono font-bold text-xs rounded-full border border-blue-200/60 max-w-full truncate">
-            {email || "your email"}
+          <div className="inline-block mt-2 px-3.5 py-1 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-mono font-bold text-xs sm:text-sm rounded-full border border-blue-200/60 dark:border-blue-800/60 max-w-full truncate">
+            {email || "your registered email"}
           </div>
         </div>
 
@@ -304,22 +318,22 @@ export const OtpVerificationCard = ({
         <AnimatePresence mode="wait">
           {errorMsg && (
             <motion.div
-              initial={{ opacity: 0, y: -6 }}
+              initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              className="p-3 rounded-xl bg-red-50 border border-red-200 flex items-start gap-2.5 text-red-700 text-xs font-semibold"
+              exit={{ opacity: 0, y: -8 }}
+              className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 flex items-start gap-3 text-rose-700 dark:text-rose-300 text-xs font-semibold"
             >
-              <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+              <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
               <span className="leading-snug">{errorMsg}</span>
             </motion.div>
           )}
 
           {successMsg && (
             <motion.div
-              initial={{ opacity: 0, y: -6 }}
+              initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex items-start gap-2.5 text-emerald-700 text-xs font-semibold"
+              exit={{ opacity: 0, y: -8 }}
+              className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-start gap-3 text-emerald-700 dark:text-emerald-300 text-xs font-semibold"
             >
               <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
               <span className="leading-snug">{successMsg}</span>
@@ -328,17 +342,17 @@ export const OtpVerificationCard = ({
         </AnimatePresence>
 
         {/* OTP Input Section (With 3D Digit Flip, Sequential Stagger, and Horizontal Error Shake) */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <motion.div
             animate={
               isError
                 ? { x: [-8, 8, -6, 6, -3, 3, 0] }
                 : isSuccess
-                ? { rotateY: [0, 360], scale: [1, 1.05, 1] }
+                ? { rotateY: [0, 360], scale: [1, 1.06, 1] }
                 : {}
             }
             transition={{ duration: isError ? 0.6 : isSuccess ? 0.8 : 0.4 }}
-            className="flex items-center justify-center gap-2 sm:gap-3 my-2"
+            className="flex items-center justify-center gap-2 sm:gap-3.5 my-2"
             style={{ transformStyle: 'preserve-3d', perspective: '1000px' }}
           >
             {Array.from({ length }).map((_, index) => {
@@ -356,7 +370,7 @@ export const OtpVerificationCard = ({
                     opacity: 1,
                     rotateX: flipped ? [0, 180, 360] : isError ? [-10, 10, -5, 5, 0] : 0,
                     rotateY: wobbling ? [0, 10, 0] : 0,
-                    scale: flipped ? [0.9, 1.15, 1.0] : active ? 1.08 : 1,
+                    scale: flipped ? [0.85, 1.12, 1.0] : active ? 1.08 : 1,
                     y: active ? -2 : 0,
                   }}
                   transition={{
@@ -364,16 +378,25 @@ export const OtpVerificationCard = ({
                     delay: flipped || wobbling || isError ? 0 : index * 0.08,
                     ease: [0.34, 1.56, 0.64, 1],
                   }}
-                  className="relative"
+                  className="relative group"
                   style={{ transformStyle: 'preserve-3d', willChange: 'transform' }}
                 >
                   {/* Glow Burst on Digit Entry */}
                   {glowing && (
                     <motion.div
-                      initial={{ scale: 0.8, opacity: 0.8 }}
-                      animate={{ scale: 1.4, opacity: 0 }}
+                      initial={{ scale: 0.8, opacity: 0.9 }}
+                      animate={{ scale: 1.45, opacity: 0 }}
                       transition={{ duration: 0.5, ease: 'easeOut' }}
-                      className="absolute inset-0 rounded-[14px] bg-blue-500/40 blur-md pointer-events-none"
+                      className="absolute inset-0 rounded-[16px] bg-blue-500/40 blur-md pointer-events-none"
+                    />
+                  )}
+
+                  {/* Centered Blinking Cursor for Active Empty Box */}
+                  {active && !filled && !loading && !isSuccess && (
+                    <motion.div
+                      animate={{ opacity: [1, 0, 1] }}
+                      transition={{ repeat: Infinity, duration: 1, ease: 'easeInOut' }}
+                      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[2px] h-[28px] bg-blue-600 dark:bg-blue-400 rounded-full pointer-events-none z-10"
                     />
                   )}
 
@@ -383,6 +406,8 @@ export const OtpVerificationCard = ({
                     inputMode="numeric"
                     pattern="[0-9]*"
                     maxLength={1}
+                    aria-label={`Digit ${index + 1} of ${length}`}
+                    aria-invalid={isError}
                     autoComplete={index === 0 ? "one-time-code" : "off"}
                     value={otpValues[index]}
                     onChange={(e) => handleInputChange(index, e.target.value)}
@@ -390,16 +415,16 @@ export const OtpVerificationCard = ({
                     onFocus={() => handleBoxFocus(index)}
                     onPaste={handlePaste}
                     disabled={loading || isSuccess}
-                    className={`w-12 h-14 sm:w-14 sm:h-16 text-center text-xl sm:text-2xl font-black bg-white rounded-[14px] border-2 transition-all duration-300 outline-none caret-[#2563eb] ${
+                    className={`w-12 h-14 sm:w-16 sm:h-16 text-center text-xl sm:text-2xl font-bold bg-white dark:bg-slate-900 rounded-[16px] border-2 transition-all duration-200 outline-none caret-transparent select-none ${
                       isError
-                        ? 'border-red-500 text-red-600 bg-red-50/20 shadow-[0_0_0_4px_rgba(239,68,68,0.22)]'
+                        ? 'border-red-500 text-red-600 bg-red-50/20 shadow-[0_0_0_4px_rgba(239,68,68,0.2)]'
                         : isSuccess
-                        ? 'border-emerald-500 text-emerald-600 bg-emerald-50/20 shadow-[0_0_0_4px_rgba(16,185,129,0.22)]'
+                        ? 'border-emerald-500 text-emerald-600 bg-emerald-50/20 shadow-[0_0_0_4px_rgba(16,185,129,0.2)]'
                         : active
-                        ? 'border-[#2563eb] shadow-[0_0_0_4px_rgba(37,99,235,0.2)] text-slate-900 bg-blue-50/10'
+                        ? 'border-blue-600 shadow-[0_0_0_4px_rgba(37,99,235,0.15)] text-slate-900 dark:text-white bg-blue-50/10'
                         : filled
-                        ? 'border-blue-400 text-slate-900 bg-blue-50/15'
-                        : 'border-[#dbeafe] text-slate-900 hover:border-blue-200'
+                        ? 'border-blue-600 text-slate-900 dark:text-white bg-blue-50/15'
+                        : 'border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white hover:border-slate-300'
                     }`}
                   />
                 </motion.div>
@@ -408,10 +433,10 @@ export const OtpVerificationCard = ({
           </motion.div>
 
           {/* Resend Code Timer Section */}
-          <div className="flex items-center justify-between text-xs font-semibold text-slate-500 pt-0.5">
+          <div className="flex items-center justify-between text-xs font-semibold text-slate-500 dark:text-slate-400 pt-1">
             <span>Didn't receive the code?</span>
             {cooldown > 0 ? (
-              <span className="flex items-center gap-1 text-slate-400 font-mono">
+              <span className="flex items-center gap-1 text-slate-400 font-mono" aria-live="polite">
                 <Clock className="w-3.5 h-3.5" />
                 Resend in {cooldown}s
               </span>
@@ -420,36 +445,39 @@ export const OtpVerificationCard = ({
                 type="button"
                 onClick={handleResend}
                 disabled={loading}
-                className="text-[#2563eb] font-bold hover:underline flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                className="text-blue-600 dark:text-blue-400 font-bold hover:underline flex items-center gap-1 cursor-pointer disabled:opacity-50 min-h-[32px]"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
-                Resend Code
+                <span>Resend OTP</span>
               </button>
             )}
           </div>
 
-          {/* Primary CTA Button with Moving Shine Hover Effect */}
+          {/* Primary CTA Button with Moving Light Shine Hover Effect */}
           <motion.button
             type="submit"
             disabled={loading || otpValues.includes('') || isSuccess}
-            whileHover={{ scale: loading || otpValues.includes('') ? 1 : 1.02, y: loading || otpValues.includes('') ? 0 : -2 }}
-            whileTap={{ scale: loading || otpValues.includes('') ? 1 : 0.95 }}
-            className={`relative overflow-hidden w-full h-[52px] rounded-[14px] font-bold text-xs sm:text-sm shadow-[0_10px_24px_rgba(37,99,235,0.22)] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+            whileHover={{ scale: loading || otpValues.includes('') ? 1 : 1.02, y: loading || otpValues.includes('') ? 0 : -1 }}
+            whileTap={{ scale: loading || otpValues.includes('') ? 1 : 0.98 }}
+            className={`relative overflow-hidden w-full h-[52px] rounded-xl font-bold text-sm shadow-lg transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
               isSuccess
                 ? 'bg-emerald-600 text-white shadow-emerald-500/25'
-                : 'bg-gradient-to-r from-[#2563eb] to-[#3b82f6] text-white hover:from-blue-700 hover:to-blue-600'
+                : 'bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 text-white shadow-blue-500/25'
             }`}
           >
             {/* Moving Light Shine Hover Effect */}
             <div className="absolute inset-0 -translate-x-full hover:translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-1000 ease-in-out pointer-events-none" />
 
             {loading ? (
-              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" style={{ animationDuration: '1s' }} />
+              <div className="flex items-center space-x-2">
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" style={{ animationDuration: '1s' }} />
+                <span>Verifying...</span>
+              </div>
             ) : isSuccess ? (
               <span>Verification Successful!</span>
             ) : (
               <>
-                <span>Verify & Continue</span>
+                <span>Verify & Proceed</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
@@ -457,9 +485,9 @@ export const OtpVerificationCard = ({
         </form>
 
         {/* Footer Trust Line */}
-        <div className="pt-3 border-t border-slate-100 flex items-center justify-center text-slate-400 text-[11px] font-bold gap-1.5">
-          <span>🔒</span>
-          <span>Secure • Encrypted • Trusted</span>
+        <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-center text-slate-400 dark:text-slate-500 text-xs font-semibold gap-1.5">
+          <Lock className="w-3.5 h-3.5 text-blue-500" />
+          <span>256-Bit Bank Grade Encryption • Secure Session</span>
         </div>
 
       </motion.div>
