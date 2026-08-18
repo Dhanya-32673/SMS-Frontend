@@ -210,12 +210,15 @@ export const AuthProvider = ({ children }) => {
     toast.success('Logout successful.', { operation: 'local:logout' });
   };
 
+  const userRole = tokenUtils.getRole() || (user ? (typeof user.role === 'string' ? user.role.replace(/^ROLE_/i, '').toUpperCase() : user.role?.roleName?.replace(/^ROLE_/i, '').toUpperCase()) : '');
+
   const value = {
     user,
     loading,
     isAuthenticated: !!user,
-    isAdmin: user?.role === 'ADMIN' || user?.role?.roleName === 'ROLE_ADMIN',
-    isFaculty: user?.role === 'FACULTY' || user?.role?.roleName === 'ROLE_FACULTY',
+    role: userRole,
+    isAdmin: userRole === 'ADMIN',
+    isFaculty: userRole === 'FACULTY',
     isInactiveLoggedOut,
     clearInactivityNotice: () => setIsInactiveLoggedOut(false),
     login,

@@ -4,12 +4,24 @@ import apiCache from '../utils/apiCache';
 import dataSync from '../utils/dataSync';
 import toast from '../utils/toastService';
 
-const rawEnvUrl = import.meta.env.VITE_API_BASE_URL;
+const rawEnvUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || '';
 const isProduction = import.meta.env.PROD || (typeof window !== 'undefined' && !window.location.hostname.includes('localhost'));
 
-const API_BASE_URL = isProduction
-  ? (rawEnvUrl && !rawEnvUrl.includes('localhost') ? rawEnvUrl : 'https://studnetmanagament-systembackend.onrender.com/api')
-  : (rawEnvUrl || 'http://localhost:8080/api');
+const getNormalizedApiBaseUrl = () => {
+  if (rawEnvUrl && rawEnvUrl.trim()) {
+    let clean = rawEnvUrl.trim().replace(/\/+$/, '');
+    if (!clean.endsWith('/api')) {
+      clean += '/api';
+    }
+    return clean;
+  }
+  return isProduction
+    ? 'https://studnetmanagament-systembackend.onrender.com/api'
+    : 'http://localhost:8080/api';
+};
+
+export const API_BASE_URL = getNormalizedApiBaseUrl();
+export const API_ORIGIN = API_BASE_URL.replace(/\/api$/, '');
 
 const pendingRequests = new Map();
 
@@ -26,7 +38,7 @@ const getRequestCacheTtl = (config = {}) => {
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 15000, // Fast 15-second timeout to prevent button getting stuck
+  timeout: 20000, // 20-second timeout to prevent indefinite hangs on mobile networks
 });
 
 export const warmupServer = () => {
@@ -238,12 +250,18 @@ api.interceptors.response.use(
       }
     }
 
+    // Attach friendly timeout message
+    if (error.code === 'ECONNABORTED' || error.message?.includes('timeout') || (!error.response && error.request)) {
+      error.customMessage = 'Unable to connect to the server. Please check your internet connection and try again.';
+    }
+
     // Other non-401 errors
     if (!url.includes('/auth/refresh')) {
       if (error.response?.status === 403) {
         toast.error('Unauthorized access.', { operation: `error:${method}:${url}` });
       } else if (['post', 'put', 'patch', 'delete'].includes(method)) {
-        toast.error(getOperationMessage(url, method, true), { operation: `error:${method}:${url}` });
+        const errorMsg = error.customMessage || getOperationMessage(url, method, true);
+        toast.error(errorMsg, { operation: `error:${method}:${url}` });
       }
     }
 

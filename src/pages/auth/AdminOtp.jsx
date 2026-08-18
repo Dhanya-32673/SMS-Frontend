@@ -11,8 +11,7 @@ const AdminOtp = () => {
   const handleVerify = async (code) => {
     await authService.verifyAdminOtp(email, code);
     localStorage.removeItem('pendingEmail');
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    window.location.href = '/admin/dashboard';
+    navigate('/admin/dashboard', { replace: true });
   };
 
   const handleResend = async () => {
@@ -28,6 +27,7 @@ const AdminOtp = () => {
       email={email}
       length={4}
       title="Admin Security Verification"
+      subtitle="Student Information & Certificate Management System"
       onVerify={handleVerify}
       onResend={handleResend}
       onBack={handleBack}

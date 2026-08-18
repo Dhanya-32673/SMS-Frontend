@@ -11,11 +11,12 @@ import {
   Eye, 
   EyeOff, 
   ShieldCheck, 
-  ArrowRight,
-  AlertCircle,
-  CheckCircle2,
-  UserCheck
+  ArrowRight, 
+  AlertCircle, 
+  CheckCircle2, 
+  UserCheck 
 } from "lucide-react";
+import { API_ORIGIN } from "../../services/api";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -72,9 +73,10 @@ const Login = () => {
 
   const validateCredentials = () => {
     const errors = {};
-    if (!email) {
+    const cleanEmail = email.trim();
+    if (!cleanEmail) {
       errors.email = "Email address is required";
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
+    } else if (!/\S+@\S+\.\S+/.test(cleanEmail)) {
       errors.email = "Please enter a valid email address";
     }
     if (!password) {
@@ -93,43 +95,33 @@ const Login = () => {
     setError("");
     setSuccessMsg("");
 
+    const cleanEmail = email.trim();
+
     try {
       if (roleTab === "ADMIN") {
-        const response = await authService.adminLogin(email, password);
-        const targetEmail = response.email || email;
+        const response = await authService.adminLogin(cleanEmail, password);
+        const targetEmail = response?.email || cleanEmail;
         localStorage.setItem("pendingEmail", targetEmail);
         setEmail(targetEmail);
         setStep("OTP");
         setSuccessMsg(response?.message || "OTP sent successfully to " + targetEmail);
       } else {
-        await authService.facultyLogin(email, password);
+        await authService.facultyLogin(cleanEmail, password);
         setSuccessMsg("Faculty login successful. Redirecting to dashboard...");
-        setTimeout(() => {
-          window.location.href = "/faculty/dashboard";
-        }, 300);
+        navigate("/faculty/dashboard", { replace: true });
       }
     } catch (err) {
-      let msg = "Invalid credentials or access denied";
-      if (err.response?.data?.message) {
-        msg = err.response.data.message;
-      } else if (err.message) {
-        msg = err.message;
-      }
+      const msg = err.response?.data?.message || err.customMessage || err.message || "Invalid credentials or access denied";
       setError(msg);
     } finally {
       setLoading(false);
     }
   };
 
-  // Real Google OAuth Redirect to Spring Security Authorization Endpoint
+  // Google OAuth Redirect
   const handleGoogleSignIn = () => {
     setError("");
-    const isProduction = import.meta.env.PROD || (typeof window !== 'undefined' && !window.location.hostname.includes('localhost'));
-    const rawEnvUrl = import.meta.env.VITE_API_URL;
-    const API_BASE_URL = isProduction
-      ? (rawEnvUrl && !rawEnvUrl.includes('localhost') ? rawEnvUrl : 'https://studnetmanagament-systembackend.onrender.com')
-      : (rawEnvUrl || 'http://localhost:8080');
-    window.location.href = `${API_BASE_URL}/oauth2/authorization/google`;
+    window.location.href = `${API_ORIGIN}/oauth2/authorization/google`;
   };
 
   const handleBackToLogin = () => {
@@ -139,7 +131,7 @@ const Login = () => {
     localStorage.removeItem("pendingEmail");
   };
 
-  // Render Premium OTP Verification Card when Admin submits credentials
+  // Render OTP Verification Card when Admin enters credentials
   if (step === "OTP") {
     const targetEmail = email || localStorage.getItem("pendingEmail") || "your email";
     return (
@@ -147,11 +139,11 @@ const Login = () => {
         email={targetEmail}
         length={4}
         title="Admin Security Verification"
+        subtitle="Student Information & Certificate Management System"
         onVerify={async (code) => {
           await authService.verifyAdminOtp(targetEmail, code);
           localStorage.removeItem("pendingEmail");
-          await new Promise((resolve) => setTimeout(resolve, 3000));
-          window.location.href = "/admin/dashboard";
+          navigate("/admin/dashboard", { replace: true });
         }}
         onResend={async () => {
           await authService.resendOtp(targetEmail);
@@ -166,9 +158,9 @@ const Login = () => {
       title={roleTab === "ADMIN" ? "Admin Portal" : "Faculty Portal"}
       subtitle="Student Information & Certificate Management System"
     >
-      <div className="w-full max-w-[430px] mx-auto space-y-3.5 my-auto">
+      <div className="w-full max-w-[430px] mx-auto space-y-3.5 my-auto px-1 sm:px-0">
         
-        {/* Tab Switcher at Top of Card (Height 48px, Font size 14px/xs) */}
+        {/* Tab Switcher */}
         <div className="bg-[#f1f5f9] rounded-[14px] p-1 flex h-[48px] w-full border border-slate-200/80 text-xs font-bold">
           <button
             type="button"
@@ -177,13 +169,14 @@ const Login = () => {
               setError("");
               setSuccessMsg("");
             }}
-            className={"flex-1 py-2 rounded-[10px] transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer " + (
+            className={"flex-1 py-2 rounded-[10px] transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer " + (
               roleTab === "ADMIN"
-                ? "bg-gradient-to-r from-[#2563eb] to-[#3b82f6] text-white shadow-sm font-bold"
+                ? "bg-gradient-to-r from-[#2563eb] to-[#3b82f6] text-white shadow-xs font-bold"
                 : "text-slate-500 hover:text-slate-900"
             )}
           >
-            <ShieldCheck className="w-3.5 h-3.5" /> Admin (OTP Required)
+            <ShieldCheck className="w-3.5 h-3.5" /> 
+            <span>Admin (OTP)</span>
           </button>
           <button
             type="button"
@@ -192,36 +185,37 @@ const Login = () => {
               setError("");
               setSuccessMsg("");
             }}
-            className={"flex-1 py-2 rounded-[10px] transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer " + (
+            className={"flex-1 py-2 rounded-[10px] transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer " + (
               roleTab === "FACULTY"
-                ? "bg-gradient-to-r from-[#2563eb] to-[#3b82f6] text-white shadow-sm font-bold"
+                ? "bg-gradient-to-r from-[#2563eb] to-[#3b82f6] text-white shadow-xs font-bold"
                 : "text-slate-500 hover:text-slate-900"
             )}
           >
-            <UserCheck className="w-3.5 h-3.5" /> Faculty (Direct Login)
+            <UserCheck className="w-3.5 h-3.5" /> 
+            <span>Faculty (Direct)</span>
           </button>
         </div>
 
-        {/* Center Shield Icon (Size 84px, Icon 38px, Floating Y Animation) */}
+        {/* Center Shield Icon */}
         <div className="text-center pt-0.5">
           <motion.div
-            animate={{ y: [-4, 4, -4] }}
-            transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-            className="w-[84px] h-[84px] rounded-full bg-[#eff6ff] flex items-center justify-center mx-auto shadow-inner border border-blue-100"
+            animate={{ y: [-3, 3, -3] }}
+            transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
+            className="w-[76px] h-[76px] sm:w-[84px] sm:h-[84px] rounded-full bg-[#eff6ff] flex items-center justify-center mx-auto shadow-inner border border-blue-100"
           >
             {roleTab === "ADMIN" ? (
-              <ShieldCheck className="w-9 h-9 text-[#2563eb]" />
+              <ShieldCheck className="w-8 h-8 sm:w-9 sm:h-9 text-[#2563eb]" />
             ) : (
-              <UserCheck className="w-9 h-9 text-[#2563eb]" />
+              <UserCheck className="w-8 h-8 sm:w-9 sm:h-9 text-[#2563eb]" />
             )}
           </motion.div>
 
           {/* Page Title & Subtitle */}
-          <h2 className="text-2xl sm:text-[28px] font-black text-slate-900 tracking-tight mt-2">
-            {roleTab === "ADMIN" ? "Welcome Admin!" : "Welcome Faculty!"}
+          <h2 className="text-2xl sm:text-[26px] font-black text-slate-900 tracking-tight mt-2">
+            {roleTab === "ADMIN" ? "Admin Sign In" : "Faculty Sign In"}
           </h2>
-          <p className="text-slate-500 text-xs sm:text-sm font-medium max-w-[300px] mx-auto mt-0.5">
-            {roleTab === "ADMIN" ? "Enter your credentials to receive OTP" : "Enter your credentials to access portal"}
+          <p className="text-slate-500 text-xs sm:text-sm font-medium max-w-[320px] mx-auto mt-0.5">
+            {roleTab === "ADMIN" ? "Enter your credentials to receive an email OTP" : "Enter your credentials to access the faculty portal"}
           </p>
         </div>
 
@@ -247,25 +241,26 @@ const Login = () => {
           </div>
         )}
 
-        {/* Form Fields (Height 48px, Radius 12px, Icon 18px) */}
+        {/* Form Fields - Inputs use font-size 16px (text-base) on mobile to prevent iOS Safari auto-zoom */}
         <form className="space-y-3" onSubmit={handleCredentialSubmit}>
           <div>
             <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1">
               Email Address
             </label>
-            <div className={"h-[48px] bg-white border " + (
+            <div className={"h-[48px] sm:h-[50px] bg-white border " + (
               fieldErrors.email ? "border-red-500 focus-within:ring-red-500" : "border-slate-200 focus-within:border-[#2563eb] focus-within:ring-2 focus-within:ring-[#2563eb]/15"
             ) + " rounded-[12px] flex items-center px-3.5 gap-2.5 transition-all duration-200"}>
               <Mail className="w-4.5 h-4.5 text-slate-400 shrink-0" />
               <input
                 type="email"
+                autoComplete="email"
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
                   if (fieldErrors.email) setFieldErrors({ ...fieldErrors, email: "" });
                 }}
                 placeholder="Enter your registered email"
-                className="w-full bg-transparent text-slate-900 font-semibold text-xs sm:text-sm placeholder-slate-400 focus:outline-none"
+                className="w-full bg-transparent text-slate-900 font-semibold text-base sm:text-sm placeholder-slate-400 focus:outline-none"
               />
             </div>
             {fieldErrors.email && (
@@ -277,24 +272,26 @@ const Login = () => {
             <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1">
               Password
             </label>
-            <div className={"h-[48px] bg-white border " + (
+            <div className={"h-[48px] sm:h-[50px] bg-white border " + (
               fieldErrors.password ? "border-red-500 focus-within:ring-red-500" : "border-slate-200 focus-within:border-[#2563eb] focus-within:ring-2 focus-within:ring-[#2563eb]/15"
             ) + " rounded-[12px] flex items-center px-3.5 gap-2.5 transition-all duration-200"}>
               <Lock className="w-4.5 h-4.5 text-slate-400 shrink-0" />
               <input
                 type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
                   if (fieldErrors.password) setFieldErrors({ ...fieldErrors, password: "" });
                 }}
                 placeholder="Enter your password"
-                className="w-full bg-transparent text-slate-900 font-semibold text-xs sm:text-sm placeholder-slate-400 focus:outline-none"
+                className="w-full bg-transparent text-slate-900 font-semibold text-base sm:text-sm placeholder-slate-400 focus:outline-none"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="text-slate-400 hover:text-slate-700 transition-colors cursor-pointer shrink-0"
+                className="text-slate-400 hover:text-slate-700 transition-colors cursor-pointer shrink-0 p-1"
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
               </button>
@@ -313,13 +310,13 @@ const Login = () => {
             </Link>
           </div>
 
-          {/* Primary CTA Button (Height 48px, Radius 12px, Font size 14px) */}
+          {/* Primary CTA Button */}
           <motion.button
             type="submit"
             disabled={loading}
-            whileHover={{ scale: loading ? 1 : 1.01, y: loading ? 0 : -1 }}
+            whileHover={{ scale: loading ? 1 : 1.01 }}
             whileTap={{ scale: loading ? 1 : 0.98 }}
-            className="w-full h-[48px] rounded-[12px] text-white font-bold text-xs sm:text-sm bg-gradient-to-r from-[#2563eb] to-[#3b82f6] hover:from-blue-700 hover:to-blue-600 shadow-[0_10px_24px_rgba(37,99,235,0.25)] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed mt-3"
+            className="w-full h-[48px] sm:h-[50px] rounded-[12px] text-white font-bold text-xs sm:text-sm bg-gradient-to-r from-[#2563eb] to-[#3b82f6] hover:from-blue-700 hover:to-blue-600 shadow-[0_10px_24px_rgba(37,99,235,0.22)] transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed mt-3"
           >
             {loading ? (
               <div className="w-4.5 h-4.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -345,9 +342,9 @@ const Login = () => {
           type="button"
           onClick={handleGoogleSignIn}
           disabled={loading}
-          whileHover={{ scale: loading ? 1 : 1.01, y: loading ? 0 : -1 }}
+          whileHover={{ scale: loading ? 1 : 1.01 }}
           whileTap={{ scale: loading ? 1 : 0.98 }}
-          className="w-full h-[48px] bg-white border border-slate-200/90 hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm rounded-[12px] shadow-xs hover:shadow-md transition-all duration-200 flex items-center justify-center gap-3 cursor-pointer disabled:opacity-70"
+          className="w-full h-[48px] sm:h-[50px] bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm rounded-[12px] shadow-xs hover:shadow-md transition-all duration-200 flex items-center justify-center gap-3 cursor-pointer disabled:opacity-60"
         >
           <svg className="w-4.5 h-4.5" viewBox="0 0 24 24">
             <path
@@ -371,7 +368,7 @@ const Login = () => {
         </motion.button>
 
         {/* Footer Trust Line */}
-        <div className="pt-3 border-t border-slate-100 flex items-center justify-center text-slate-400 text-[10.5px] font-bold gap-1.5">
+        <div className="pt-2.5 border-t border-slate-100 flex items-center justify-center text-slate-400 text-[10.5px] font-bold gap-1.5">
           <span>🔒</span>
           <span>Secure • Encrypted • Trusted</span>
         </div>
