@@ -4,20 +4,35 @@ import apiCache from '../utils/apiCache';
 import dataSync from '../utils/dataSync';
 import toast from '../utils/toastService';
 
-const rawEnvUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || '';
-const isProduction = import.meta.env.PROD || (typeof window !== 'undefined' && !window.location.hostname.includes('localhost'));
+const rawEnvUrl = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || '').trim();
 
-const getNormalizedApiBaseUrl = () => {
-  if (rawEnvUrl && rawEnvUrl.trim()) {
-    let clean = rawEnvUrl.trim().replace(/\/+$/, '');
-    if (!clean.endsWith('/api')) {
-      clean += '/api';
+export const getNormalizedApiBaseUrl = () => {
+  const isBrowser = typeof window !== 'undefined';
+  const isLocalHost = isBrowser && (
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1' ||
+    window.location.hostname === '0.0.0.0'
+  );
+
+  // If running locally in browser
+  if (isLocalHost) {
+    if (rawEnvUrl && rawEnvUrl.includes('localhost')) {
+      let clean = rawEnvUrl.replace(/\/+$/, '');
+      if (!clean.endsWith('/api')) clean += '/api';
+      return clean;
     }
+    return 'http://localhost:8080/api';
+  }
+
+  // If running in production (Vercel, mobile browser, custom domain)
+  if (rawEnvUrl && !rawEnvUrl.includes('localhost') && !rawEnvUrl.includes('127.0.0.1')) {
+    let clean = rawEnvUrl.replace(/\/+$/, '');
+    if (!clean.endsWith('/api')) clean += '/api';
     return clean;
   }
-  return isProduction
-    ? 'https://studnetmanagament-systembackend.onrender.com/api'
-    : 'http://localhost:8080/api';
+
+  // Fallback to deployed production backend on Render
+  return 'https://studnetmanagament-systembackend.onrender.com/api';
 };
 
 export const API_BASE_URL = getNormalizedApiBaseUrl();
@@ -39,6 +54,13 @@ const getRequestCacheTtl = (config = {}) => {
 const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 20000, // 20-second timeout to prevent indefinite hangs on mobile networks
+});
+
+// Dynamic base URL guard interceptor
+api.interceptors.request.use((config) => {
+  const currentBaseUrl = getNormalizedApiBaseUrl();
+  config.baseURL = currentBaseUrl;
+  return config;
 });
 
 export const warmupServer = () => {

@@ -16,7 +16,7 @@ import {
   CheckCircle2, 
   UserCheck 
 } from "lucide-react";
-import { API_ORIGIN } from "../../services/api";
+import { API_ORIGIN, getNormalizedApiBaseUrl } from "../../services/api";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -121,7 +121,8 @@ const Login = () => {
   // Google OAuth Redirect
   const handleGoogleSignIn = () => {
     setError("");
-    window.location.href = `${API_ORIGIN}/oauth2/authorization/google`;
+    const origin = (getNormalizedApiBaseUrl() || API_ORIGIN).replace(/\/api$/, '');
+    window.location.href = `${origin}/oauth2/authorization/google`;
   };
 
   const handleBackToLogin = () => {
