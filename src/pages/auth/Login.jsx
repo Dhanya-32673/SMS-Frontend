@@ -21,7 +21,7 @@ import { API_ORIGIN, getNormalizedApiBaseUrl } from "../../services/api";
 const Login = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { isAuthenticated, user, isInactiveLoggedOut } = useAuth();
+  const { isAuthenticated, user, isInactiveLoggedOut, adminVerifyOtp, facultyLogin, setAuthUser } = useAuth();
 
   // Selected Role Tab: "ADMIN" | "FACULTY"
   const [roleTab, setRoleTab] = useState("ADMIN");
@@ -106,7 +106,9 @@ const Login = () => {
         setStep("OTP");
         setSuccessMsg(response?.message || "OTP sent successfully to " + targetEmail);
       } else {
-        await authService.facultyLogin(cleanEmail, password);
+        const response = await facultyLogin(cleanEmail, password);
+        const targetUser = response?.user || { email: cleanEmail, role: 'FACULTY' };
+        if (setAuthUser) setAuthUser(targetUser);
         setSuccessMsg("Faculty login successful. Redirecting to dashboard...");
         navigate("/faculty/dashboard", { replace: true });
       }
@@ -142,7 +144,9 @@ const Login = () => {
         title="Admin Security Verification"
         subtitle="Student Information & Certificate Management System"
         onVerify={async (code) => {
-          await authService.verifyAdminOtp(targetEmail, code);
+          const response = await adminVerifyOtp(targetEmail, code);
+          const targetUser = response?.user || { email: targetEmail, role: 'ADMIN' };
+          if (setAuthUser) setAuthUser(targetUser);
           localStorage.removeItem("pendingEmail");
           await new Promise((resolve) => setTimeout(resolve, 1500));
           navigate("/admin/dashboard", { replace: true });

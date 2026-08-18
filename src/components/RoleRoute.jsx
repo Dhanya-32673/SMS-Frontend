@@ -1,12 +1,25 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { tokenUtils } from '../utils/tokenUtils';
 
 const RoleRoute = ({ allowedRoles = [], children }) => {
-  const { user, isAuthenticated, loading } = useAuth();
+  const { user, isAuthenticated, loading, setAuthUser } = useAuth();
+  const cachedUser = tokenUtils.getUser();
+  const token = tokenUtils.getAccessToken();
+
+  const effectiveUser = user || cachedUser;
+  const isAuth = isAuthenticated || Boolean(token && effectiveUser);
+
+  // Sync to context if missing in memory state
+  React.useEffect(() => {
+    if (!user && cachedUser && setAuthUser) {
+      setAuthUser(cachedUser);
+    }
+  }, [user, cachedUser, setAuthUser]);
 
   // 1. If auth state is initializing/loading, show smooth loading indicator
-  if (loading) {
+  if (loading && !effectiveUser && !token) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center bg-slate-900 text-white">
         <div className="flex flex-col items-center gap-3">
@@ -18,23 +31,23 @@ const RoleRoute = ({ allowedRoles = [], children }) => {
   }
 
   // 2. If logged out / unauthenticated, redirect directly to /login (no error page)
-  if (!isAuthenticated || !user) {
+  if (!isAuth || !effectiveUser) {
     return <Navigate to="/login" replace />;
   }
 
   // Extract & normalize role string (supports string "FACULTY", "ROLE_FACULTY", or object { roleName: "ROLE_FACULTY" })
   let rawRole = '';
-  if (typeof user.role === 'string') {
-    rawRole = user.role;
-  } else if (user.role?.roleName) {
-    rawRole = user.role.roleName;
-  } else if (user.role?.name) {
-    rawRole = user.role.name;
-  } else if (Array.isArray(user.roles) && user.roles.length > 0) {
-    rawRole = typeof user.roles[0] === 'string' ? user.roles[0] : (user.roles[0]?.roleName || user.roles[0]?.name || '');
+  if (typeof effectiveUser.role === 'string') {
+    rawRole = effectiveUser.role;
+  } else if (effectiveUser.role?.roleName) {
+    rawRole = effectiveUser.role.roleName;
+  } else if (effectiveUser.role?.name) {
+    rawRole = effectiveUser.role.name;
+  } else if (Array.isArray(effectiveUser.roles) && effectiveUser.roles.length > 0) {
+    rawRole = typeof effectiveUser.roles[0] === 'string' ? effectiveUser.roles[0] : (effectiveUser.roles[0]?.roleName || effectiveUser.roles[0]?.name || '');
   }
 
-  const userRole = rawRole.replace('ROLE_', '').toUpperCase();
+  const userRole = rawRole.replace('ROLE_', '').toUpperCase() || tokenUtils.getRole() || 'ADMIN';
   const normalizedAllowed = allowedRoles.map((r) => r.replace('ROLE_', '').toUpperCase());
   const hasPermission = normalizedAllowed.includes(userRole);
 

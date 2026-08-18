@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { authService } from '../../services/authService';
+import { tokenUtils } from '../../utils/tokenUtils';
 import OtpVerificationCard from '../../components/OtpVerificationCard';
 import { Mail, ArrowLeft, KeyRound, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 const OtpVerification = () => {
   const navigate = useNavigate();
-  const { verifyOtp } = useAuth();
+  const { verifyOtp, setAuthUser } = useAuth();
 
   const [step, setStep] = useState(1); // 1: Send OTP email, 2: Verify OTP
   const [email, setEmail] = useState('');
@@ -49,7 +50,9 @@ const OtpVerification = () => {
         subtitle="Student Information & Certificate Management System"
         onVerify={async (code) => {
           const response = await verifyOtp(cleanEmail, code);
-          const role = (response?.user?.role?.roleName || response?.user?.role || '').replace(/^ROLE_/i, '').toUpperCase();
+          const targetUser = response?.user || tokenUtils.getUser();
+          if (setAuthUser && targetUser) setAuthUser(targetUser);
+          const role = (targetUser?.role?.roleName || targetUser?.role || '').replace(/^ROLE_/i, '').toUpperCase();
           if (role === 'ADMIN') {
             navigate('/admin/dashboard', { replace: true });
           } else {

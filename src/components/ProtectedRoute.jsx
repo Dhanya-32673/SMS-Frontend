@@ -1,11 +1,22 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { tokenUtils } from '../utils/tokenUtils';
 
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { user, isAuthenticated, loading, setAuthUser } = useAuth();
+  const cachedUser = tokenUtils.getUser();
+  const token = tokenUtils.getAccessToken();
+  const effectiveUser = user || cachedUser;
+  const isAuth = isAuthenticated || Boolean(token && effectiveUser);
 
-  if (loading) {
+  React.useEffect(() => {
+    if (!user && cachedUser && setAuthUser) {
+      setAuthUser(cachedUser);
+    }
+  }, [user, cachedUser, setAuthUser]);
+
+  if (loading && !effectiveUser && !token) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center bg-slate-900 text-white">
         <div className="flex flex-col items-center gap-3">
@@ -19,7 +30,7 @@ const ProtectedRoute = ({ children }) => {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!isAuth) {
     return <Navigate to="/login" replace />;
   }
 

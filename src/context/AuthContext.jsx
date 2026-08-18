@@ -169,26 +169,57 @@ export const AuthProvider = ({ children }) => {
     };
   }, [user, showWarningModal, resetInactivityTimer]);
 
+  const setAuthUser = useCallback((userData) => {
+    if (userData) {
+      setUser(userData);
+      tokenUtils.setUser(userData);
+      resetInactivityTimer(true);
+    }
+  }, [resetInactivityTimer]);
+
   const login = async (email, password) => {
     setIsInactiveLoggedOut(false);
     return await authService.login(email, password);
   };
 
+  const adminVerifyOtp = async (email, otp) => {
+    setIsInactiveLoggedOut(false);
+    const data = await authService.verifyAdminOtp(email, otp);
+    const resolvedUser = data?.user || tokenUtils.getUser() || { email, role: 'ADMIN' };
+    setUser(resolvedUser);
+    tokenUtils.setUser(resolvedUser);
+    resetInactivityTimer(true);
+    return data;
+  };
+
+  const facultyLogin = async (email, password) => {
+    setIsInactiveLoggedOut(false);
+    const data = await authService.facultyLogin(email, password);
+    const resolvedUser = data?.user || tokenUtils.getUser() || { email, role: 'FACULTY' };
+    setUser(resolvedUser);
+    tokenUtils.setUser(resolvedUser);
+    resetInactivityTimer(true);
+    return data;
+  };
+
   const googleLogin = async (idToken) => {
     setIsInactiveLoggedOut(false);
     const data = await authService.googleLogin(idToken);
+    const resolvedUser = data?.user || tokenUtils.getUser();
+    if (resolvedUser) {
+      setUser(resolvedUser);
+      tokenUtils.setUser(resolvedUser);
+    }
+    resetInactivityTimer(true);
     return data;
   };
 
   const verifyOtp = async (email, otp) => {
     setIsInactiveLoggedOut(false);
     const data = await authService.verifyOtp(email, otp);
-    if (data.user) {
-      setUser(data.user);
-    } else {
-      const currentUser = await authService.getCurrentUser();
-      setUser(currentUser);
-    }
+    const resolvedUser = data?.user || tokenUtils.getUser() || { email };
+    setUser(resolvedUser);
+    tokenUtils.setUser(resolvedUser);
     resetInactivityTimer(true);
     return data;
   };
@@ -210,18 +241,23 @@ export const AuthProvider = ({ children }) => {
     toast.success('Logout successful.', { operation: 'local:logout' });
   };
 
-  const userRole = tokenUtils.getRole() || (user ? (typeof user.role === 'string' ? user.role.replace(/^ROLE_/i, '').toUpperCase() : user.role?.roleName?.replace(/^ROLE_/i, '').toUpperCase()) : '');
+  const effectiveUser = user || tokenUtils.getUser();
+  const userRole = tokenUtils.getRole() || (effectiveUser ? (typeof effectiveUser.role === 'string' ? effectiveUser.role.replace(/^ROLE_/i, '').toUpperCase() : effectiveUser.role?.roleName?.replace(/^ROLE_/i, '').toUpperCase()) : '');
+  const hasToken = Boolean(tokenUtils.getAccessToken());
 
   const value = {
-    user,
+    user: effectiveUser,
     loading,
-    isAuthenticated: !!user,
+    isAuthenticated: Boolean(effectiveUser || hasToken),
     role: userRole,
     isAdmin: userRole === 'ADMIN',
     isFaculty: userRole === 'FACULTY',
     isInactiveLoggedOut,
     clearInactivityNotice: () => setIsInactiveLoggedOut(false),
+    setAuthUser,
     login,
+    adminVerifyOtp,
+    facultyLogin,
     googleLogin,
     verifyOtp,
     logout,
