@@ -27,11 +27,11 @@ export const UserProfile = () => {
 
   return (
     <Layout>
-      <div className="max-w-5xl mx-auto space-y-6 font-sans">
+      <div className="max-w-5xl mx-auto space-y-5 sm:space-y-6 font-sans">
         
         {/* Header Profile Banner Card */}
-        <div className="bg-gradient-to-r from-blue-600 via-blue-600 to-blue-500 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-blue-500/25 relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-5 text-center sm:text-left relative z-10">
+        <div className="bg-gradient-to-r from-blue-600 via-blue-600 to-blue-500 rounded-3xl p-5 sm:p-8 text-white shadow-xl shadow-blue-500/25 relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
+          <div className="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-5 text-center sm:text-left relative z-10">
             <img
               src={user?.profilePhotoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullName || 'User')}&background=2563eb&color=fff`}
               alt={user?.fullName || 'User Profile'}
@@ -40,11 +40,11 @@ export const UserProfile = () => {
                 e.target.onerror = null;
                 e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullName || 'User')}&background=2563eb&color=fff`;
               }}
-              className="w-20 h-20 rounded-2xl object-cover border-2 border-white/40 shadow-lg shrink-0"
+              className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-white/40 shadow-lg shrink-0"
             />
             <div>
               <div className="flex items-center justify-center sm:justify-start space-x-2">
-                <h1 className="text-2xl font-black text-white tracking-tight">
+                <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
                   {user?.fullName || 'User Profile'}
                 </h1>
                 <span className="px-3 py-0.5 bg-white/20 backdrop-blur-md text-white font-mono text-[10px] font-extrabold rounded-lg border border-white/20 uppercase">
@@ -53,7 +53,7 @@ export const UserProfile = () => {
               </div>
               <p className="text-xs text-blue-100 mt-1 flex items-center justify-center sm:justify-start space-x-1.5 font-medium">
                 <Mail className="w-3.5 h-3.5 text-blue-200" />
-                <span>{user?.email || 'user@college.edu'}</span>
+                <span>{user?.email || 'bhashyamgnt.edu@gmail.com'}</span>
               </p>
               <p className="text-xs text-blue-100 mt-1">
                 Account Status: <strong className="text-emerald-300">ACTIVE</strong> • Account ID: <strong className="font-mono text-white">#{user?.id || 1}</strong>
@@ -63,10 +63,10 @@ export const UserProfile = () => {
         </div>
 
         {/* Profile Navigation Tabs */}
-        <div className="flex border-b border-slate-200 dark:border-slate-800 space-x-2 text-xs font-bold">
+        <div className="flex border-b border-slate-200 dark:border-slate-800 space-x-1 sm:space-x-2 text-xs font-bold overflow-x-auto pb-0.5 scrollbar-none">
           <button
             onClick={() => setActiveTab('personal')}
-            className={`py-3 px-5 rounded-t-2xl border-b-2 transition flex items-center space-x-2 cursor-pointer ${
+            className={`py-2.5 sm:py-3 px-3.5 sm:px-5 rounded-t-2xl border-b-2 transition flex items-center space-x-2 cursor-pointer shrink-0 min-h-[44px] ${
               activeTab === 'personal'
                 ? 'border-blue-600 text-blue-600 bg-white dark:bg-slate-900 shadow-xs'
                 : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white'
@@ -78,7 +78,7 @@ export const UserProfile = () => {
 
           <button
             onClick={() => setActiveTab('password')}
-            className={`py-3 px-5 rounded-t-2xl border-b-2 transition flex items-center space-x-2 cursor-pointer ${
+            className={`py-2.5 sm:py-3 px-3.5 sm:px-5 rounded-t-2xl border-b-2 transition flex items-center space-x-2 cursor-pointer shrink-0 min-h-[44px] ${
               activeTab === 'password'
                 ? 'border-blue-600 text-blue-600 bg-white dark:bg-slate-900 shadow-xs'
                 : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white'
@@ -90,7 +90,7 @@ export const UserProfile = () => {
 
           <button
             onClick={() => setActiveTab('security')}
-            className={`py-3 px-5 rounded-t-2xl border-b-2 transition flex items-center space-x-2 cursor-pointer ${
+            className={`py-2.5 sm:py-3 px-3.5 sm:px-5 rounded-t-2xl border-b-2 transition flex items-center space-x-2 cursor-pointer shrink-0 min-h-[44px] ${
               activeTab === 'security'
                 ? 'border-blue-600 text-blue-600 bg-white dark:bg-slate-900 shadow-xs'
                 : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white'
@@ -103,12 +103,12 @@ export const UserProfile = () => {
 
         {/* Tab Contents */}
         {activeTab === 'personal' && (
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-6 text-xs animate-fadeIn">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-5 sm:space-y-6 text-xs animate-fadeIn">
             <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 pb-3">
               Personal & Account Information
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div className="space-y-1">
                 <span className="text-[11px] font-bold text-slate-400 block">Full Name</span>
                 <p className="font-extrabold text-slate-900 dark:text-white text-sm">{user?.fullName || 'Administrator'}</p>
@@ -133,13 +133,13 @@ export const UserProfile = () => {
         )}
 
         {activeTab === 'password' && (
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm animate-fadeIn">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs animate-fadeIn">
             <ChangePasswordForm />
           </div>
         )}
 
         {activeTab === 'security' && (
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4 text-xs animate-fadeIn">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4 text-xs animate-fadeIn">
             <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 pb-3">
               Security Policy & Audit Status
             </h3>

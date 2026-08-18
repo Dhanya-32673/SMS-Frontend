@@ -1,27 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import AdminLayout from '../../../layouts/AdminLayout';
 import FacultyLayout from '../../../layouts/FacultyLayout';
 import { useAuth } from '../../../context/AuthContext';
 import certificateService from '../../../services/certificateService';
-import facultyService from '../../../services/facultyService';
 import { formatSectionName, formatBranchGroup, formatIntermediateYear } from '../../../utils/studentDataFormatter';
 import StudentCertificatesModal from '../../../components/certificates/StudentCertificatesModal';
 import {
   Award,
   Search,
-  Filter,
-  Eye,
   FolderOpen,
   Edit3,
   ChevronLeft,
   ChevronRight,
-  AlertCircle,
-  Users,
-  CheckCircle2,
-  Clock,
-  HelpCircle,
-  ArrowUpDown
+  AlertCircle
 } from 'lucide-react';
 
 import { useDebounce } from '../../../hooks/useDebounce';
@@ -83,105 +75,73 @@ export const AllCertificates = () => {
 
   useEffect(() => {
     fetchStudentSummaries();
-  }, [page, debouncedSearch, groupFilter, yearFilter, sectionFilter, statusFilter, sortBy, sortDir]);
+  }, [page, groupFilter, yearFilter, sectionFilter, statusFilter, debouncedSearch, sortBy, sortDir]);
+
   useDataRefresh(['certificates', 'students'], fetchStudentSummaries);
-
-  // Faculty assignments for filtering options
-  const [facultyAssignments, setFacultyAssignments] = useState([]);
-
-  useEffect(() => {
-    if (!isAdmin) {
-      facultyService.getCurrentFacultyAssignments()
-        .then((data) => {
-          setFacultyAssignments((data || []).filter(a => a.active));
-        })
-        .catch((err) => console.error("Failed to load faculty assignments for filter:", err));
-    }
-  }, [isAdmin]);
-
-  const allGroups = ['MPC', 'BiPC', 'MEC', 'CEC', 'HEC'];
-  const allYears = ['1st Year', '2nd Year'];
-  const allSections = ['A', 'B', 'C', 'D'];
-
-  const availableGroups = !isAdmin && facultyAssignments.length > 0
-    ? Array.from(new Set(facultyAssignments.map(a => a.branchGroup)))
-    : allGroups;
-
-  const availableYears = !isAdmin && facultyAssignments.length > 0
-    ? Array.from(new Set(facultyAssignments.map(a => a.intermediateYear)))
-    : allYears;
-
-  const availableSections = !isAdmin && facultyAssignments.length > 0
-    ? Array.from(new Set(facultyAssignments.map(a => a.section)))
-    : allSections;
 
   return (
     <Layout>
-      <div className="space-y-6 font-sans">
+      <div className="space-y-5 sm:space-y-6 font-sans">
         
-        {/* Header & Breadcrumb */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        {/* Header Banner */}
+        <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <nav className="text-xs text-slate-400 font-semibold mb-1 flex items-center space-x-1">
-              <Link to={isAdmin ? "/admin/dashboard" : "/faculty/dashboard"} className="hover:text-blue-600">Dashboard</Link>
-              <span>›</span>
-              <span className="text-slate-700 dark:text-slate-200">Certificate Management</span>
-            </nav>
-            <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-              Student Certificates Dashboard
-            </h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              {!isAdmin ? 'Student-wise certificate completion status for your assigned sections.' : 'Student-wise certificate completion status, uploaded PDF documents, and verification tracking.'}
+            <div className="flex items-center space-x-2">
+              <span className="p-2 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 rounded-xl">
+                <Award className="w-5 h-5" />
+              </span>
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                Certificate Verification Hub
+              </h1>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              Verify, track, and manage student certificates and mandatory compliance documents ({totalElements} records)
             </p>
+          </div>
+
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <button
+              onClick={() => navigate('/admin/certificates/upload')}
+              className="w-full sm:w-auto py-2.5 px-4 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20 transition flex items-center justify-center space-x-2 cursor-pointer min-h-[44px]"
+            >
+              <span>+ Upload Certificate</span>
+            </button>
           </div>
         </div>
 
-        {/* Search & Filter Bar */}
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
+        {/* Search & Filter Toolbar */}
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-3">
           <div className="flex flex-col md:flex-row items-center justify-between gap-3">
-            {/* Search */}
-            <div className="relative flex-1 w-full max-w-md">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+            
+            <div className="relative flex-1 w-full">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
               <input
                 type="text"
-                placeholder="Search by Student ID, Name, Roll No..."
+                placeholder="Search by student name, ID, or roll number..."
                 value={search}
                 onChange={(e) => {
                   setSearch(e.target.value);
                   setPage(0);
                 }}
-                className="w-full pl-10 pr-4 py-2 text-xs bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600"
+                className="w-full pl-10 pr-4 py-2.5 text-xs bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 min-h-[44px]"
               />
             </div>
 
-            {/* Filter Dropdowns */}
-            <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+            <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 w-full md:w-auto">
               <select
                 value={groupFilter}
                 onChange={(e) => {
                   setGroupFilter(e.target.value);
                   setPage(0);
                 }}
-                className="px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-blue-600 dark:text-blue-400 focus:outline-none"
+                className="px-3 py-2.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-700 dark:text-slate-300 focus:outline-none min-h-[44px]"
               >
                 <option value="">All Groups</option>
-                {availableGroups.map(grp => (
-                  <option key={grp} value={grp}>{grp}</option>
-                ))}
-              </select>
-
-              <select
-                value={yearFilter}
-                onChange={(e) => {
-                  setYearFilter(e.target.value);
-                  setPage(0);
-                }}
-                className="px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-700 dark:text-slate-300 focus:outline-none"
-              >
-                <option value="">All Years</option>
-                {availableYears.map(yr => (
-                  <option key={yr} value={yr}>{yr}</option>
-                ))}
+                <option value="MPC">MPC</option>
+                <option value="BiPC">BiPC</option>
+                <option value="MEC">MEC</option>
+                <option value="CEC">CEC</option>
+                <option value="HEC">HEC</option>
               </select>
 
               <select
@@ -190,12 +150,13 @@ export const AllCertificates = () => {
                   setSectionFilter(e.target.value);
                   setPage(0);
                 }}
-                className="px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-700 dark:text-slate-300 focus:outline-none"
+                className="px-3 py-2.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-700 dark:text-slate-300 focus:outline-none min-h-[44px]"
               >
                 <option value="">All Sections</option>
-                {availableSections.map(sec => (
-                  <option key={sec} value={sec}>Section {sec}</option>
-                ))}
+                <option value="A">Section A</option>
+                <option value="B">Section B</option>
+                <option value="C">Section C</option>
+                <option value="D">Section D</option>
               </select>
 
               <select
@@ -204,7 +165,7 @@ export const AllCertificates = () => {
                   setStatusFilter(e.target.value);
                   setPage(0);
                 }}
-                className="px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-700 dark:text-slate-300 focus:outline-none"
+                className="px-3 py-2.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-700 dark:text-slate-300 focus:outline-none min-h-[44px]"
               >
                 <option value="">All Statuses</option>
                 <option value="COMPLETED">Completed</option>
@@ -212,199 +173,216 @@ export const AllCertificates = () => {
                 <option value="PENDING VERIFICATION">Pending Verification</option>
                 <option value="NEEDS ATTENTION">Needs Attention</option>
               </select>
-
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-700 dark:text-slate-300 focus:outline-none"
-              >
-                <option value="studentId">Sort by ID</option>
-                <option value="fullName">Sort by Name</option>
-                <option value="completionPercentage">Sort by Completion %</option>
-                <option value="pendingCount">Sort by Pending</option>
-                <option value="missingCount">Sort by Missing</option>
-              </select>
             </div>
           </div>
         </div>
 
-        {/* Student Certificates Table */}
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto scrollbar-thin">
-            <table className="w-full min-w-[1180px] text-left text-xs border-collapse">
-              <thead className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200/80 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-extrabold uppercase text-[11px] tracking-wider whitespace-nowrap">
-                <tr>
-                  <th className="py-3.5 px-4">Student ID</th>
-                  <th className="py-3.5 px-4 min-w-[160px]">Student Name</th>
-                  <th className="py-3.5 px-4">Roll No</th>
-                  <th className="py-3.5 px-4">Group & Year</th>
-                  <th className="py-3.5 px-4">Section</th>
-                  <th className="py-3.5 px-4 min-w-[180px]">Certificates Progress</th>
-                  <th className="py-3.5 px-4 min-w-[150px]">Overall Status</th>
-                  <th className="py-3.5 px-4 text-right pr-6 min-w-[170px]">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
-                {loading ? (
-                  <tr>
-                    <td colSpan={8} className="py-16 text-center text-slate-400">
-                      <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent mb-3" />
-                      <p className="text-xs font-bold text-slate-600 dark:text-slate-300">Loading student certificate records...</p>
-                    </td>
-                  </tr>
-                ) : error ? (
-                  <tr>
-                    <td colSpan={8} className="py-16 text-center">
-                      <div className="max-w-md mx-auto space-y-3">
-                        <AlertCircle className="w-10 h-10 text-rose-500 mx-auto" />
-                        <p className="text-xs font-bold text-slate-800 dark:text-slate-200">{error}</p>
-                        <button
-                          onClick={fetchStudentSummaries}
-                          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-md transition cursor-pointer"
-                        >
-                          Retry
-                        </button>
+        {/* Certificate Summaries Container */}
+        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+          
+          {loading ? (
+            <div className="py-16 text-center text-slate-400 space-y-2">
+              <span className="inline-block animate-spin rounded-full h-7 w-7 border-2 border-blue-600 border-t-transparent" />
+              <p className="text-xs font-semibold">Loading student certificate records...</p>
+            </div>
+          ) : error ? (
+            <div className="py-16 text-center p-6 max-w-md mx-auto space-y-3">
+              <AlertCircle className="w-10 h-10 text-rose-500 mx-auto" />
+              <p className="text-xs font-bold text-slate-800 dark:text-slate-200">{error}</p>
+              <button
+                onClick={fetchStudentSummaries}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-md cursor-pointer"
+              >
+                Retry
+              </button>
+            </div>
+          ) : studentSummaries.length === 0 ? (
+            <div className="py-16 text-center p-6 max-w-md mx-auto space-y-3">
+              <FolderOpen className="w-12 h-12 text-slate-300 dark:text-slate-700 mx-auto" />
+              <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">
+                {!isAdmin ? "No students are assigned to your sections yet." : "No certificate records found."}
+              </h4>
+              <p className="text-xs text-slate-400">
+                {!isAdmin ? "Contact Admin to assign sections to your faculty account." : "Try adjusting your search query or filters."}
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* MOBILE STACKED CARDS (< md) */}
+              <div className="block md:hidden divide-y divide-slate-100 dark:divide-slate-800">
+                {studentSummaries.map((st) => (
+                  <div key={st.id || st.studentId} className="p-4 space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center space-x-3 min-w-0">
+                        <img
+                          src={st.profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
+                          alt={st.fullName}
+                          loading="lazy"
+                          className="w-11 h-11 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shrink-0"
+                        />
+                        <div className="min-w-0">
+                          <h4 className="text-sm font-bold text-slate-900 dark:text-white truncate">{st.fullName}</h4>
+                          <p className="text-xs font-mono font-bold text-blue-600 dark:text-blue-400">{st.studentId}</p>
+                          <p className="text-[10px] text-slate-400">
+                            {formatBranchGroup(st.branchGroup)} • Section {formatSectionName(st.section)}
+                          </p>
+                        </div>
                       </div>
-                    </td>
-                  </tr>
-                ) : studentSummaries.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="py-16 text-center">
-                      <div className="max-w-md mx-auto space-y-3">
-                        <FolderOpen className="w-12 h-12 text-slate-300 dark:text-slate-700 mx-auto" />
-                        <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">
-                          {!isAdmin ? "No students are assigned to your sections yet." : "No certificate records found."}
-                        </h4>
-                        <p className="text-xs text-slate-400">
-                          {!isAdmin ? "Contact Admin to assign sections to your faculty account." : "Try adjusting your search query or filters."}
-                        </p>
-                        <button
-                          onClick={fetchStudentSummaries}
-                          className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-xl transition cursor-pointer"
-                        >
-                          Refresh Records
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  studentSummaries.map((st) => (
-                    <tr key={st.id || st.studentId} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition">
-                      <td className="py-3.5 px-4 font-mono font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap">
-                        {st.studentId}
-                      </td>
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        <div className="flex items-center space-x-3">
-                          <img
-                            src={st.profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
-                            alt={st.fullName}
-                            loading="lazy"
-                            className="w-9 h-9 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shrink-0"
-                          />
-                          <div>
-                            <span className="font-bold text-slate-900 dark:text-white block whitespace-nowrap">{st.fullName}</span>
-                            <span className="text-[10px] text-slate-400 font-mono block">{st.admissionNumber || 'N/A'}</span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-3.5 px-4 font-mono font-medium text-slate-500 whitespace-nowrap">
-                        {st.rollNumber || 'N/A'}
-                      </td>
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        <div className="flex items-center space-x-1.5">
-                          <span className="px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 rounded-md text-[10px] font-extrabold">
-                            {formatBranchGroup(st.branchGroup)}
-                          </span>
-                          <span className="text-slate-500 font-semibold text-[11px]">
-                            {formatIntermediateYear(st.intermediateYear)}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="py-3.5 px-4 font-bold text-slate-800 dark:text-slate-200 whitespace-nowrap">
-                        {formatSectionName(st.section)}
-                      </td>
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        <div className="space-y-1">
-                          <div className="flex items-center justify-between text-[11px] font-bold space-x-3">
-                            <span className="text-slate-700 dark:text-slate-300 whitespace-nowrap">
-                              {st.uploadedCount} / {st.totalRequired} Uploaded
-                            </span>
-                            <span className="text-blue-600 dark:text-blue-400 font-mono">{st.completionPercentage}%</span>
-                          </div>
-                          <div className="w-36 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-gradient-to-r from-blue-600 to-blue-500 rounded-full"
-                              style={{ width: `${st.completionPercentage}%` }}
-                            />
-                          </div>
-                          <div className="flex items-center space-x-2 text-[10px] text-slate-400 font-semibold pt-0.5 whitespace-nowrap">
-                            {st.pendingCount > 0 && <span className="text-amber-600 font-bold">• {st.pendingCount} Pending</span>}
-                            {st.missingCount > 0 && <span className="text-rose-600 font-bold">• {st.missingCount} Missing</span>}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase whitespace-nowrap ${
-                          st.overallStatus === 'COMPLETED'
-                            ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200'
-                            : st.overallStatus === 'PENDING VERIFICATION'
-                            ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200'
-                            : st.overallStatus === 'PARTIALLY COMPLETED'
-                            ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200'
-                            : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200'
-                        }`}>
-                          {st.overallStatus}
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase shrink-0 ${
+                        st.overallStatus === 'COMPLETED'
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          : st.overallStatus === 'PENDING VERIFICATION'
+                          ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                          : 'bg-blue-50 text-blue-700 border border-blue-200'
+                      }`}>
+                        {st.overallStatus}
+                      </span>
+                    </div>
+
+                    {/* Progress */}
+                    <div className="space-y-1 bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-xl">
+                      <div className="flex items-center justify-between text-xs font-bold">
+                        <span className="text-slate-600 dark:text-slate-400">
+                          {st.uploadedCount} / {st.totalRequired} Uploaded
                         </span>
-                      </td>
-                      <td className="py-3.5 px-4 text-right pr-6 whitespace-nowrap">
-                        <div className="inline-flex items-center justify-end space-x-2">
+                        <span className="text-blue-600 font-mono">{st.completionPercentage}%</span>
+                      </div>
+                      <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-blue-600 to-blue-500 rounded-full"
+                          style={{ width: `${st.completionPercentage}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => setSelectedStudentForCertificates(st)}
+                      className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center space-x-2 min-h-[44px] cursor-pointer shadow-xs"
+                    >
+                      <FolderOpen className="w-4 h-4" />
+                      <span>View & Manage Certificates</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* DESKTOP TABLE VIEW (md+) */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200/80 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-extrabold uppercase text-[11px] tracking-wider whitespace-nowrap">
+                    <tr>
+                      <th className="py-3.5 px-4">Student ID</th>
+                      <th className="py-3.5 px-4 min-w-[160px]">Student Name</th>
+                      <th className="py-3.5 px-4">Roll No</th>
+                      <th className="py-3.5 px-4">Group & Year</th>
+                      <th className="py-3.5 px-4">Section</th>
+                      <th className="py-3.5 px-4 min-w-[180px]">Certificates Progress</th>
+                      <th className="py-3.5 px-4 min-w-[150px]">Overall Status</th>
+                      <th className="py-3.5 px-4 text-right pr-6 min-w-[160px]">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
+                    {studentSummaries.map((st) => (
+                      <tr key={st.id || st.studentId} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition">
+                        <td className="py-3.5 px-4 font-mono font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap">
+                          {st.studentId}
+                        </td>
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          <div className="flex items-center space-x-3">
+                            <img
+                              src={st.profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
+                              alt={st.fullName}
+                              loading="lazy"
+                              className="w-9 h-9 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shrink-0"
+                            />
+                            <div>
+                              <span className="font-bold text-slate-900 dark:text-white block whitespace-nowrap">{st.fullName}</span>
+                              <span className="text-[10px] text-slate-400 font-mono block">{st.admissionNumber || 'N/A'}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-4 font-mono font-medium text-slate-500 whitespace-nowrap">
+                          {st.rollNumber || 'N/A'}
+                        </td>
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          <div className="flex items-center space-x-1.5">
+                            <span className="px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 rounded-md text-[10px] font-extrabold">
+                              {formatBranchGroup(st.branchGroup)}
+                            </span>
+                            <span className="text-slate-500 font-semibold text-[11px]">
+                              {formatIntermediateYear(st.intermediateYear)}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-4 font-bold text-slate-800 dark:text-slate-200 whitespace-nowrap">
+                          {formatSectionName(st.section)}
+                        </td>
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between text-[11px] font-bold space-x-3">
+                              <span className="text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                                {st.uploadedCount} / {st.totalRequired} Uploaded
+                              </span>
+                              <span className="text-blue-600 dark:text-blue-400 font-mono">{st.completionPercentage}%</span>
+                            </div>
+                            <div className="w-36 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-gradient-to-r from-blue-600 to-blue-500 rounded-full"
+                                style={{ width: `${st.completionPercentage}%` }}
+                              />
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase whitespace-nowrap ${
+                            st.overallStatus === 'COMPLETED'
+                              ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200'
+                              : st.overallStatus === 'PENDING VERIFICATION'
+                              ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200'
+                              : 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200'
+                          }`}>
+                            {st.overallStatus}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4 text-right pr-6 whitespace-nowrap">
                           <button
                             onClick={() => setSelectedStudentForCertificates(st)}
-                            className="py-1.5 px-3 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition inline-flex items-center space-x-1.5 cursor-pointer shadow-xs whitespace-nowrap"
+                            className="py-1.5 px-3 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition inline-flex items-center space-x-1.5 cursor-pointer shadow-xs min-h-[36px]"
                           >
                             <FolderOpen className="w-3.5 h-3.5 shrink-0" />
-                            <span>View Certificates</span>
+                            <span>View</span>
                           </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
 
-                          {isAdmin && (
-                            <button
-                              onClick={() => navigate(`/admin/students/${st.studentId}/edit`)}
-                              className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-lg transition inline-flex items-center cursor-pointer shrink-0"
-                              title="Edit Student Profile"
-                            >
-                              <Edit3 className="w-4 h-4" />
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Pagination Footer */}
+          {/* Pagination Controls */}
           {totalPages > 1 && (
-            <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
-              <span className="text-slate-500">
-                Showing Page <strong>{page + 1}</strong> of <strong>{totalPages}</strong> ({totalElements} Students)
+            <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 flex items-center justify-between">
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                Page <strong className="text-slate-800 dark:text-slate-200">{page + 1}</strong> of <strong className="text-slate-800 dark:text-slate-200">{totalPages}</strong>
               </span>
-
               <div className="flex items-center space-x-2">
                 <button
-                  disabled={page === 0}
                   onClick={() => setPage((p) => Math.max(0, p - 1))}
-                  className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-300 disabled:opacity-40 flex items-center cursor-pointer"
+                  disabled={page === 0}
+                  className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-40 hover:bg-slate-50 transition cursor-pointer min-w-[40px] min-h-[40px] flex items-center justify-center"
+                  aria-label="Previous page"
                 >
-                  <ChevronLeft className="w-4 h-4 mr-1" /> Previous
+                  <ChevronLeft className="w-4 h-4" />
                 </button>
                 <button
+                  onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                   disabled={page >= totalPages - 1}
-                  onClick={() => setPage((p) => p + 1)}
-                  className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-300 disabled:opacity-40 flex items-center cursor-pointer"
+                  className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-40 hover:bg-slate-50 transition cursor-pointer min-w-[40px] min-h-[40px] flex items-center justify-center"
+                  aria-label="Next page"
                 >
-                  Next <ChevronRight className="w-4 h-4 ml-1" />
+                  <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -418,7 +396,6 @@ export const AllCertificates = () => {
           student={selectedStudentForCertificates}
           onClose={() => setSelectedStudentForCertificates(null)}
           onUpdated={fetchStudentSummaries}
-          isAdmin={isAdmin}
         />
       )}
     </Layout>

@@ -121,71 +121,67 @@ export const SectionMembersModal = ({ section, onClose, onUpdated, isAdmin = tru
       fetchMembers();
       if (onUpdated) onUpdated();
     } catch (err) {
-      console.error('Failed deleting student:', err);
-      setError('Failed to delete student record.');
+      setError(err.response?.data?.message || 'Failed to permanently delete student profile');
     } finally {
       setDeletingStudent(false);
     }
   };
 
-  if (!section) return null;
-
   const isAllSelected = members.length > 0 && selectedIds.length === members.length;
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
-        <div className="bg-white dark:bg-slate-900 w-full max-w-5xl rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn font-sans">
+        <div className="bg-white dark:bg-slate-900 w-[calc(100%-16px)] sm:w-full max-w-5xl rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[90vh]">
           {/* Header */}
-          <div className="p-6 pb-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-            <div className="flex items-center space-x-3.5">
-              <div className="w-12 h-12 rounded-2xl bg-purple-100 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-800/50 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
-                <Users className="w-6 h-6" />
+          <div className="p-4 sm:p-6 pb-4 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-2xl bg-purple-100 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-800/50 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold text-sm shrink-0">
+                {section?.name || 'S'}
               </div>
               <div>
-                <h3 className="text-lg font-black text-slate-900 dark:text-white tracking-tight">
-                  Section {section.name} Members
+                <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
+                  Section {section?.name} Members
                 </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                  Academic Year: <span className="font-bold text-slate-700 dark:text-slate-300">{section.academicYear}</span> • Total Students: <span className="font-bold text-purple-600 dark:text-purple-400">{members.length}</span>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  {section?.branchGroup} • {section?.intermediateYear} ({members.length} Enrolled)
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center space-x-3">
-              {isAdmin && selectedIds.length > 0 && (
-                <button
-                  type="button"
-                  onClick={handleBulkUnassign}
-                  disabled={bulkUnassigning}
-                  className="py-2 px-3.5 text-xs font-bold text-amber-800 dark:text-amber-200 bg-amber-100 dark:bg-amber-950/60 hover:bg-amber-200 rounded-xl border border-amber-300/80 inline-flex items-center space-x-1.5 transition cursor-pointer"
-                >
-                  <UserX className="w-4 h-4 text-amber-600" />
-                  <span>Unassign Selected ({selectedIds.length})</span>
-                </button>
-              )}
-
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
               {isAdmin && (
-                <button
-                  type="button"
-                  onClick={() => setShowAssignModal(true)}
-                  className="py-2.5 px-4 text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 rounded-xl shadow-md shadow-purple-500/20 inline-flex items-center space-x-1.5 transition cursor-pointer"
-                >
-                  <UserPlus className="w-4 h-4" />
-                  <span>Assign Students</span>
-                </button>
+                <>
+                  {selectedIds.length > 0 && (
+                    <button
+                      onClick={handleBulkUnassign}
+                      disabled={bulkUnassigning}
+                      className="py-2 px-3 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition inline-flex items-center space-x-1.5 cursor-pointer disabled:opacity-50 min-h-[36px]"
+                    >
+                      <UserX className="w-3.5 h-3.5" />
+                      <span>Unassign ({selectedIds.length})</span>
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setShowAssignModal(true)}
+                    className="py-2 px-3.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20 transition inline-flex items-center space-x-1.5 cursor-pointer min-h-[36px]"
+                  >
+                    <UserPlus className="w-3.5 h-3.5" />
+                    <span>+ Assign Students</span>
+                  </button>
+                </>
               )}
               <button
                 onClick={onClose}
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
           </div>
 
-          {/* Table Content */}
-          <div className="p-6 overflow-y-auto flex-1">
+          {/* Content Area */}
+          <div className="p-4 sm:p-6 overflow-y-auto flex-1">
             {error && (
               <div className="mb-4 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
@@ -205,11 +201,11 @@ export const SectionMembersModal = ({ section, onClose, onUpdated, isAdmin = tru
             ) : members.length === 0 ? (
               <div className="p-12 text-center space-y-3">
                 <Users className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600" />
-                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">No students currently assigned to Section {section.name}</p>
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">No students currently assigned to Section {section?.name}</p>
                 {isAdmin && (
                   <button
                     onClick={() => setShowAssignModal(true)}
-                    className="py-2 px-4 text-xs font-bold text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-xl border border-purple-200 transition inline-flex items-center space-x-1.5 cursor-pointer"
+                    className="py-2 px-4 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl border border-blue-200 transition inline-flex items-center space-x-1.5 cursor-pointer min-h-[40px]"
                   >
                     <UserPlus className="w-3.5 h-3.5" />
                     <span>Assign First Student</span>
@@ -217,119 +213,156 @@ export const SectionMembersModal = ({ section, onClose, onUpdated, isAdmin = tru
                 )}
               </div>
             ) : (
-              <div className="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead>
-                    <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-[11px] font-extrabold uppercase text-slate-500 dark:text-slate-400">
-                      {isAdmin && (
-                        <th className="p-3.5 px-4 w-10">
-                          <input
-                            type="checkbox"
-                            checked={isAllSelected}
-                            onChange={handleSelectAll}
-                            className="w-4 h-4 rounded text-purple-600 border-slate-300 focus:ring-purple-500 cursor-pointer"
-                          />
-                        </th>
-                      )}
-                      <th className="p-3.5 px-4">Student ID</th>
-                      <th className="p-3.5">Roll No</th>
-                      <th className="p-3.5">Admission No</th>
-                      <th className="p-3.5">Student Name</th>
-                      <th className="p-3.5">Group</th>
-                      <th className="p-3.5">Year</th>
-                      <th className="p-3.5">Mobile</th>
-                      <th className="p-3.5">Status</th>
-                      <th className="p-3.5 text-right pr-4">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
-                    {members.map((student) => {
-                      const sid = student.studentId || student.id;
-                      const isSelected = selectedIds.includes(sid);
-                      return (
-                        <tr key={sid} className={`hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition ${isSelected ? 'bg-purple-50/40 dark:bg-purple-950/20' : ''}`}>
-                          {isAdmin && (
-                            <td className="p-3.5 px-4">
+              <>
+                {/* Mobile Stacked Card View (< md) */}
+                <div className="block md:hidden divide-y divide-slate-100 dark:divide-slate-800">
+                  {members.map((student) => {
+                    const sid = student.studentId || student.id;
+                    const isSelected = selectedIds.includes(sid);
+                    return (
+                      <div key={sid} className={`p-3.5 space-y-2 rounded-2xl transition ${isSelected ? 'bg-purple-50/50 dark:bg-purple-950/30' : ''}`}>
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-center space-x-2.5 min-w-0">
+                            {isAdmin && (
                               <input
                                 type="checkbox"
                                 checked={isSelected}
                                 onChange={() => handleToggleSelect(sid)}
-                                className="w-4 h-4 rounded text-purple-600 border-slate-300 focus:ring-purple-500 cursor-pointer"
+                                className="w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500 cursor-pointer shrink-0"
                               />
-                            </td>
-                          )}
-                          <td className="p-3.5 px-4 font-mono font-bold text-purple-600 dark:text-purple-400">{student.studentId}</td>
-                          <td className="p-3.5 font-medium">{student.rollNumber || 'N/A'}</td>
-                          <td className="p-3.5 text-slate-500">{student.admissionNumber || 'N/A'}</td>
-                          <td className="p-3.5 font-bold text-slate-900 dark:text-white">{student.fullName || student.name}</td>
-                          <td className="p-3.5 font-semibold text-slate-600 dark:text-slate-400">{formatBranchGroup(student.branchGroup)}</td>
-                          <td className="p-3.5 text-slate-500">{formatIntermediateYear(student.intermediateYear)}</td>
-                          <td className="p-3.5 font-mono text-slate-500">{student.mobileNumber || 'N/A'}</td>
-                          <td className="p-3.5">
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${
-                              student.status === 'ACTIVE'
-                                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400'
-                                : 'bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400'
-                            }`}>
-                              {student.status || 'ACTIVE'}
-                            </span>
-                          </td>
-                          <td className="p-3.5 pr-4 text-right space-x-1.5">
+                            )}
+                            <div className="min-w-0">
+                              <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">{student.fullName || student.name}</h4>
+                              <p className="text-[11px] font-mono text-blue-600 font-bold">{student.studentId}</p>
+                              <p className="text-[10px] text-slate-400">Roll: {student.rollNumber || 'N/A'}</p>
+                            </div>
+                          </div>
+                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase ${
+                            student.status === 'ACTIVE'
+                              ? 'bg-emerald-100 text-emerald-700'
+                              : 'bg-rose-100 text-rose-700'
+                          }`}>
+                            {student.status || 'ACTIVE'}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center justify-end gap-1.5 pt-1">
+                          <button
+                            onClick={() => {
+                              onClose();
+                              navigate(`/admin/students/${student.studentId}`);
+                            }}
+                            className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 min-h-[36px] min-w-[36px] flex items-center justify-center"
+                            title="View Profile"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          {isAdmin && (
                             <button
-                              onClick={() => {
-                                onClose();
-                                navigate(`/admin/students/${student.studentId}`);
-                              }}
-                              title="View Student Profile"
-                              className="p-1.5 rounded-lg text-slate-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-950/50 transition inline-flex items-center cursor-pointer"
+                              onClick={() => setStudentToRemove(student)}
+                              className="p-1.5 rounded-lg text-amber-600 hover:text-amber-700 hover:bg-amber-50 min-h-[36px] min-w-[36px] flex items-center justify-center"
+                              title="Unassign"
                             >
-                              <Eye className="w-4 h-4" />
+                              <UserX className="w-4 h-4" />
                             </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
 
+                {/* Desktop Table View (md+) */}
+                <div className="hidden md:block border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-[11px] font-extrabold uppercase text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                        {isAdmin && (
+                          <th className="p-3.5 px-4 w-10">
+                            <input
+                              type="checkbox"
+                              checked={isAllSelected}
+                              onChange={handleSelectAll}
+                              className="w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500 cursor-pointer"
+                            />
+                          </th>
+                        )}
+                        <th className="p-3.5 px-4">Student ID</th>
+                        <th className="p-3.5">Roll No</th>
+                        <th className="p-3.5">Admission No</th>
+                        <th className="p-3.5">Student Name</th>
+                        <th className="p-3.5">Group</th>
+                        <th className="p-3.5">Year</th>
+                        <th className="p-3.5">Status</th>
+                        <th className="p-3.5 text-right pr-4">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
+                      {members.map((student) => {
+                        const sid = student.studentId || student.id;
+                        const isSelected = selectedIds.includes(sid);
+                        return (
+                          <tr key={sid} className={`hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition ${isSelected ? 'bg-blue-50/40 dark:bg-blue-950/20' : ''}`}>
                             {isAdmin && (
-                              <button
-                                onClick={() => setStudentToRemove(student)}
-                                title="Unassign Student from Section"
-                                className="p-1.5 rounded-lg text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/50 transition inline-flex items-center cursor-pointer"
-                              >
-                                <UserX className="w-4 h-4" />
-                              </button>
+                              <td className="p-3.5 px-4">
+                                <input
+                                 type="checkbox"
+                                  checked={isSelected}
+                                  onChange={() => handleToggleSelect(sid)}
+                                  className="w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500 cursor-pointer"
+                                />
+                              </td>
                             )}
+                            <td className="p-3.5 px-4 font-mono font-bold text-blue-600 dark:text-blue-400">{student.studentId}</td>
+                            <td className="p-3.5 font-medium">{student.rollNumber || 'N/A'}</td>
+                            <td className="p-3.5 text-slate-500">{student.admissionNumber || 'N/A'}</td>
+                            <td className="p-3.5 font-bold text-slate-900 dark:text-white">{student.fullName || student.name}</td>
+                            <td className="p-3.5 font-semibold text-slate-600 dark:text-slate-400">{formatBranchGroup(student.branchGroup)}</td>
+                            <td className="p-3.5 text-slate-500">{formatIntermediateYear(student.intermediateYear)}</td>
+                            <td className="p-3.5">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${
+                                student.status === 'ACTIVE'
+                                  ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400'
+                                  : 'bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400'
+                              }`}>
+                                {student.status || 'ACTIVE'}
+                              </span>
+                            </td>
+                            <td className="p-3.5 pr-4 text-right space-x-1.5 whitespace-nowrap">
+                              <button
+                                onClick={() => {
+                                  onClose();
+                                  navigate(`/admin/students/${student.studentId}`);
+                                }}
+                                title="View Student Profile"
+                                className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/50 transition inline-flex items-center cursor-pointer min-w-[32px] min-h-[32px]"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
 
-                            {isAdmin && (
-                              <button
-                                onClick={() => setStudentToDelete(student)}
-                                title="Delete Student Record"
-                                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition inline-flex items-center cursor-pointer"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+                              {isAdmin && (
+                                <button
+                                  onClick={() => setStudentToRemove(student)}
+                                  title="Unassign Student from Section"
+                                  className="p-1.5 rounded-lg text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/50 transition inline-flex items-center cursor-pointer min-w-[32px] min-h-[32px]"
+                                >
+                                  <UserX className="w-4 h-4" />
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
-          </div>
-
-          {/* Footer */}
-          <div className="p-4 px-6 bg-slate-50 dark:bg-slate-800/40 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
-            <span className="text-xs text-slate-500 font-medium">
-              {selectedIds.length > 0 ? `${selectedIds.length} student(s) selected` : `${members.length} student(s) listed`}
-            </span>
-            <button
-              onClick={onClose}
-              className="py-2 px-5 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-200/70 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition cursor-pointer"
-            >
-              Close
-            </button>
           </div>
         </div>
       </div>
 
+      {/* Assign Students Modal */}
       {showAssignModal && (
         <AssignStudentsModal
           section={section}
@@ -341,23 +374,21 @@ export const SectionMembersModal = ({ section, onClose, onUpdated, isAdmin = tru
         />
       )}
 
-      {/* Unassign Student From Section Modal */}
+      {/* Unassign Single Student Confirmation Modal */}
       {studentToRemove && (
         <DeleteConfirmationModal
-          title="Unassign Student From Section"
-          subtitle="Section Unassignment Only"
-          entityPhoto={studentToRemove.profilePhotoUrl}
+          isOpen={!!studentToRemove}
+          title="Unassign Student from Section"
+          subtitle="Section Membership Removal"
           entityDetails={[
             { label: 'Student Name', value: studentToRemove.fullName || studentToRemove.name },
             { label: 'Student ID', value: studentToRemove.studentId },
-            { label: 'Roll Number', value: studentToRemove.rollNumber },
             { label: 'Section', value: `Section ${section.name}` },
           ]}
           warningList={[
-            `Unassign from Section ${section.name}`,
-            'Note: Student profile, records, and certificates will NOT be deleted',
+            'Removes this student from this section roster',
+            'Student record itself is NOT deleted and remains active in Student Directory',
           ]}
-          confirmationKeyword="REMOVE STUDENT"
           dangerButtonText="Unassign Student"
           loading={removing}
           onClose={() => setStudentToRemove(null)}
@@ -365,64 +396,25 @@ export const SectionMembersModal = ({ section, onClose, onUpdated, isAdmin = tru
         />
       )}
 
-      {/* Delete Student Record Modal */}
-      {studentToDelete && (
-        <DeleteStudentModal
-          student={studentToDelete}
-          loading={deletingStudent}
-          onClose={() => setStudentToDelete(null)}
-          onConfirm={handleConfirmDeleteStudent}
-        />
-      )}
-
       {/* Bulk Unassign Confirmation Modal */}
       {showBulkUnassignConfirm && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl max-w-md w-full mx-4 p-6 space-y-4 animate-fadeIn">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
-                <AlertCircle className="w-5 h-5 text-amber-600" />
-              </div>
-              <h3 className="text-base font-black text-slate-900 dark:text-white">Confirm Student Unassignment</h3>
-            </div>
-            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-              Are you sure you want to unassign <strong className="text-slate-900 dark:text-white">{selectedIds.length} selected student(s)</strong> from this section?
-            </p>
-            <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3.5 space-y-1.5 text-xs text-slate-600 dark:text-slate-400">
-              <p className="font-bold text-slate-800 dark:text-slate-200">This action will:</p>
-              <ul className="space-y-1 list-disc ml-4">
-                <li>Remove the student(s) from the current section.</li>
-                <li>Update the database immediately.</li>
-                <li>The student records will <strong className="text-slate-800 dark:text-white">NOT</strong> be deleted.</li>
-                <li>Only the section assignment will be removed.</li>
-              </ul>
-            </div>
-            <div className="flex items-center justify-end gap-3 pt-2">
-              <button
-                autoFocus
-                onClick={() => setShowBulkUnassignConfirm(false)}
-                disabled={bulkUnassigning}
-                className="px-5 py-2 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl border border-slate-300 transition cursor-pointer disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleBulkUnassignConfirmed}
-                disabled={bulkUnassigning}
-                className="px-5 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-xl shadow-md shadow-amber-500/20 transition cursor-pointer disabled:opacity-50 flex items-center gap-2"
-              >
-                {bulkUnassigning ? (
-                  <>
-                    <span className="inline-block w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Unassigning...
-                  </>
-                ) : (
-                  'Unassign'
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
+        <DeleteConfirmationModal
+          isOpen={showBulkUnassignConfirm}
+          title={`Unassign ${selectedIds.length} Students`}
+          subtitle="Bulk Section Removal"
+          entityDetails={[
+            { label: 'Section', value: `Section ${section.name}` },
+            { label: 'Selected Students', value: `${selectedIds.length} student(s)` },
+          ]}
+          warningList={[
+            'Removes all selected students from Section ' + section.name,
+            'Students will remain active in the college directory',
+          ]}
+          dangerButtonText="Unassign Selected"
+          loading={bulkUnassigning}
+          onClose={() => setShowBulkUnassignConfirm(false)}
+          onConfirm={handleBulkUnassignConfirmed}
+        />
       )}
     </>
   );

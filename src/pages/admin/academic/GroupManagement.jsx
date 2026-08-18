@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import AdminLayout from '../../../layouts/AdminLayout';
 import academicService from '../../../services/academicService';
-import { Layers, Plus, Users, BookOpen, AlertCircle, Trash2 } from 'lucide-react';
+import { Layers, Users, BookOpen, AlertCircle, Trash2 } from 'lucide-react';
 import DeleteConfirmationModal from '../../../components/common/DeleteConfirmationModal';
 
 import { useToast } from '../../../context/ToastContext';
@@ -54,23 +54,23 @@ export const GroupManagement = () => {
 
   return (
     <AdminLayout>
-      <div className="space-y-6 font-sans">
+      <div className="space-y-5 sm:space-y-6 font-sans">
         
         {/* Banner Welcome Card */}
-        <div className="bg-gradient-to-r from-blue-600 via-blue-600 to-blue-500 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-blue-500/25 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="space-y-2 text-center sm:text-left">
-            <span className="px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-[11px] font-extrabold uppercase tracking-widest text-blue-200 border border-white/20 inline-block">
+        <div className="bg-gradient-to-r from-blue-600 via-blue-600 to-blue-500 rounded-3xl p-5 sm:p-8 text-white shadow-xl shadow-blue-500/25 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="space-y-2 text-left">
+            <span className="px-3 py-1 bg-white/15 backdrop-blur-md rounded-full text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest text-blue-100 border border-white/20 inline-block">
               Academic Streams & Curriculum
             </span>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight leading-tight">
               Academic Groups Directory
             </h1>
             <p className="text-xs sm:text-sm text-blue-100 font-medium max-w-xl">
               Overview of intermediate academic streams (MPC, BiPC, MEC, CEC, HEC) and subject combinations.
             </p>
           </div>
-          <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center shadow-lg shrink-0">
-            <Layers className="w-8 h-8 text-white" />
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center shadow-lg shrink-0">
+            <Layers className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
           </div>
         </div>
 
@@ -83,7 +83,7 @@ export const GroupManagement = () => {
         )}
 
         {/* Groups Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {loading ? (
             <div className="col-span-full py-12 text-center text-slate-400">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent mb-2" />
@@ -91,7 +91,7 @@ export const GroupManagement = () => {
             </div>
           ) : (
             groups.map((grp) => (
-              <div key={grp.id || grp.code} className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-xl space-y-4 hover:shadow-2xl transition relative group">
+              <div key={grp.id || grp.code} className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4 hover:shadow-md transition relative group">
                 <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center font-black text-sm border border-blue-200 dark:border-blue-900/40">
@@ -105,7 +105,7 @@ export const GroupManagement = () => {
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() => setGroupToDelete(grp)}
-                      className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition cursor-pointer"
+                      className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-slate-800 rounded-xl transition cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center"
                       title="Delete Academic Group"
                     >
                       <Trash2 className="w-4 h-4" />

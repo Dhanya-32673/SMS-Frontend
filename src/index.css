@@ -6,17 +6,40 @@
   html {
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
     background-color: #f8fafc;
     color: #0f172a;
     transition: background-color 0.2s ease, color 0.2s ease;
+    overflow-x: hidden;
+    min-height: 100vh;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
 
   .dark body {
     background-color: #090d16;
     color: #f8fafc;
+  }
+
+  /* Prevent text zoom on mobile inputs */
+  input, select, textarea {
+    font-size: 16px;
+  }
+  @media (min-width: 640px) {
+    input, select, textarea {
+      font-size: 0.875rem; /* 14px */
+    }
+  }
+
+  /* Mobile touch target baseline */
+  button, a, input, select {
+    touch-action: manipulation;
   }
 }
 
@@ -31,6 +54,11 @@
   to { transform: translateX(0); }
 }
 
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
 @keyframes dropdownEnter {
   from { opacity: 0; transform: scale(0.95) translateY(-4px); }
   to { opacity: 1; transform: scale(1) translateY(0); }
@@ -42,6 +70,10 @@
 
 .animate-slideInRight {
   animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slideInLeft {
+  animation: slideInLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-dropdown-enter {
@@ -83,7 +115,7 @@
   background: rgba(15, 23, 42, 0.85);
 }
 
-/* Bright Electric Blue (#1d66ff / #2563eb from 2nd Picture) */
+/* Bright Electric Blue Button */
 .blue-gradient-btn {
   background: linear-gradient(135deg, #1d66ff 0%, #2563eb 100%);
   transition: all 0.2s ease;
@@ -93,4 +125,13 @@
   background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
   box-shadow: 0 8px 20px -4px rgba(29, 102, 255, 0.4);
   transform: translateY(-1px);
+}
+
+/* Safe area padding utilities */
+.pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+.pt-safe {
+  padding-top: max(1rem, env(safe-area-inset-top));
 }

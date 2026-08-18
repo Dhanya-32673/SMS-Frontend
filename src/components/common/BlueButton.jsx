@@ -14,17 +14,17 @@ export const BlueButton = ({
   ...props
 }) => {
   const baseStyle =
-    'inline-flex items-center justify-center font-bold transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed select-none rounded-xl';
+    'inline-flex items-center justify-center font-bold transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed select-none rounded-xl active:scale-[0.98] min-h-[40px] sm:min-h-[38px]';
 
   const sizeStyles = {
-    sm: 'px-3 py-1.5 text-xs space-x-1.5',
-    md: 'px-4 py-2 text-xs space-x-2',
-    lg: 'px-6 py-3 text-sm space-x-2.5 rounded-2xl',
+    sm: 'px-3 py-2 text-xs space-x-1.5 min-h-[38px]',
+    md: 'px-4 py-2.5 text-xs sm:text-sm space-x-2 min-h-[44px]',
+    lg: 'px-6 py-3.5 text-sm space-x-2.5 rounded-2xl min-h-[48px]',
   };
 
   const variantStyles = {
     primary:
-      'bg-gradient-to-r from-blue-600 via-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white shadow-md shadow-blue-500/30 hover:shadow-lg hover:shadow-blue-500/40 hover:-translate-y-0.5 active:translate-y-0',
+      'bg-gradient-to-r from-blue-600 via-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/35 hover:-translate-y-0.5 active:translate-y-0',
     secondary:
       'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800/80 hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:border-blue-300 shadow-xs',
     danger:

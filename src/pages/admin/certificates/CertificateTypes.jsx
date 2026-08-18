@@ -17,7 +17,6 @@ export const CertificateTypes = () => {
   const [types, setTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
   // Modal State
   const [showModal, setShowModal] = useState(false);
@@ -36,7 +35,6 @@ export const CertificateTypes = () => {
   const fetchTypes = async () => {
     setLoading(true);
     try {
-      // Fetch all document types for admin so inactive/active are shown
       const data = await certificateService.getDocumentTypes();
       setTypes(data || []);
     } catch (err) {
@@ -137,15 +135,15 @@ export const CertificateTypes = () => {
 
   return (
     <Layout>
-      <div className="space-y-6 font-sans pb-12">
+      <div className="space-y-5 sm:space-y-6 font-sans pb-12">
         
         {/* Banner Welcome Card */}
-        <div className="bg-gradient-to-r from-blue-600 via-blue-600 to-blue-500 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-blue-500/25 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="space-y-2 text-center sm:text-left">
-            <span className="px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-[11px] font-extrabold uppercase tracking-widest text-blue-200 border border-white/20 inline-block">
+        <div className="bg-gradient-to-r from-blue-600 via-blue-600 to-blue-500 rounded-3xl p-5 sm:p-8 text-white shadow-xl shadow-blue-500/25 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="space-y-2 text-left">
+            <span className="px-3 py-1 bg-white/15 backdrop-blur-md rounded-full text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest text-blue-100 border border-white/20 inline-block">
               Certificate Configuration
             </span>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight leading-tight">
               Certificate Types Directory
             </h1>
             <p className="text-xs sm:text-sm text-blue-100 font-medium max-w-xl">
@@ -156,7 +154,7 @@ export const CertificateTypes = () => {
           {isAdmin && (
             <button
               onClick={handleOpenAddModal}
-              className="py-3 px-5 text-xs font-extrabold text-slate-900 bg-white hover:bg-slate-100 rounded-2xl shadow-lg transition flex items-center space-x-2 cursor-pointer shrink-0"
+              className="w-full sm:w-auto py-2.5 sm:py-3 px-4 sm:px-5 text-xs font-extrabold text-slate-900 bg-white hover:bg-slate-100 rounded-2xl shadow-lg transition flex items-center justify-center space-x-2 cursor-pointer shrink-0 min-h-[44px]"
             >
               <Plus className="w-4 h-4 text-blue-600" />
               <span>Add Certificate Type</span>
@@ -173,90 +171,152 @@ export const CertificateTypes = () => {
         )}
 
         {/* Table Container Card */}
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xl overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
           {loading ? (
             <div className="p-12 text-center text-slate-400">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent mb-2" />
               <p className="text-xs font-bold">Loading document types...</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200/80 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-extrabold uppercase text-[11px] tracking-wider">
-                  <tr>
-                    <th className="px-6 py-3.5">Code</th>
-                    <th className="px-4 py-3.5">Certificate Type Name</th>
-                    <th className="px-4 py-3.5">Category</th>
-                    <th className="px-4 py-3.5">Mandatory</th>
-                    <th className="px-4 py-3.5">Status</th>
-                    {isAdmin && <th className="px-4 py-3.5 text-right pr-6">Action</th>}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
-                  {types.map((type) => (
-                    <tr key={type.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition">
-                      <td className="px-6 py-3.5 font-mono font-bold text-blue-600 dark:text-blue-400">{type.code}</td>
-                      <td className="px-4 py-3.5 font-bold text-slate-900 dark:text-white flex items-center space-x-2">
-                        <FileText className="w-4 h-4 text-blue-600 shrink-0" />
-                        <span>{type.name}</span>
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <span className="px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 rounded-md text-[10px] font-extrabold">
-                          {type.category || 'ACADEMIC'}
+            <>
+              {/* MOBILE STACKED CARDS (< md) */}
+              <div className="block md:hidden divide-y divide-slate-100 dark:divide-slate-800">
+                {types.map((type) => (
+                  <div key={type.id} className="p-4 space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center space-x-2.5">
+                        <div className="p-2 bg-blue-50 dark:bg-blue-950/60 rounded-xl text-blue-600">
+                          <FileText className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-slate-900 dark:text-white">{type.name}</h4>
+                          <p className="text-xs font-mono font-bold text-blue-600">{type.code}</p>
+                        </div>
+                      </div>
+                      <span className="px-2.5 py-0.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 rounded-full text-[10px] font-extrabold">
+                        ACTIVE
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-xl">
+                      <div>
+                        <span className="text-[10px] text-slate-400 block uppercase font-extrabold">Category</span>
+                        <span className="font-bold text-blue-700 dark:text-blue-300">{type.category || 'ACADEMIC'}</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-[10px] text-slate-400 block uppercase font-extrabold">Requirement</span>
+                        <span className="font-bold text-slate-800 dark:text-slate-200">
+                          {type.isMandatory !== false && type.requiredByDefault !== false ? (
+                            <span className="text-emerald-600 font-extrabold">Mandatory</span>
+                          ) : (
+                            <span className="text-slate-400">Optional</span>
+                          )}
                         </span>
-                      </td>
-                      <td className="px-4 py-3.5 font-bold">
-                        {type.isMandatory !== false && type.requiredByDefault !== false ? (
-                          <span className="text-emerald-600 font-extrabold">YES</span>
-                        ) : (
-                          <span className="text-slate-400">OPTIONAL</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <span className="px-2.5 py-0.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 rounded-full text-[10px] font-extrabold">
-                          ACTIVE
-                        </span>
-                      </td>
-                      {isAdmin && (
-                        <td className="px-4 py-3.5 text-right pr-6">
-                          <div className="flex items-center justify-end space-x-1">
-                            <button
-                              onClick={() => handleOpenEditModal(type)}
-                              className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-lg transition cursor-pointer"
-                              title="Edit Certificate Type"
-                            >
-                              <Edit3 className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => setTypeToDelete(type)}
-                              disabled={deleteLoadingId === type.id}
-                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-slate-800 rounded-lg transition cursor-pointer disabled:opacity-50"
-                              title="Delete Certificate Type"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </td>
-                      )}
+                      </div>
+                    </div>
+
+                    {isAdmin && (
+                      <div className="flex items-center gap-2 pt-1">
+                        <button
+                          onClick={() => handleOpenEditModal(type)}
+                          className="flex-1 py-2 px-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1 min-h-[40px] cursor-pointer"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                          <span>Edit</span>
+                        </button>
+                        <button
+                          onClick={() => setTypeToDelete(type)}
+                          disabled={deleteLoadingId === type.id}
+                          className="flex-1 py-2 px-3 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 text-rose-600 dark:text-rose-400 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1 min-h-[40px] cursor-pointer disabled:opacity-50"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>Delete</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* DESKTOP TABLE (md+) */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200/80 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-extrabold uppercase text-[11px] tracking-wider whitespace-nowrap">
+                    <tr>
+                      <th className="px-6 py-3.5">Code</th>
+                      <th className="px-4 py-3.5">Certificate Type Name</th>
+                      <th className="px-4 py-3.5">Category</th>
+                      <th className="px-4 py-3.5">Mandatory</th>
+                      <th className="px-4 py-3.5">Status</th>
+                      {isAdmin && <th className="px-4 py-3.5 text-right pr-6">Action</th>}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
+                    {types.map((type) => (
+                      <tr key={type.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition">
+                        <td className="px-6 py-3.5 font-mono font-bold text-blue-600 dark:text-blue-400">{type.code}</td>
+                        <td className="px-4 py-3.5 font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+                          <FileText className="w-4 h-4 text-blue-600 shrink-0" />
+                          <span>{type.name}</span>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <span className="px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 rounded-md text-[10px] font-extrabold">
+                            {type.category || 'ACADEMIC'}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3.5 font-bold">
+                          {type.isMandatory !== false && type.requiredByDefault !== false ? (
+                            <span className="text-emerald-600 font-extrabold">YES</span>
+                          ) : (
+                            <span className="text-slate-400">OPTIONAL</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <span className="px-2.5 py-0.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 rounded-full text-[10px] font-extrabold">
+                            ACTIVE
+                          </span>
+                        </td>
+                        {isAdmin && (
+                          <td className="px-4 py-3.5 text-right pr-6 whitespace-nowrap">
+                            <div className="flex items-center justify-end space-x-1">
+                              <button
+                                onClick={() => handleOpenEditModal(type)}
+                                className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-lg transition cursor-pointer min-w-[36px] min-h-[36px] inline-flex items-center justify-center"
+                                title="Edit Certificate Type"
+                              >
+                                <Edit3 className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => setTypeToDelete(type)}
+                                disabled={deleteLoadingId === type.id}
+                                className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-slate-800 rounded-lg transition cursor-pointer disabled:opacity-50 min-w-[36px] min-h-[36px] inline-flex items-center justify-center"
+                                title="Delete Certificate Type"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
 
         {/* Create / Edit Modal */}
         {showModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fadeIn">
-            <div className="bg-white dark:bg-slate-900 w-full max-w-md p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 text-xs">
+            <div className="bg-white dark:bg-slate-900 w-[calc(100%-32px)] max-w-md max-h-[90vh] overflow-y-auto p-5 sm:p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 text-xs">
               <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
                 <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">
                   {editingId ? 'Edit Certificate Type' : 'Add New Certificate Type'}
                 </h3>
                 <button
                   onClick={() => setShowModal(false)}
-                  className="p-1 text-slate-400 hover:text-slate-600 rounded-lg cursor-pointer"
+                  className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -273,7 +333,7 @@ export const CertificateTypes = () => {
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="e.g. Aadhaar Card"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium focus:ring-2 focus:ring-blue-500 outline-none min-h-[44px]"
                   />
                 </div>
 
@@ -287,7 +347,7 @@ export const CertificateTypes = () => {
                     value={formData.code}
                     onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase().replace(/\s+/g, '_') })}
                     placeholder="e.g. AADHAAR_DOC"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-mono font-bold focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-mono font-bold focus:ring-2 focus:ring-blue-500 outline-none min-h-[44px]"
                   />
                 </div>
 
@@ -298,14 +358,27 @@ export const CertificateTypes = () => {
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium focus:ring-2 focus:ring-blue-500 outline-none min-h-[44px]"
                   >
-                    <option value="ACADEMIC">ACADEMIC</option>
-                    <option value="ADMISSION">ADMISSION</option>
-                    <option value="IDENTITY">IDENTITY</option>
-                    <option value="FINANCIAL">FINANCIAL</option>
-                    <option value="OTHER">OTHER</option>
+                    <option value="ACADEMIC">Academic (e.g. SSC, Marks Memos)</option>
+                    <option value="IDENTITY">Identity (e.g. Aadhaar, Voter Card)</option>
+                    <option value="RESERVATION">Reservation (e.g. Caste, Income, EWS)</option>
+                    <option value="SPECIAL">Special (e.g. Sports, NCC, Medical)</option>
+                    <option value="OTHER">Other / Miscellaneous</option>
                   </select>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Description (optional)
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="Brief description or guidelines for student upload..."
+                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
                 </div>
 
                 <div className="flex items-center space-x-2 pt-1">
@@ -314,27 +387,27 @@ export const CertificateTypes = () => {
                     id="isMandatory"
                     checked={formData.isMandatory}
                     onChange={(e) => setFormData({ ...formData, isMandatory: e.target.checked })}
-                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
+                    className="w-4 h-4 text-blue-600 rounded-md border-slate-300 focus:ring-blue-500"
                   />
-                  <label htmlFor="isMandatory" className="font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
-                    Mandatory for Student Registration
+                  <label htmlFor="isMandatory" className="font-bold text-slate-700 dark:text-slate-300 select-none">
+                    Mandatory submission for all students
                   </label>
                 </div>
 
-                <div className="flex justify-end space-x-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+                <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}
-                    className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-200 transition cursor-pointer"
+                    className="w-full sm:w-auto px-4 py-2.5 font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl min-h-[44px]"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={saving}
-                    className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-extrabold shadow-md shadow-blue-500/20 transition cursor-pointer disabled:opacity-50"
+                    className="w-full sm:w-auto px-5 py-2.5 font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md disabled:opacity-50 cursor-pointer min-h-[44px]"
                   >
-                    {saving ? 'Saving...' : editingId ? 'Update Certificate Type' : 'Create Certificate Type'}
+                    {saving ? 'Saving...' : editingId ? 'Update Type' : 'Create Type'}
                   </button>
                 </div>
               </form>
@@ -343,26 +416,17 @@ export const CertificateTypes = () => {
         )}
 
         {/* Delete Confirmation Modal */}
-        {typeToDelete && (
-          <DeleteConfirmationModal
-            isOpen={Boolean(typeToDelete)}
-            title="Delete Certificate Type"
-            subtitle="Permanent Removal"
-            entityDetails={[
-              { label: 'Name', value: typeToDelete.name },
-              { label: 'Code', value: typeToDelete.code },
-              { label: 'Category', value: typeToDelete.category },
-            ]}
-            warningList={[
-              'Students will no longer be able to upload certificates under this type.',
-              'Existing documents mapped to this type may lose their type classification.',
-            ]}
-            dangerButtonText="Delete Certificate Type"
-            loading={deleteLoadingId === typeToDelete.id}
-            onClose={() => setTypeToDelete(null)}
-            onConfirm={handleConfirmDelete}
-          />
-        )}
+        <ConfirmationModal
+          isOpen={!!typeToDelete}
+          onClose={() => setTypeToDelete(null)}
+          onConfirm={handleConfirmDelete}
+          title="Delete Certificate Type"
+          message={`Are you sure you want to permanently delete "${typeToDelete?.name}"? Existing student files of this type may no longer have a valid type mapping.`}
+          confirmText="Yes, Delete"
+          cancelText="Cancel"
+          danger
+        />
+
       </div>
     </Layout>
   );

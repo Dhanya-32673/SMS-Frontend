@@ -134,15 +134,15 @@ export const SectionManagement = () => {
 
   return (
     <Layout>
-      <div className="space-y-6 font-sans">
+      <div className="space-y-5 sm:space-y-6 font-sans">
         
         {/* Banner Welcome Card */}
-        <div className="bg-gradient-to-r from-blue-600 via-blue-600 to-blue-500 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-blue-500/25 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="space-y-2 text-center sm:text-left">
-            <span className="px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-[11px] font-extrabold uppercase tracking-widest text-blue-200 border border-white/20 inline-block">
+        <div className="bg-gradient-to-r from-blue-600 via-blue-600 to-blue-500 rounded-3xl p-5 sm:p-8 text-white shadow-xl shadow-blue-500/25 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="space-y-2 text-left">
+            <span className="px-3 py-1 bg-white/15 backdrop-blur-md rounded-full text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest text-blue-100 border border-white/20 inline-block">
               Academic Infrastructure
             </span>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight leading-tight">
               Academic Section Management
             </h1>
             <p className="text-xs sm:text-sm text-blue-100 font-medium max-w-xl">
@@ -153,7 +153,7 @@ export const SectionManagement = () => {
           {isAdmin && (
             <button
               onClick={handleOpenAddModal}
-              className="py-3 px-5 text-xs font-bold text-slate-900 bg-white hover:bg-slate-100 rounded-2xl shadow-lg transition flex items-center space-x-2 cursor-pointer shrink-0"
+              className="w-full sm:w-auto py-2.5 sm:py-3 px-4 sm:px-5 text-xs font-bold text-slate-900 bg-white hover:bg-slate-100 rounded-2xl shadow-lg transition flex items-center justify-center space-x-2 cursor-pointer shrink-0 min-h-[44px]"
             >
               <Plus className="w-4 h-4 text-blue-600" />
               <span>Create New Section</span>
@@ -173,21 +173,21 @@ export const SectionManagement = () => {
         )}
 
         {/* Search Bar */}
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex items-center justify-between">
-          <div className="relative flex-1 max-w-md">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-center justify-between">
+          <div className="relative flex-1 w-full">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
             <input
               type="text"
               placeholder="Search section name, group, year..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 text-xs bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600"
+              className="w-full pl-10 pr-4 py-2.5 text-xs bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 min-h-[44px]"
             />
           </div>
         </div>
 
         {/* Sections Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {loading ? (
             <div className="col-span-full py-12 text-center text-slate-400">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent mb-2" />
@@ -203,7 +203,7 @@ export const SectionManagement = () => {
                 <AnimatedDeleteWrapper
                   key={sec.id}
                   as="div"
-                  className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-xl space-y-4 hover:shadow-2xl transition"
+                  className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4 hover:shadow-md transition"
                 >
                   <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
                     <div className="flex items-center space-x-3">
@@ -242,7 +242,7 @@ export const SectionManagement = () => {
                   <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
                     <button
                       onClick={() => setSelectedSectionForMembers(sec)}
-                      className="px-3 py-1.5 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 rounded-xl text-xs font-bold hover:bg-blue-100 transition inline-flex items-center space-x-1 cursor-pointer"
+                      className="px-3 py-2 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 rounded-xl text-xs font-bold hover:bg-blue-100 transition inline-flex items-center space-x-1 cursor-pointer min-h-[40px]"
                     >
                       <Users className="w-3.5 h-3.5" />
                       <span>View Members</span>
@@ -252,14 +252,14 @@ export const SectionManagement = () => {
                       <div className="flex items-center space-x-1">
                         <button
                           onClick={() => handleOpenEditModal(sec)}
-                          className="p-1.5 text-slate-400 hover:text-blue-600 rounded-lg hover:bg-slate-100 transition cursor-pointer"
+                          className="p-2 text-slate-400 hover:text-blue-600 rounded-xl hover:bg-slate-100 transition cursor-pointer min-w-[36px] min-h-[36px] inline-flex items-center justify-center"
                           title="Edit Section"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDeleteSectionClick(sec)}
-                          className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition cursor-pointer"
+                          className="p-2 text-slate-400 hover:text-rose-600 rounded-xl hover:bg-rose-50 transition cursor-pointer min-w-[36px] min-h-[36px] inline-flex items-center justify-center"
                           title="Delete Section"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -298,12 +298,12 @@ export const SectionManagement = () => {
         {/* Form Modal */}
         {showFormModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fadeIn">
-            <div className="bg-white dark:bg-slate-900 w-full max-w-md p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 text-xs">
+            <div className="bg-white dark:bg-slate-900 w-[calc(100%-32px)] max-w-md max-h-[90vh] overflow-y-auto p-5 sm:p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 text-xs">
               <div className="flex items-center justify-between border-b pb-3">
                 <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">
                   {editingSection ? 'Edit Section' : 'Create New Section'}
                 </h3>
-                <button onClick={() => setShowFormModal(false)}><X className="w-5 h-5 text-slate-400" /></button>
+                <button onClick={() => setShowFormModal(false)} className="p-1.5 min-w-[36px] min-h-[36px] flex items-center justify-center"><X className="w-5 h-5 text-slate-400" /></button>
               </div>
 
               <form onSubmit={handleSubmitForm} className="space-y-4">
@@ -315,7 +315,7 @@ export const SectionManagement = () => {
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="e.g. A, B, C"
-                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl font-bold"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border rounded-xl font-bold min-h-[44px]"
                   />
                 </div>
 
@@ -325,7 +325,7 @@ export const SectionManagement = () => {
                     <select
                       value={formData.branchGroup}
                       onChange={(e) => setFormData({ ...formData, branchGroup: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl font-bold"
+                      className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border rounded-xl font-bold min-h-[44px]"
                     >
                       <option value="MPC">MPC</option>
                       <option value="BiPC">BiPC</option>
@@ -340,7 +340,7 @@ export const SectionManagement = () => {
                     <select
                       value={formData.intermediateYear}
                       onChange={(e) => setFormData({ ...formData, intermediateYear: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl font-bold"
+                      className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border rounded-xl font-bold min-h-[44px]"
                     >
                       <option value="1st Year">1st Year</option>
                       <option value="2nd Year">2nd Year</option>
@@ -348,41 +348,15 @@ export const SectionManagement = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end space-x-2 pt-2 border-t">
-                  <button type="button" onClick={() => setShowFormModal(false)} className="px-4 py-2 bg-slate-100 rounded-xl font-bold">Cancel</button>
-                  <button type="submit" disabled={submitting} className="px-5 py-2 bg-blue-600 text-white rounded-xl font-bold">{submitting ? 'Saving...' : 'Save Section'}</button>
+                <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-2 pt-3 border-t">
+                  <button type="button" onClick={() => setShowFormModal(false)} className="w-full sm:w-auto px-4 py-2.5 bg-slate-100 rounded-xl font-bold min-h-[44px]">Cancel</button>
+                  <button type="submit" disabled={submitting} className="w-full sm:w-auto px-5 py-2.5 bg-blue-600 text-white rounded-xl font-bold min-h-[44px]">{submitting ? 'Saving...' : 'Save Section'}</button>
                 </div>
               </form>
             </div>
           </div>
         )}
 
-        {/* Delete Confirmation Modal */}
-        {sectionToDelete && (
-          <DeleteConfirmationModal
-            title="Delete Section"
-            subtitle="Academic Infrastructure Removal"
-            entityDetails={[
-              { label: 'Section Name', value: `Section ${sectionToDelete.name}` },
-              { label: 'Group & Year', value: `${sectionToDelete.branchGroup} (${sectionToDelete.intermediateYear})` },
-              { label: 'Enrolled Students', value: `${sectionToDelete.studentCount ?? sectionToDelete.totalStudents ?? 0} Student(s)` },
-            ]}
-            warningList={['Section Record', 'Student Section Assignments']}
-            cannotDelete={(sectionToDelete.studentCount ?? sectionToDelete.totalStudents ?? 0) > 0}
-            cannotDeleteMessage={`This section currently has ${(sectionToDelete.studentCount ?? sectionToDelete.totalStudents ?? 0)} enrolled student(s). You must remove or reassign all students before deleting this section.`}
-            cannotDeleteActionText="Manage Section Students"
-            onCannotDeleteAction={() => {
-              const sec = sectionToDelete;
-              setSectionToDelete(null);
-              setSelectedSectionForMembers(sec);
-            }}
-            confirmationKeyword="DELETE SECTION"
-            dangerButtonText="Delete Section"
-            loading={deleting}
-            onClose={() => setSectionToDelete(null)}
-            onConfirm={handleConfirmDelete}
-          />
-        )}
       </div>
     </Layout>
   );
