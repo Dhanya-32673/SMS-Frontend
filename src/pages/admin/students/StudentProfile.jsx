@@ -7,6 +7,7 @@ import { useToast } from '../../../context/ToastContext';
 import { useDataRefresh } from '../../../utils/dataSync';
 import { formatSectionName, formatBranchGroup, formatIntermediateYear } from '../../../utils/studentDataFormatter';
 import ConfirmationModal from '../../../components/common/ConfirmationModal';
+import StudentAvatar from '../../../components/common/StudentAvatar';
 import StudentStatusBadge from '../../../components/students/StudentStatusBadge';
 import CertificateStatusBadge from '../../../components/certificates/CertificateStatusBadge';
 import CertificatePreviewModal from '../../../components/certificates/CertificatePreviewModal';
@@ -236,10 +237,13 @@ export const StudentProfile = () => {
         <div className="bg-gradient-to-r from-blue-600 via-blue-600 to-blue-500 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-blue-500/25 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left">
             <div className="relative group shrink-0">
-              <img
-                src={student.profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300'}
-                alt={student.fullName}
-                className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border-4 border-white/30 shadow-2xl shrink-0"
+              <StudentAvatar
+                src={student.profilePhotoUrl}
+                name={student.fullName}
+                studentId={student.studentId}
+                size="2xl"
+                rounded="rounded-2xl"
+                className="w-24 h-24 sm:w-28 sm:h-28 border-4 border-white/30 shadow-2xl shrink-0"
               />
               <span className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 border-2 border-white rounded-full shadow-sm" title="Active Record" />
             </div>

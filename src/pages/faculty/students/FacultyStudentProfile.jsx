@@ -6,6 +6,7 @@ import CertificateProgress from '../../../components/certificates/CertificatePro
 import CertificatePreviewModal from '../../../components/certificates/CertificatePreviewModal';
 import studentService from '../../../services/studentService';
 import certificateService from '../../../services/certificateService';
+import StudentAvatar from '../../../components/common/StudentAvatar';
 import { formatSectionName } from '../../../utils/studentDataFormatter';
 import {
   ArrowLeft, CreditCard, User, Phone, Users, BookOpen, Award, Lock, Eye, AlertCircle
@@ -101,10 +102,13 @@ export const FacultyStudentProfile = () => {
           <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/5 pointer-events-none" />
 
           <div className="flex items-center gap-5 relative z-10">
-            <img
-              src={student.profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300'}
-              alt={student.fullName}
-              className="w-20 h-20 rounded-2xl object-cover border-2 border-white/30 shadow-lg shrink-0"
+            <StudentAvatar
+              src={student.profilePhotoUrl}
+              name={student.fullName}
+              studentId={student.studentId}
+              size="xl"
+              rounded="rounded-2xl"
+              className="w-20 h-20 border-2 border-white/30 shadow-lg shrink-0"
             />
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">

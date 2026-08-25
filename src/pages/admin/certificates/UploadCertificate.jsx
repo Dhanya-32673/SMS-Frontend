@@ -9,6 +9,7 @@ import studentService from '../../../services/studentService';
 import DuplicateCertificateModal from '../../../components/certificates/DuplicateCertificateModal';
 import CertificatePreviewModal from '../../../components/certificates/CertificatePreviewModal';
 import AnimatedFileUpload from '../../../components/common/AnimatedFileUpload';
+import StudentAvatar from '../../../components/common/StudentAvatar';
 import {
   UploadCloud,
   FileText,
@@ -17,7 +18,8 @@ import {
   AlertCircle,
   FileCheck,
   User,
-  ArrowRight
+  ArrowRight,
+  X
 } from 'lucide-react';
 
 export const UploadCertificate = () => {
@@ -31,7 +33,7 @@ export const UploadCertificate = () => {
   const preselectedStudentId = searchParams.get('studentId') || '';
 
   const [studentId, setStudentId] = useState(preselectedStudentId);
-  const [studentSearchQuery, setStudentSearchQuery] = useState(preselectedStudentId);
+  const [studentSearchQuery, setStudentSearchQuery] = useState('');
   const [studentOptions, setStudentOptions] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
 
@@ -49,6 +51,20 @@ export const UploadCertificate = () => {
   const [duplicateModalData, setDuplicateModalData] = useState(null);
   const [previewDoc, setPreviewDoc] = useState(null);
 
+  // If preselectedStudentId is given, load student details
+  useEffect(() => {
+    if (preselectedStudentId) {
+      studentService.getStudentById(preselectedStudentId)
+        .then((st) => {
+          setSelectedStudent(st);
+          setStudentId(st.studentId);
+        })
+        .catch(() => {
+          setStudentId(preselectedStudentId);
+        });
+    }
+  }, [preselectedStudentId]);
+
   useEffect(() => {
     const fetchDocTypes = async () => {
       try {
@@ -65,14 +81,13 @@ export const UploadCertificate = () => {
   const handleStudentSelect = (student) => {
     setSelectedStudent(student);
     setStudentId(student.studentId || student.id);
-    setStudentSearchQuery(`${student.fullName || student.name} (${student.studentId})`);
+    setStudentSearchQuery('');
     setStudentOptions([]);
   };
 
   const handleSearchChange = async (e) => {
     const val = e.target.value;
     setStudentSearchQuery(val);
-    setStudentId(val);
     if (!val || val.length < 2) {
       setStudentOptions([]);
       return;
@@ -210,50 +225,81 @@ export const UploadCertificate = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             
-            {/* Student Search & Select */}
-            <div className="space-y-1 relative">
-              <label className="block font-bold text-slate-700 dark:text-slate-300">
-                Search & Select Student *
-              </label>
-              <div className="relative">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                <input
-                  type="text"
-                  placeholder="Type Student ID, Full Name, or Roll No..."
-                  value={studentSearchQuery}
-                  onChange={(e) => {
-                    setStudentSearchQuery(e.target.value);
-                    setStudentId(e.target.value);
-                  }}
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl font-bold font-mono text-blue-600 dark:text-blue-400 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600"
-                />
-              </div>
-
-              {/* Student Search Dropdown */}
-              {studentOptions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl max-h-48 overflow-y-auto z-30 p-2 space-y-1">
-                  {studentOptions.map((st) => (
+            {/* Student Identification Section */}
+            {selectedStudent ? (
+              <div className="space-y-1">
+                <label className="block font-bold text-slate-700 dark:text-slate-300">
+                  Target Student
+                </label>
+                <div className="p-4 bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-900/60 rounded-2xl flex items-center justify-between">
+                  <div className="flex items-center space-x-3 min-w-0">
+                    <StudentAvatar
+                      src={selectedStudent.profilePhotoUrl}
+                      name={selectedStudent.fullName}
+                      studentId={selectedStudent.studentId}
+                      size="md"
+                    />
+                    <div className="min-w-0">
+                      <h4 className="font-extrabold text-sm text-slate-900 dark:text-white truncate">
+                        {selectedStudent.fullName}
+                      </h4>
+                      <p className="text-xs font-mono font-bold text-blue-600 dark:text-blue-400">
+                        {selectedStudent.studentId} {selectedStudent.rollNumber ? `• Roll: ${selectedStudent.rollNumber}` : ''}
+                      </p>
+                    </div>
+                  </div>
+                  {!preselectedStudentId && (
                     <button
-                      key={st.id || st.studentId}
                       type="button"
                       onClick={() => {
-                        setSelectedStudent(st);
-                        setStudentId(st.studentId);
-                        setStudentSearchQuery(`${st.fullName} (${st.studentId})`);
-                        setStudentOptions([]);
+                        setSelectedStudent(null);
+                        setStudentId('');
+                        setStudentSearchQuery('');
                       }}
-                      className="w-full text-left p-2 hover:bg-blue-50 dark:hover:bg-blue-950/50 rounded-xl flex items-center justify-between cursor-pointer"
+                      className="px-3 py-1.5 text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer shadow-xs"
                     >
-                      <div className="flex items-center space-x-2">
-                        <User className="w-4 h-4 text-blue-600" />
-                        <span className="font-bold text-slate-900 dark:text-white">{st.fullName}</span>
-                      </div>
-                      <span className="font-mono text-[11px] font-extrabold text-blue-600">{st.studentId}</span>
+                      Change
                     </button>
-                  ))}
+                  )}
                 </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div className="space-y-1 relative">
+                <label className="block font-bold text-slate-700 dark:text-slate-300">
+                  Search & Select Student *
+                </label>
+                <div className="relative">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                  <input
+                    type="text"
+                    placeholder="Type Student ID, Full Name, or Roll No..."
+                    value={studentSearchQuery}
+                    onChange={handleSearchChange}
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600"
+                  />
+                </div>
+
+                {/* Student Search Dropdown */}
+                {studentOptions.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl max-h-52 overflow-y-auto z-30 p-2 space-y-1 divide-y divide-slate-100 dark:divide-slate-800">
+                    {studentOptions.map((st) => (
+                      <button
+                        key={st.id || st.studentId}
+                        type="button"
+                        onClick={() => handleStudentSelect(st)}
+                        className="w-full text-left p-2.5 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-xl flex items-center space-x-3 cursor-pointer transition"
+                      >
+                        <StudentAvatar src={st.profilePhotoUrl} name={st.fullName} studentId={st.studentId} size="xs" />
+                        <div className="min-w-0 flex-1">
+                          <span className="font-bold text-slate-900 dark:text-white block truncate">{st.fullName}</span>
+                          <span className="font-mono text-[10px] text-blue-600 dark:text-blue-400">{st.studentId} • Roll: {st.rollNumber || 'N/A'}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Certificate Type Selection */}
             <div>

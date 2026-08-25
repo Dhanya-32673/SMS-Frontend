@@ -83,6 +83,12 @@ export const certificateService = {
     return response.data;
   },
 
+  // Get complete missing certificates audit breakdown with filters and compliance statistics
+  getMissingCertificatesAudit: async (params = {}) => {
+    const response = await api.get('/documents/missing-audit', { params });
+    return response.data;
+  },
+
   // Get document types list (Cached for 5 minutes)
   getDocumentTypes: async () => {
     const cacheKey = '/document-types';

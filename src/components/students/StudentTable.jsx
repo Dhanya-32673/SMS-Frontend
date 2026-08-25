@@ -1,5 +1,6 @@
 import React from 'react';
 import { Eye, Edit3, UserX, CreditCard, ChevronLeft, ChevronRight, Users } from 'lucide-react';
+import StudentAvatar from '../common/StudentAvatar';
 import { useAuth } from '../../context/AuthContext';
 import { formatSectionName, formatIntermediateYear } from '../../utils/studentDataFormatter';
 
@@ -69,10 +70,11 @@ export const StudentTable = ({
                 {/* Student column with photo + name */}
                 <td className="px-6 py-3.5">
                   <div className="flex items-center gap-3">
-                    <img
-                      src={student.profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
-                      alt={student.fullName}
-                      className="w-9 h-9 rounded-xl object-cover border border-slate-200 shrink-0"
+                    <StudentAvatar
+                      src={student.profilePhotoUrl}
+                      name={student.fullName}
+                      studentId={student.studentId}
+                      size="sm"
                     />
                     <span className="font-bold text-slate-900">{student.fullName}</span>
                   </div>

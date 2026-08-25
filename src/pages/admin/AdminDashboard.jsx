@@ -4,6 +4,7 @@ import AdminLayout from '../../layouts/AdminLayout';
 import dashboardService from '../../services/dashboardService';
 import { useDataRefresh } from '../../utils/dataSync';
 import { formatSectionName, formatBranchGroup } from '../../utils/studentDataFormatter';
+import StudentAvatar from '../../components/common/StudentAvatar';
 import {
   Users,
   UserCheck,
@@ -338,10 +339,11 @@ export const AdminDashboard = () => {
                   summary.recentStudents.map((st) => (
                     <div key={st.id || st.studentId} className="p-4 flex items-center justify-between gap-3">
                       <div className="flex items-center space-x-3 min-w-0">
-                        <img
-                          src={st.profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
-                          alt={st.fullName}
-                          className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shrink-0"
+                        <StudentAvatar
+                          src={st.profilePhotoUrl}
+                          name={st.fullName}
+                          studentId={st.studentId}
+                          size="md"
                         />
                         <div className="min-w-0">
                           <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{st.fullName}</p>
@@ -386,10 +388,11 @@ export const AdminDashboard = () => {
                             {st.studentId}
                           </td>
                           <td className="p-3.5 font-bold text-slate-900 dark:text-white flex items-center space-x-3">
-                            <img
-                              src={st.profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
-                              alt={st.fullName}
-                              className="w-8 h-8 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shrink-0"
+                            <StudentAvatar
+                              src={st.profilePhotoUrl}
+                              name={st.fullName}
+                              studentId={st.studentId}
+                              size="sm"
                             />
                             <span>{st.fullName}</span>
                           </td>

@@ -2,6 +2,7 @@ import React from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { GraduationCap, ShieldCheck, Printer } from 'lucide-react';
 import { formatSectionName, formatBranchGroup, formatIntermediateYear } from '../../utils/studentDataFormatter';
+import StudentAvatar from '../common/StudentAvatar';
 
 export const StudentIdCardDisplay = ({ idCardData }) => {
   if (!idCardData) return null;
@@ -36,10 +37,13 @@ export const StudentIdCardDisplay = ({ idCardData }) => {
 
         {/* Card Body: Photo & Key Details */}
         <div className="flex items-start space-x-4">
-          <img
-            src={idCardData.studentPhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300'}
-            alt={idCardData.studentName}
-            className="w-24 h-28 rounded-2xl object-cover border-2 border-purple-400/40 shadow-lg shrink-0"
+          <StudentAvatar
+            src={idCardData.studentPhotoUrl}
+            name={idCardData.studentName}
+            studentId={idCardData.studentId}
+            size="xl"
+            rounded="rounded-2xl"
+            className="w-24 h-28 border-2 border-purple-400/40 shadow-lg shrink-0"
           />
 
           <div className="flex-1 min-w-0 space-y-1.5 text-xs">

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Eye, CreditCard, Users, BookOpen, AlertCircle } from 'lucide-react';
 import FacultyLayout from '../../../layouts/FacultyLayout';
 import studentService from '../../../services/studentService';
+import StudentAvatar from '../../../components/common/StudentAvatar';
 import { formatSectionName, formatIntermediateYear } from '../../../utils/studentDataFormatter';
 
 import { useDebounce } from '../../../hooks/useDebounce';
@@ -122,10 +123,13 @@ export const SearchStudent = () => {
                   key={student.studentId}
                   className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs p-4 sm:p-5 flex flex-col sm:flex-row items-start gap-4 hover:border-blue-300 transition group"
                 >
-                  <img
-                    src={student.profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
-                    alt={student.fullName}
-                    className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border-2 border-blue-100 dark:border-slate-700 shadow-xs shrink-0"
+                  <StudentAvatar
+                    src={student.profilePhotoUrl}
+                    name={student.fullName}
+                    studentId={student.studentId}
+                    size="lg"
+                    rounded="rounded-2xl"
+                    className="w-14 h-14 sm:w-16 sm:h-16 border-2 border-blue-100 dark:border-slate-700 shadow-xs shrink-0"
                   />
                   <div className="flex-1 min-w-0 w-full">
                     <div className="flex items-center justify-between gap-2">

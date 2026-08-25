@@ -66,6 +66,16 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
   });
 
   useEffect(() => {
+    if (initialValues && Object.keys(initialValues).length > 0) {
+      setFormData(prev => ({
+        ...prev,
+        ...initialValues,
+        profilePhotoUrl: initialValues.profilePhotoUrl || prev.profilePhotoUrl || '',
+      }));
+    }
+  }, [initialValues]);
+
+  useEffect(() => {
     if (isFaculty) {
       facultyService.getCurrentFacultyAssignments()
         .then((data) => {
@@ -149,8 +159,13 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
         </h3>
         <StudentPhotoUpload
           photoUrl={formData.profilePhotoUrl}
+          studentName={formData.fullName || `${formData.firstName || ''} ${formData.lastName || ''}`.trim() || 'Student'}
+          studentId={initialValues?.studentId || formData.studentId || ''}
           onPhotoSelect={(file) => {
             setSelectedPhotoFile(file);
+            if (file === null) {
+              setFormData(prev => ({ ...prev, profilePhotoUrl: '' }));
+            }
           }}
         />
       </div>

@@ -4,6 +4,7 @@ import AdminLayout from '../../../layouts/AdminLayout';
 import facultyService from '../../../services/facultyService';
 import { Eye, Edit3, Plus, Search, UserCheck, AlertCircle, Trash2, Users } from 'lucide-react';
 import DeleteConfirmationModal from '../../../components/common/DeleteConfirmationModal';
+import StudentAvatar from '../../../components/common/StudentAvatar';
 
 import { useToast } from '../../../context/ToastContext';
 import { useDataRefresh } from '../../../utils/dataSync';
@@ -136,10 +137,11 @@ export const FacultyManagement = () => {
                     <div key={fac.id || fac.employeeId} className="p-4 space-y-3">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center space-x-3">
-                          <img
-                            src={fac.photoUrl || fac.profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
-                            alt={fac.fullName}
-                            className="w-11 h-11 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shrink-0"
+                          <StudentAvatar
+                            src={fac.photoUrl || fac.profilePhotoUrl}
+                            name={fac.fullName}
+                            studentId={fac.employeeId}
+                            size="md"
                           />
                           <div>
                             <h4 className="text-sm font-bold text-slate-900 dark:text-white">{fac.fullName}</h4>
@@ -224,10 +226,11 @@ export const FacultyManagement = () => {
                       <tr key={fac.id || fac.employeeId} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition">
                         <td className="px-6 py-3.5 font-mono font-bold text-blue-600 dark:text-blue-400">{fac.employeeId || 'FAC-1001'}</td>
                         <td className="px-4 py-3.5 font-bold text-slate-900 dark:text-white flex items-center space-x-3">
-                          <img
-                            src={fac.photoUrl || fac.profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
-                            alt={fac.fullName}
-                            className="w-8 h-8 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shrink-0"
+                          <StudentAvatar
+                            src={fac.photoUrl || fac.profilePhotoUrl}
+                            name={fac.fullName}
+                            studentId={fac.employeeId}
+                            size="sm"
                           />
                           <span>{fac.fullName}</span>
                         </td>

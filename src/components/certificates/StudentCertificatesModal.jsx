@@ -17,6 +17,7 @@ import { formatSectionName, formatBranchGroup, formatIntermediateYear } from '..
 import CertificatePreviewModal from './CertificatePreviewModal';
 import UploadCertificateModal from './UploadCertificateModal';
 import DeleteConfirmationModal from '../common/DeleteConfirmationModal';
+import StudentAvatar from '../common/StudentAvatar';
 
 export const StudentCertificatesModal = ({ student, onClose, onUpdated, isAdmin = true }) => {
   const [documents, setDocuments] = useState([]);
@@ -147,10 +148,13 @@ export const StudentCertificatesModal = ({ student, onClose, onUpdated, isAdmin 
           {/* Top Header */}
           <div className="p-4 sm:p-6 pb-4 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex items-center space-x-3 sm:space-x-4">
-              <img
-                src={student.profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
-                alt={student.fullName}
-                className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl object-cover border-2 border-blue-600 shadow-md shrink-0"
+              <StudentAvatar
+                src={student.profilePhotoUrl}
+                name={student.fullName || student.name}
+                studentId={student.studentId}
+                size="lg"
+                rounded="rounded-2xl"
+                className="w-12 h-12 sm:w-14 sm:h-14 border-2 border-blue-600 shadow-md shrink-0"
               />
               <div className="min-w-0">
                 <div className="flex items-center space-x-2">

@@ -6,6 +6,7 @@ import { useAuth } from '../../../context/AuthContext';
 import StudentStatusBadge from '../../../components/students/StudentStatusBadge';
 import studentService from '../../../services/studentService';
 import ExportExcelButton from '../../../components/students/ExportExcelButton';
+import StudentAvatar from '../../../components/common/StudentAvatar';
 import {
   Users,
   UserPlus,
@@ -227,11 +228,11 @@ export const AllStudents = () => {
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center space-x-3 min-w-0">
-                          <img
-                            src={st.profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
-                            alt={st.fullName}
-                            loading="lazy"
-                            className="w-11 h-11 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shrink-0"
+                          <StudentAvatar
+                            src={st.profilePhotoUrl}
+                            name={st.fullName}
+                            studentId={st.studentId}
+                            size="md"
                           />
                           <div className="min-w-0">
                             <h4 className="text-sm font-bold text-slate-900 dark:text-white truncate">{st.fullName}</h4>
@@ -319,11 +320,11 @@ export const AllStudents = () => {
                           </td>
                           <td className="py-3.5 px-4">
                             <div className="flex items-center space-x-3">
-                              <img
-                                src={st.profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
-                                alt={st.fullName}
-                                loading="lazy"
-                                className="w-9 h-9 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shrink-0"
+                              <StudentAvatar
+                                src={st.profilePhotoUrl}
+                                name={st.fullName}
+                                studentId={st.studentId}
+                                size="sm"
                               />
                               <div>
                                 <span className="font-bold text-slate-900 dark:text-white block">{st.fullName}</span>
