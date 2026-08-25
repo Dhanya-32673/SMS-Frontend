@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import StudentPhotoUpload from '../students/StudentPhotoUpload';
 
 export const FacultyForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = false, submitting = false }) => {
@@ -9,7 +9,7 @@ export const FacultyForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
     lastName: initialValues.lastName || '',
     gender: initialValues.gender || 'MALE',
     dateOfBirth: initialValues.dateOfBirth || '',
-    photoUrl: initialValues.photoUrl || '',
+    photoUrl: initialValues.photoUrl || initialValues.profilePhotoUrl || '',
     mobileNumber: initialValues.mobileNumber || '',
     alternateMobile: initialValues.alternateMobile || '',
     email: initialValues.email || '',
@@ -29,6 +29,16 @@ export const FacultyForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
     status: initialValues.status || 'ACTIVE',
   });
 
+  useEffect(() => {
+    if (initialValues && Object.keys(initialValues).length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        ...initialValues,
+        photoUrl: initialValues.photoUrl || initialValues.profilePhotoUrl || prev.photoUrl || '',
+      }));
+    }
+  }, [initialValues]);
+
   const [selectedPhotoFile, setSelectedPhotoFile] = useState(null);
 
   const handleChange = (field, value) => {
@@ -37,7 +47,14 @@ export const FacultyForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData, selectedPhotoFile);
+    const payload = { ...formData };
+    if (payload.photoUrl && payload.photoUrl.startsWith('blob:')) {
+      delete payload.photoUrl;
+    }
+    if (isEdit && !payload.password) {
+      delete payload.password;
+    }
+    onSubmit(payload, selectedPhotoFile);
   };
 
   return (

@@ -67,9 +67,17 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
 
   useEffect(() => {
     if (initialValues && Object.keys(initialValues).length > 0) {
+      const cleanSection = (initialValues.section || '').replace(/^section\s+/i, '').trim();
+      const fn = initialValues.firstName || '';
+      const mn = initialValues.middleName || '';
+      const ln = initialValues.lastName || '';
+      const calculatedFullName = initialValues.fullName || `${fn} ${mn ? mn + ' ' : ''}${ln}`.trim();
+
       setFormData(prev => ({
         ...prev,
         ...initialValues,
+        section: cleanSection,
+        fullName: calculatedFullName,
         profilePhotoUrl: initialValues.profilePhotoUrl || prev.profilePhotoUrl || '',
       }));
     }
@@ -87,7 +95,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
               ...prev,
               branchGroup: first.branchGroup || prev.branchGroup,
               intermediateYear: first.intermediateYear || prev.intermediateYear,
-              section: first.section || prev.section,
+              section: (first.section || prev.section || '').replace(/^section\s+/i, '').trim(),
               academicYear: first.academicYear || prev.academicYear
             }));
           }
@@ -111,7 +119,7 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
     : allYears;
 
   const availableSections = isFaculty && facultyAssignments.length > 0
-    ? Array.from(new Set(facultyAssignments.filter(a => a.branchGroup === formData.branchGroup && a.intermediateYear === formData.intermediateYear).map(a => a.section)))
+    ? Array.from(new Set(facultyAssignments.filter(a => a.branchGroup === formData.branchGroup && a.intermediateYear === formData.intermediateYear).map(a => (a.section || '').replace(/^section\s+/i, '').trim())))
     : allSections;
 
   const [selectedPhotoFile, setSelectedPhotoFile] = useState(null);
@@ -119,18 +127,27 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
   const handleChange = (field, value) => {
     setFormData((prev) => {
       const updated = { ...prev, [field]: value };
+      
+      // Auto-compute fullName when first, middle, or last name changes
+      if (field === 'firstName' || field === 'middleName' || field === 'lastName') {
+        const fn = field === 'firstName' ? value : (updated.firstName || '');
+        const mn = field === 'middleName' ? value : (updated.middleName || '');
+        const ln = field === 'lastName' ? value : (updated.lastName || '');
+        updated.fullName = `${fn} ${mn ? mn.trim() + ' ' : ''}${ln}`.trim();
+      }
+
       if (isFaculty && facultyAssignments.length > 0) {
         if (field === 'branchGroup') {
           const yearsForGrp = facultyAssignments.filter(a => a.branchGroup === value).map(a => a.intermediateYear);
           if (yearsForGrp.length > 0 && !yearsForGrp.includes(updated.intermediateYear)) {
             updated.intermediateYear = yearsForGrp[0];
           }
-          const secsForGrpYr = facultyAssignments.filter(a => a.branchGroup === value && a.intermediateYear === updated.intermediateYear).map(a => a.section);
+          const secsForGrpYr = facultyAssignments.filter(a => a.branchGroup === value && a.intermediateYear === updated.intermediateYear).map(a => (a.section || '').replace(/^section\s+/i, '').trim());
           if (secsForGrpYr.length > 0 && !secsForGrpYr.includes(updated.section)) {
             updated.section = secsForGrpYr[0];
           }
         } else if (field === 'intermediateYear') {
-          const secsForGrpYr = facultyAssignments.filter(a => a.branchGroup === updated.branchGroup && a.intermediateYear === value).map(a => a.section);
+          const secsForGrpYr = facultyAssignments.filter(a => a.branchGroup === updated.branchGroup && a.intermediateYear === value).map(a => (a.section || '').replace(/^section\s+/i, '').trim());
           if (secsForGrpYr.length > 0 && !secsForGrpYr.includes(updated.section)) {
             updated.section = secsForGrpYr[0];
           }
@@ -147,6 +164,14 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
     if (payload.profilePhotoUrl && payload.profilePhotoUrl.startsWith('blob:')) {
       delete payload.profilePhotoUrl;
     }
+    if (payload.section) {
+      payload.section = payload.section.replace(/^section\s+/i, '').trim();
+    }
+    const fn = payload.firstName || '';
+    const mn = payload.middleName || '';
+    const ln = payload.lastName || '';
+    payload.fullName = `${fn} ${mn ? mn.trim() + ' ' : ''}${ln}`.trim();
+
     onSubmit(payload, selectedPhotoFile);
   };
 

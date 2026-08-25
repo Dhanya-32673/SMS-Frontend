@@ -26,8 +26,9 @@ export const apiCache = {
       memoryCache.clear();
       return;
     }
+    const cleanPrefix = keyPrefix.startsWith('/') ? keyPrefix : `/${keyPrefix}`;
     for (const key of memoryCache.keys()) {
-      if (key.startsWith(keyPrefix)) {
+      if (key.includes(cleanPrefix) || key.startsWith(keyPrefix) || key.includes(keyPrefix)) {
         memoryCache.delete(key);
       }
     }
