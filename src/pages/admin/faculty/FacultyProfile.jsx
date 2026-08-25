@@ -34,7 +34,8 @@ import {
 } from 'lucide-react';
 
 export const FacultyProfile = () => {
-  const { facultyId } = useParams();
+  const params = useParams();
+  const facultyId = params.id || params.facultyId;
   const navigate = useNavigate();
   const { user } = useAuth();
   const { showSuccess, showError } = useToast();
@@ -44,6 +45,8 @@ export const FacultyProfile = () => {
 
   const [faculty, setFaculty] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [errorStatus, setErrorStatus] = useState(null);
   const [activeTab, setActiveTab] = useState('personal');
 
   // New assignment modal state
@@ -65,7 +68,7 @@ export const FacultyProfile = () => {
     if (!assignmentToRemove || removingAssignment) return;
     setRemovingAssignment(true);
     try {
-      await facultyService.removeAssignment(faculty.id || facultyId, assignmentToRemove.id);
+      await facultyService.removeAssignment(faculty?.id || facultyId, assignmentToRemove.id);
       showSuccess(`Section ${assignmentToRemove.section} (${assignmentToRemove.branchGroup} ${assignmentToRemove.intermediateYear}) unassigned successfully.`);
       setAssignmentToRemove(null);
       fetchProfile();
@@ -77,12 +80,31 @@ export const FacultyProfile = () => {
   };
 
   const fetchProfile = async () => {
+    if (!facultyId) {
+      setLoading(false);
+      setError('No faculty identifier provided in the URL route.');
+      setErrorStatus(404);
+      return;
+    }
     setLoading(true);
+    setError('');
+    setErrorStatus(null);
     try {
       const data = await facultyService.getFacultyById(facultyId);
       setFaculty(data);
     } catch (err) {
       console.error('Failed to load faculty profile:', err);
+      const status = err.response?.status;
+      setErrorStatus(status);
+      if (status === 404) {
+        setError('Faculty record not found.');
+      } else if (status === 401) {
+        setError('Your session has expired. Please log in again.');
+      } else if (status === 403) {
+        setError('You do not have permission to view this faculty profile.');
+      } else {
+        setError(err.response?.data?.message || 'Unable to load faculty details from the server.');
+      }
     } finally {
       setLoading(false);
     }
@@ -178,17 +200,79 @@ export const FacultyProfile = () => {
     );
   }
 
+  if (errorStatus === 401) {
+    return (
+      <Layout>
+        <div className="py-20 text-center font-sans max-w-md mx-auto space-y-4">
+          <div className="w-16 h-16 bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 rounded-3xl flex items-center justify-center mx-auto shadow-inner">
+            <ShieldCheck className="w-8 h-8" />
+          </div>
+          <h2 className="text-lg font-black text-slate-900 dark:text-white">Session Expired</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            Your authentication session has expired. Please log in again to continue.
+          </p>
+          <div className="pt-2">
+            <button
+              onClick={() => navigate('/login')}
+              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-md transition cursor-pointer"
+            >
+              Log In Again
+            </button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error && errorStatus !== 404) {
+    return (
+      <Layout>
+        <div className="py-20 text-center font-sans max-w-md mx-auto space-y-4">
+          <div className="w-16 h-16 bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 rounded-3xl flex items-center justify-center mx-auto shadow-inner">
+            <AlertCircle className="w-8 h-8" />
+          </div>
+          <h2 className="text-lg font-black text-slate-900 dark:text-white">Unable to Load Faculty Profile</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            {error || 'An unexpected error occurred while communicating with the server.'}
+          </p>
+          <div className="pt-2 flex items-center justify-center gap-3">
+            <button
+              onClick={fetchProfile}
+              className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-md transition cursor-pointer"
+            >
+              Retry Loading
+            </button>
+            <button
+              onClick={() => navigate('/admin/faculty')}
+              className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-xs transition cursor-pointer"
+            >
+              Back to Faculty Directory
+            </button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   if (!faculty) {
     return (
       <Layout>
-        <div className="py-16 text-center text-slate-500 font-sans space-y-4">
-          <p className="text-base font-bold text-slate-800 dark:text-white">Faculty record not found.</p>
-          <button
-            onClick={() => navigate('/admin/faculty')}
-            className="px-5 py-2.5 bg-blue-600 text-white font-bold rounded-xl text-xs shadow-md cursor-pointer"
-          >
-            Back to Faculty Directory
-          </button>
+        <div className="py-20 text-center font-sans max-w-md mx-auto space-y-4">
+          <div className="w-16 h-16 bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 rounded-3xl flex items-center justify-center mx-auto shadow-inner">
+            <AlertCircle className="w-8 h-8" />
+          </div>
+          <h2 className="text-lg font-black text-slate-900 dark:text-white">Faculty Record Not Found</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            The requested faculty profile with ID <strong className="font-mono text-slate-800 dark:text-slate-200">{facultyId || 'N/A'}</strong> does not exist in the database or has been deleted.
+          </p>
+          <div className="pt-2">
+            <button
+              onClick={() => navigate('/admin/faculty')}
+              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-md transition cursor-pointer"
+            >
+              Back to Faculty Directory
+            </button>
+          </div>
         </div>
       </Layout>
     );
