@@ -11,8 +11,18 @@ const listeners = new Set();
 
 export const dataSync = {
   invalidate(scopes) {
-    const changed = new Set(scopes);
-    listeners.forEach((listener) => listener(changed));
+    const changed = new Set(Array.isArray(scopes) ? scopes : [scopes]);
+    listeners.forEach((listener) => {
+      try {
+        listener(changed);
+      } catch (err) {
+        console.warn('dataSync listener error:', err);
+      }
+    });
+  },
+
+  notify(scopes) {
+    this.invalidate(scopes);
   },
 
   subscribe(listener) {
@@ -28,16 +38,18 @@ export function useDataRefresh(scopes, refresh) {
   const scheduledRef = useRef(false);
   refreshRef.current = refresh;
   scopesRef.current = scopes;
-  const scopeKey = scopes.slice().sort().join('|');
+  const scopeKey = Array.isArray(scopes) ? scopes.slice().sort().join('|') : String(scopes);
 
   useEffect(() => dataSync.subscribe((changed) => {
-    if (!scopesRef.current.some((scope) => changed.has(scope))) return;
+    if (!Array.isArray(scopesRef.current) || !scopesRef.current.some((scope) => changed.has(scope))) return;
     // A mutation can affect several domains; coalesce it into one fetch/frame.
     if (scheduledRef.current) return;
     scheduledRef.current = true;
     requestAnimationFrame(() => {
       scheduledRef.current = false;
-      refreshRef.current();
+      if (typeof refreshRef.current === 'function') {
+        refreshRef.current();
+      }
     });
   }), [scopeKey]); // scopes are expected to be stable literals
 }

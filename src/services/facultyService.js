@@ -13,7 +13,7 @@ const facultyService = {
   createFaculty: async (data) => {
     const response = await api.post('/faculty', data);
     apiCache.clear('/faculty');
-    dataSync.notify(['faculty', 'dashboard']);
+    dataSync.invalidate(['faculty', 'dashboard']);
     return response.data;
   },
 
@@ -27,7 +27,7 @@ const facultyService = {
   updateFaculty: async (id, data) => {
     const response = await api.put(`/faculty/${id}`, data);
     apiCache.clear('/faculty');
-    dataSync.notify(['faculty', 'dashboard']);
+    dataSync.invalidate(['faculty', 'dashboard']);
     return response.data;
   },
 
@@ -35,7 +35,7 @@ const facultyService = {
   toggleStatus: async (id, status) => {
     const response = await api.patch(`/faculty/${id}/status`, { status });
     apiCache.clear('/faculty');
-    dataSync.notify(['faculty', 'dashboard']);
+    dataSync.invalidate(['faculty', 'dashboard']);
     return response.data;
   },
 
@@ -43,7 +43,7 @@ const facultyService = {
   addAssignment: async (facultyId, data) => {
     const response = await api.post(`/faculty/${facultyId}/assignments`, data);
     apiCache.clear('/faculty');
-    dataSync.notify(['faculty', 'sections']);
+    dataSync.invalidate(['faculty', 'sections']);
     return response.data;
   },
 
@@ -51,7 +51,7 @@ const facultyService = {
   removeAssignment: async (facultyId, assignmentId) => {
     const response = await api.delete(`/faculty/${facultyId}/assignments/${assignmentId}`);
     apiCache.clear('/faculty');
-    dataSync.notify(['faculty', 'sections']);
+    dataSync.invalidate(['faculty', 'sections']);
     return response.data;
   },
 
@@ -76,7 +76,7 @@ const facultyService = {
   createGroup: async (data) => {
     const response = await api.post('/academic/groups', data);
     apiCache.clear('/academic/groups');
-    dataSync.notify(['groups']);
+    dataSync.invalidate(['groups']);
     return response.data;
   },
 
@@ -89,7 +89,7 @@ const facultyService = {
   createSection: async (data) => {
     const response = await api.post('/academic/sections', data);
     apiCache.clear('/academic/sections');
-    dataSync.notify(['sections']);
+    dataSync.invalidate(['sections']);
     return response.data;
   },
 
@@ -101,7 +101,7 @@ const facultyService = {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
     apiCache.clear('/faculty');
-    dataSync.notify(['faculty']);
+    dataSync.invalidate(['faculty']);
     return response.data;
   },
 
@@ -109,7 +109,7 @@ const facultyService = {
   deleteFaculty: async (id) => {
     const response = await api.delete(`/faculty/${id}`);
     apiCache.clear('/faculty');
-    dataSync.notify(['faculty', 'dashboard']);
+    dataSync.invalidate(['faculty', 'dashboard']);
     return response.data;
   },
 };

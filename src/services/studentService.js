@@ -7,7 +7,7 @@ export const studentService = {
     const response = await api.post('/students', studentData);
     apiCache.clear('/students');
     apiCache.clear('/academic/sections');
-    dataSync.notify(['students', 'sections', 'dashboard']);
+    dataSync.invalidate(['students', 'sections', 'dashboard']);
     return response.data;
   },
 
@@ -25,7 +25,7 @@ export const studentService = {
     const response = await api.put(`/students/${studentId}`, studentData);
     apiCache.clear('/students');
     apiCache.clear('/academic/sections');
-    dataSync.notify(['students', 'sections', 'dashboard']);
+    dataSync.invalidate(['students', 'sections', 'dashboard']);
     return response.data;
   },
 
@@ -33,7 +33,7 @@ export const studentService = {
     const response = await api.patch(`/students/${studentId}/deactivate`);
     apiCache.clear('/students');
     apiCache.clear('/academic/sections');
-    dataSync.notify(['students', 'sections', 'dashboard']);
+    dataSync.invalidate(['students', 'sections', 'dashboard']);
     return response.data;
   },
 
@@ -49,7 +49,7 @@ export const studentService = {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
     apiCache.clear('/students');
-    dataSync.notify(['students']);
+    dataSync.invalidate(['students']);
     return response.data;
   },
 
@@ -62,7 +62,7 @@ export const studentService = {
     const response = await api.delete(`/students/${studentId}`);
     apiCache.clear('/students');
     apiCache.clear('/academic/sections');
-    dataSync.notify(['students', 'sections', 'dashboard']);
+    dataSync.invalidate(['students', 'sections', 'dashboard']);
     return response.data;
   },
 
