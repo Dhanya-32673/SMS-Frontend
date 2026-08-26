@@ -97,10 +97,9 @@ const facultyService = {
   uploadFacultyPhoto: async (id, file) => {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await api.post(`/faculty/${id}/photo`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const response = await api.post(`/faculty/${id}/photo`, formData);
     apiCache.clear('/faculty');
+    apiCache.clear(`/faculty/${id}`);
     dataSync.invalidate(['faculty']);
     return response.data;
   },

@@ -22,11 +22,12 @@ export const AddStudent = () => {
     setError('');
     try {
       const createdStudent = await studentService.createStudent(formData);
-      if (photoFile && createdStudent.studentId) {
+      if (photoFile && createdStudent?.studentId) {
         try {
           await studentService.uploadStudentPhoto(createdStudent.studentId, photoFile);
         } catch (photoErr) {
-          console.warn('Photo upload warning:', photoErr);
+          console.warn('Photo upload warning on create:', photoErr);
+          showError('Student record was created, but photo failed to upload. You can re-upload the photo via Edit Student.');
         }
       }
       showSuccess('Student added successfully');

@@ -64,7 +64,13 @@ export const StudentAvatar = ({
   const gradient = getGradientClass(studentId || name);
   const initials = getInitials(name);
 
-  const hasValidPhoto = src && typeof src === 'string' && src.trim() !== '' && !imageError;
+  const hasValidPhoto =
+    src &&
+    typeof src === 'string' &&
+    src.trim() !== '' &&
+    src !== 'null' &&
+    src !== 'undefined' &&
+    !imageError;
 
   if (hasValidPhoto) {
     return (

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import StudentPhotoUpload from './StudentPhotoUpload';
 import { useAuth } from '../../context/AuthContext';
 import facultyService from '../../services/facultyService';
-import { AlertCircle, ShieldAlert } from 'lucide-react';
 
 export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = false, submitting = false }) => {
   const { user } = useAuth();
@@ -186,10 +185,12 @@ export const StudentForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
           photoUrl={formData.profilePhotoUrl}
           studentName={formData.fullName || `${formData.firstName || ''} ${formData.lastName || ''}`.trim() || 'Student'}
           studentId={initialValues?.studentId || formData.studentId || ''}
-          onPhotoSelect={(file) => {
+          uploading={submitting && !!selectedPhotoFile}
+          disabled={submitting}
+          onPhotoSelect={(file, previewUrl) => {
             setSelectedPhotoFile(file);
             if (file === null) {
-              setFormData(prev => ({ ...prev, profilePhotoUrl: '' }));
+              setFormData(prev => ({ ...prev, profilePhotoUrl: previewUrl || '' }));
             }
           }}
         />

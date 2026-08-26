@@ -24,6 +24,7 @@ export const studentService = {
   updateStudent: async (studentId, studentData) => {
     const response = await api.put(`/students/${studentId}`, studentData);
     apiCache.clear('/students');
+    apiCache.clear(`/students/${studentId}`);
     apiCache.clear('/academic/sections');
     dataSync.invalidate(['students', 'sections', 'dashboard']);
     return response.data;
@@ -45,10 +46,9 @@ export const studentService = {
   uploadStudentPhoto: async (studentId, file) => {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await api.post(`/students/${studentId}/photo`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const response = await api.post(`/students/${studentId}/photo`, formData);
     apiCache.clear('/students');
+    apiCache.clear(`/students/${studentId}`);
     dataSync.invalidate(['students']);
     return response.data;
   },

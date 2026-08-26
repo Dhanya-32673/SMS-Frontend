@@ -36,16 +36,32 @@ export const EditStudent = () => {
     setSubmitting(true);
     setError('');
     try {
-      await studentService.updateStudent(id, formData);
+      const canonicalId = student?.studentId || id;
+      let updatedFormData = { ...formData };
+
+      // CASE 2: New photo selected - upload to storage first
       if (photoFile) {
         try {
-          await studentService.uploadStudentPhoto(id, photoFile);
+          const uploadResult = await studentService.uploadStudentPhoto(canonicalId, photoFile);
+          if (uploadResult?.photoUrl) {
+            updatedFormData.profilePhotoUrl = uploadResult.photoUrl;
+          } else {
+            throw new Error('Photo upload succeeded but server did not return a photo URL.');
+          }
         } catch (photoErr) {
-          console.warn('Photo upload warning:', photoErr);
+          const photoErrMsg =
+            photoErr.response?.data?.message ||
+            photoErr.message ||
+            'Failed to upload student photo to storage.';
+          throw new Error(`Photo upload failed: ${photoErrMsg}`);
         }
       }
+
+      // Update student profile with full updated data (including photo URL)
+      await studentService.updateStudent(canonicalId, updatedFormData);
+
       showSuccess('Student updated successfully');
-      navigate(`/admin/students/${id}`);
+      navigate(`/admin/students/${canonicalId}`);
     } catch (err) {
       console.error('Failed to update student:', err);
       const msg = err.response?.data?.message || err.message || 'Failed to update student.';
