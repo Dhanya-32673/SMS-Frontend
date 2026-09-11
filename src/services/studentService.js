@@ -75,8 +75,9 @@ export const studentService = {
     return response;
   },
 
-  downloadImportTemplate: async () => {
-    const response = await api.get('/admin/students/import/template', {
+  downloadImportTemplate: async (isFaculty = false) => {
+    const endpoint = isFaculty ? '/faculty/students/import/template' : '/admin/students/import/template';
+    const response = await api.get(endpoint, {
       responseType: 'blob',
       cache: false,
       timeout: 30000,
@@ -84,9 +85,13 @@ export const studentService = {
     return response;
   },
 
-  validateStudentImport: async (file) => {
+  validateAdminImport: async (file, { branchGroup, intermediateYear, section } = {}) => {
     const formData = new FormData();
     formData.append('file', file);
+    if (branchGroup) formData.append('branchGroup', branchGroup);
+    if (intermediateYear) formData.append('intermediateYear', intermediateYear);
+    if (section) formData.append('section', section);
+
     const response = await api.post('/admin/students/import/validate', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
       timeout: 60000,
@@ -94,22 +99,63 @@ export const studentService = {
     return response.data;
   },
 
-  confirmStudentImport: async (file, { skipDuplicates = true, updateExisting = false } = {}) => {
+  confirmAdminImport: async (file, { branchGroup, intermediateYear, section, skipDuplicates = true, updateExisting = false } = {}) => {
     const formData = new FormData();
     formData.append('file', file);
+    if (branchGroup) formData.append('branchGroup', branchGroup);
+    if (intermediateYear) formData.append('intermediateYear', intermediateYear);
+    if (section) formData.append('section', section);
     formData.append('skipDuplicates', String(skipDuplicates));
     formData.append('updateExisting', String(updateExisting));
+
     const response = await api.post('/admin/students/import/confirm', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
-      timeout: 120000, // allow up to 2 minutes for large bulk batches
+      timeout: 120000,
     });
     apiCache.clear();
-    dataSync.invalidate(['students', 'sections', 'dashboard', 'certificates']);
+    dataSync.invalidate(['students', 'sections', 'dashboard', 'certificates', 'adminDashboard']);
     return response.data;
   },
 
-  downloadImportErrorReport: async (failedRows) => {
-    const response = await api.post('/admin/students/import/error-report', failedRows, {
+  validateFacultyImport: async (file, { assignmentId } = {}) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    if (assignmentId) formData.append('assignmentId', assignmentId);
+
+    const response = await api.post('/faculty/students/import/validate', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 60000,
+    });
+    return response.data;
+  },
+
+  confirmFacultyImport: async (file, { assignmentId, skipDuplicates = true, updateExisting = false } = {}) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    if (assignmentId) formData.append('assignmentId', assignmentId);
+    formData.append('skipDuplicates', String(skipDuplicates));
+    formData.append('updateExisting', String(updateExisting));
+
+    const response = await api.post('/faculty/students/import/confirm', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 120000,
+    });
+    apiCache.clear();
+    dataSync.invalidate(['students', 'sections', 'dashboard', 'certificates', 'facultyDashboard']);
+    return response.data;
+  },
+
+  validateStudentImport: async (file, options = {}) => {
+    return studentService.validateAdminImport(file, options);
+  },
+
+  confirmStudentImport: async (file, options = {}) => {
+    return studentService.confirmAdminImport(file, options);
+  },
+
+  downloadImportErrorReport: async (failedRows, isFaculty = false) => {
+    const endpoint = isFaculty ? '/faculty/students/import/error-report' : '/admin/students/import/error-report';
+    const response = await api.post(endpoint, failedRows, {
       responseType: 'blob',
       headers: { 'Content-Type': 'application/json' },
       timeout: 30000,

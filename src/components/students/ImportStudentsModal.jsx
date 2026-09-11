@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
   Upload,
   FileSpreadsheet,
@@ -8,17 +8,34 @@ import {
   XCircle,
   X,
   Loader2,
-  RefreshCw,
   Search,
   ArrowRight,
   ShieldCheck,
-  FileDown
+  FileDown,
+  School,
+  Lock,
+  Check
 } from 'lucide-react';
 import studentService from '../../services/studentService';
+import academicService from '../../services/academicService';
+import facultyService from '../../services/facultyService';
+import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 
 export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
+  const { user } = useAuth();
   const { showSuccess, showError } = useToast();
+
+  const rawRole = (
+    typeof user?.role === 'string'
+      ? user.role
+      : user?.role?.roleName || user?.role?.name || ''
+  )
+    .replace('ROLE_', '')
+    .toUpperCase();
+
+  const isAdmin = rawRole === 'ADMIN' || rawRole === 'SUPER_ADMIN';
+  const isFaculty = rawRole === 'FACULTY';
 
   // Steps: 'UPLOAD' | 'PREVIEW' | 'IMPORTING' | 'RESULT'
   const [step, setStep] = useState('UPLOAD');
@@ -27,6 +44,19 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const [downloadingTemplate, setDownloadingTemplate] = useState(false);
+
+  // Admin Section Selection State
+  const [allGroups, setAllGroups] = useState([]);
+  const [allSections, setAllSections] = useState([]);
+  const [loadingAcademicData, setLoadingAcademicData] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState('');
+  const [selectedYear, setSelectedYear] = useState('');
+  const [selectedSection, setSelectedSection] = useState('');
+
+  // Faculty Assignment State
+  const [facultyAssignments, setFacultyAssignments] = useState([]);
+  const [loadingAssignments, setLoadingAssignments] = useState(false);
+  const [selectedAssignmentIndex, setSelectedAssignmentIndex] = useState(0);
 
   // Validation / Preview state
   const [validating, setValidating] = useState(false);
@@ -45,15 +75,124 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
 
   const fileInputRef = useRef(null);
 
+  // Load database records when modal opens
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (isAdmin) {
+      setLoadingAcademicData(true);
+      Promise.all([
+        academicService.getAllGroups().catch(() => []),
+        academicService.getAllSections().catch(() => [])
+      ])
+        .then(([groups, sections]) => {
+          setAllGroups(Array.isArray(groups) ? groups : []);
+          setAllSections(Array.isArray(sections) ? sections : []);
+        })
+        .finally(() => setLoadingAcademicData(false));
+    } else {
+      setLoadingAssignments(true);
+      facultyService
+        .getCurrentFacultyAssignments()
+        .then((assignments) => {
+          const list = Array.isArray(assignments) ? assignments : [];
+          setFacultyAssignments(list);
+          if (list.length > 0) {
+            setSelectedAssignmentIndex(0);
+          }
+        })
+        .catch((err) => {
+          console.error('Failed to load faculty assignments:', err);
+          setFacultyAssignments([]);
+        })
+        .finally(() => setLoadingAssignments(false));
+    }
+  }, [isOpen, isAdmin]);
+
+  // Derived options for Admin dependent dropdowns
+  const activeSections = useMemo(() => {
+    return allSections.filter((s) => s.active !== false);
+  }, [allSections]);
+
+  const groupOptions = useMemo(() => {
+    const fromGroups = allGroups
+      .filter((g) => g.active !== false)
+      .map((g) => (g.code || g.name || '').trim())
+      .filter(Boolean);
+
+    const fromSections = activeSections
+      .map((s) => (s.branchGroup || '').trim())
+      .filter(Boolean);
+
+    return Array.from(new Set([...fromGroups, ...fromSections])).sort();
+  }, [allGroups, activeSections]);
+
+  const yearOptions = useMemo(() => {
+    if (!selectedGroup) return [];
+    const matched = activeSections.filter(
+      (s) => (s.branchGroup || '').toUpperCase() === selectedGroup.toUpperCase()
+    );
+    const years = matched.map((s) => (s.intermediateYear || '').trim()).filter(Boolean);
+    return Array.from(new Set(years)).sort();
+  }, [activeSections, selectedGroup]);
+
+  const sectionOptions = useMemo(() => {
+    if (!selectedGroup || !selectedYear) return [];
+    const matched = activeSections.filter(
+      (s) =>
+        (s.branchGroup || '').toUpperCase() === selectedGroup.toUpperCase() &&
+        (s.intermediateYear || '').toUpperCase() === selectedYear.toUpperCase()
+    );
+
+    // Normalize and sort distinct section names (e.g., 'A', 'B', 'Section A')
+    const seen = new Set();
+    const result = [];
+    matched.forEach((s) => {
+      const rawName = (s.name || '').trim();
+      const cleanName = rawName.replace(/^(section\s*)/i, '').trim();
+      if (cleanName && !seen.has(cleanName)) {
+        seen.add(cleanName);
+        result.push({
+          raw: rawName,
+          clean: cleanName,
+          academicYear: s.academicYear
+        });
+      }
+    });
+
+    return result.sort((a, b) => a.clean.localeCompare(b.clean));
+  }, [activeSections, selectedGroup, selectedYear]);
+
+  // Handle Group change for Admin
+  const handleGroupChange = (e) => {
+    const val = e.target.value;
+    setSelectedGroup(val);
+    setSelectedYear('');
+    setSelectedSection('');
+  };
+
+  // Handle Year change for Admin
+  const handleYearChange = (e) => {
+    const val = e.target.value;
+    setSelectedYear(val);
+    setSelectedSection('');
+  };
+
+  // Active faculty assignment record
+  const currentFacultyAssignment = useMemo(() => {
+    if (facultyAssignments.length === 0) return null;
+    return facultyAssignments[selectedAssignmentIndex] || facultyAssignments[0];
+  }, [facultyAssignments, selectedAssignmentIndex]);
+
   if (!isOpen) return null;
 
   // Handle template download
   const handleDownloadTemplate = async () => {
     setDownloadingTemplate(true);
     try {
-      const response = await studentService.downloadImportTemplate();
+      const response = await studentService.downloadImportTemplate(isFaculty);
       const blob = new Blob([response.data], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -112,9 +251,35 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
       return;
     }
 
+    if (isAdmin) {
+      if (!selectedGroup || !selectedYear || !selectedSection) {
+        showError('Please select Academic Group, Year, and Section before validating.');
+        return;
+      }
+    } else {
+      if (!currentFacultyAssignment) {
+        showError('No active section assignment found for your faculty account.');
+        return;
+      }
+    }
+
     setValidating(true);
     try {
-      const data = await studentService.validateStudentImport(selectedFile);
+      let data;
+      if (isAdmin) {
+        data = await studentService.validateAdminImport(selectedFile, {
+          branchGroup: selectedGroup,
+          intermediateYear: selectedYear,
+          section: selectedSection
+        });
+      } else {
+        data = await studentService.validateFacultyImport(selectedFile, {
+          branchGroup: currentFacultyAssignment.branchGroup,
+          intermediateYear: currentFacultyAssignment.intermediateYear,
+          section: currentFacultyAssignment.section
+        });
+      }
+
       setPreviewData(data);
       if (data.headerErrors && data.headerErrors.length > 0) {
         showError(data.headerErrors[0]);
@@ -123,7 +288,10 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
       }
     } catch (err) {
       console.error('Validation error:', err);
-      const msg = err.response?.data?.message || 'Failed to validate Excel file.';
+      const msg =
+        err.response?.data?.message ||
+        (typeof err.response?.data === 'string' ? err.response.data : null) ||
+        'Failed to validate Excel file.';
       showError(msg);
     } finally {
       setValidating(false);
@@ -137,16 +305,34 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
     setImporting(true);
     setStep('IMPORTING');
     try {
-      const result = await studentService.confirmStudentImport(selectedFile, {
-        skipDuplicates,
-        updateExisting,
-      });
+      let result;
+      if (isAdmin) {
+        result = await studentService.confirmAdminImport(selectedFile, {
+          branchGroup: selectedGroup,
+          intermediateYear: selectedYear,
+          section: selectedSection,
+          skipDuplicates,
+          updateExisting
+        });
+      } else {
+        result = await studentService.confirmFacultyImport(selectedFile, {
+          branchGroup: currentFacultyAssignment.branchGroup,
+          intermediateYear: currentFacultyAssignment.intermediateYear,
+          section: currentFacultyAssignment.section,
+          skipDuplicates,
+          updateExisting
+        });
+      }
+
       setImportResult(result);
       setStep('RESULT');
       showSuccess(result.message || 'Students imported successfully.');
     } catch (err) {
       console.error('Import confirmation error:', err);
-      const msg = err.response?.data?.message || 'Failed to import students.';
+      const msg =
+        err.response?.data?.message ||
+        (typeof err.response?.data === 'string' ? err.response.data : null) ||
+        'Failed to import students.';
       showError(msg);
       setStep('PREVIEW');
     } finally {
@@ -160,9 +346,12 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
 
     setDownloadingErrorReport(true);
     try {
-      const response = await studentService.downloadImportErrorReport(importResult.failedRows);
+      const response = await studentService.downloadImportErrorReport(
+        importResult.failedRows,
+        isFaculty
+      );
       const blob = new Blob([response.data], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -184,13 +373,20 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
   // Reset and close
   const handleClose = () => {
     if (importing) return;
-    const shouldRefresh = step === 'RESULT' && importResult && (importResult.importedCount > 0 || importResult.updatedCount > 0);
+    const shouldRefresh =
+      step === 'RESULT' &&
+      importResult &&
+      (importResult.importedCount > 0 || importResult.updatedCount > 0);
+
     setStep('UPLOAD');
     setSelectedFile(null);
     setPreviewData(null);
     setImportResult(null);
     setFilterTab('ALL');
     setSearchQuery('');
+    setSelectedGroup('');
+    setSelectedYear('');
+    setSelectedSection('');
     onClose();
     if (shouldRefresh && typeof onSuccess === 'function') {
       onSuccess();
@@ -215,22 +411,53 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
     return true;
   });
 
+  // Effective destination labels for display
+  const displayGroup = isAdmin
+    ? previewData?.targetGroup || selectedGroup
+    : currentFacultyAssignment?.branchGroup || '—';
+
+  const displayYear = isAdmin
+    ? previewData?.targetYear || selectedYear
+    : currentFacultyAssignment?.intermediateYear || '—';
+
+  const displaySection = isAdmin
+    ? previewData?.targetSection || selectedSection
+    : currentFacultyAssignment?.section?.replace(/^(section\s*)/i, '') || '—';
+
+  const isValidationDisabled =
+    !selectedFile ||
+    validating ||
+    (isAdmin && (!selectedGroup || !selectedYear || !selectedSection)) ||
+    (!isAdmin && (!currentFacultyAssignment || facultyAssignments.length === 0));
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs animate-fadeIn font-sans">
-      <div className="relative w-full max-w-5xl bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-        
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/70 backdrop-blur-xs animate-fadeIn font-sans">
+      <div className="relative w-full max-w-5xl bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         {/* Modal Top Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40">
+        <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40">
           <div className="flex items-center space-x-3">
             <div className="p-2.5 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 rounded-2xl">
               <FileSpreadsheet className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
-                Import Students from Excel
-              </h2>
+              <div className="flex items-center space-x-2">
+                <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
+                  Import Students from Excel
+                </h2>
+                <span
+                  className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
+                    isAdmin
+                      ? 'bg-purple-100 text-purple-700 dark:bg-purple-950/80 dark:text-purple-300'
+                      : 'bg-blue-100 text-blue-700 dark:bg-blue-950/80 dark:text-blue-300'
+                  }`}
+                >
+                  {isAdmin ? 'Admin Mode' : 'Faculty Mode'}
+                </span>
+              </div>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Bulk create student records with complete profiles and database verification
+                {isAdmin
+                  ? 'Select destination Group, Year, and Section to bulk create students'
+                  : 'Bulk upload students directly into your authenticated section assignment'}
               </p>
             </div>
           </div>
@@ -245,23 +472,21 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
         </div>
 
         {/* Modal Body */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
-
+        <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6">
           {/* ============================================================ */}
-          {/* STEP 1: UPLOAD EXCEL                                         */}
+          {/* STEP 1: UPLOAD & SECTION ASSIGNMENT                          */}
           {/* ============================================================ */}
           {step === 'UPLOAD' && (
             <div className="space-y-6">
-              
               {/* Template Download Banner */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4.5 bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800/60 rounded-2xl gap-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800/60 rounded-2xl gap-4">
                 <div className="space-y-1">
                   <h4 className="text-xs font-bold text-blue-900 dark:text-blue-200 flex items-center space-x-2">
                     <ShieldCheck className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
                     <span>Official Student Registration Template</span>
                   </h4>
                   <p className="text-xs text-blue-700 dark:text-blue-300">
-                    Use our standardized Excel template with pre-configured headers to prevent validation errors.
+                    Use our standardized Excel template with pre-configured headers matching the student registration form.
                   </p>
                 </div>
 
@@ -284,6 +509,200 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
                   )}
                 </button>
               </div>
+
+              {/* SECTION ASSIGNMENT CARD */}
+              {isAdmin ? (
+                /* ADMIN: Dependent Database Dropdowns */
+                <div className="p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3.5">
+                  <div className="flex items-center space-x-2">
+                    <School className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                    <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                      Assign Destination Section <span className="text-rose-500">*</span>
+                    </h3>
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    All imported students will be assigned to this database Group, Year, and Section.
+                  </p>
+
+                  {loadingAcademicData ? (
+                    <div className="py-4 flex items-center space-x-2 text-xs text-slate-500">
+                      <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+                      <span>Loading active groups and sections from database...</span>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">
+                      {/* Academic Group Dropdown */}
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                          Academic Group <span className="text-rose-500">*</span>
+                        </label>
+                        <select
+                          id="admin-import-group-select"
+                          value={selectedGroup}
+                          onChange={handleGroupChange}
+                          className="w-full px-3 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                        >
+                          <option value="">Select Academic Group</option>
+                          {groupOptions.map((g) => (
+                            <option key={g} value={g}>
+                              {g}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Academic Year Dropdown */}
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                          Academic Year <span className="text-rose-500">*</span>
+                        </label>
+                        <select
+                          id="admin-import-year-select"
+                          value={selectedYear}
+                          onChange={handleYearChange}
+                          disabled={!selectedGroup}
+                          className="w-full px-3 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50 disabled:bg-slate-100 dark:disabled:bg-slate-800"
+                        >
+                          <option value="">
+                            {selectedGroup ? 'Select Academic Year' : 'Choose Group First'}
+                          </option>
+                          {yearOptions.map((y) => (
+                            <option key={y} value={y}>
+                              {y}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Section Dropdown */}
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                          Section <span className="text-rose-500">*</span>
+                        </label>
+                        <select
+                          id="admin-import-section-select"
+                          value={selectedSection}
+                          onChange={(e) => setSelectedSection(e.target.value)}
+                          disabled={!selectedGroup || !selectedYear}
+                          className="w-full px-3 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50 disabled:bg-slate-100 dark:disabled:bg-slate-800"
+                        >
+                          <option value="">
+                            {selectedYear ? 'Select Section' : 'Choose Year First'}
+                          </option>
+                          {sectionOptions.map((sec) => (
+                            <option key={sec.clean} value={sec.clean}>
+                              Section {sec.clean}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                /* FACULTY: Automatic Assignment Card (Security Enforced) */
+                <div className="p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Lock className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                      <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                        Assigned Destination Section (Read-Only)
+                      </h3>
+                    </div>
+                    <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/80 px-2 py-0.5 rounded-full flex items-center space-x-1">
+                      <Check className="w-3 h-3" />
+                      <span>Authenticated</span>
+                    </span>
+                  </div>
+
+                  {loadingAssignments ? (
+                    <div className="py-4 flex items-center space-x-2 text-xs text-slate-500">
+                      <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+                      <span>Loading your section assignments...</span>
+                    </div>
+                  ) : facultyAssignments.length === 0 ? (
+                    <div className="p-3.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-xl text-xs text-rose-800 dark:text-rose-200 flex items-start space-x-2">
+                      <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600 mt-0.5" />
+                      <div>
+                        <p className="font-bold">No Active Section Assignment Found</p>
+                        <p className="text-[11px] text-rose-700 dark:text-rose-300 mt-0.5">
+                          You do not currently have any active section assignments linked to your faculty account. Please contact an administrator to be assigned to a section before importing students.
+                        </p>
+                      </div>
+                    </div>
+                  ) : facultyAssignments.length === 1 ? (
+                    /* Exactly 1 Assignment: Automatically applied & fully locked */
+                    <div className="p-3.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                          Assigned Section
+                        </span>
+                        <div className="text-sm font-black text-slate-900 dark:text-white mt-0.5 flex items-center space-x-2">
+                          <span className="text-blue-600 dark:text-blue-400">
+                            {currentFacultyAssignment.branchGroup}
+                          </span>
+                          <span className="text-slate-400">•</span>
+                          <span>{currentFacultyAssignment.intermediateYear}</span>
+                          <span className="text-slate-400">•</span>
+                          <span className="text-emerald-600 dark:text-emerald-400">
+                            Sec {currentFacultyAssignment.section?.replace(/^(section\s*)/i, '')}
+                          </span>
+                        </div>
+                        {currentFacultyAssignment.academicYear && (
+                          <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                            Academic Year: {currentFacultyAssignment.academicYear}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg shrink-0">
+                        Automatically determined from your account
+                      </div>
+                    </div>
+                  ) : (
+                    /* Multiple Assignments: Controlled radio selector for ONLY faculty's assignments */
+                    <div className="space-y-2.5">
+                      <p className="text-xs text-slate-600 dark:text-slate-400">
+                        Select which of your authorized sections to import students into:
+                      </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        {facultyAssignments.map((fa, idx) => {
+                          const isSelected = selectedAssignmentIndex === idx;
+                          return (
+                            <label
+                              key={fa.id || idx}
+                              onClick={() => setSelectedAssignmentIndex(idx)}
+                              className={`p-3 rounded-xl border cursor-pointer transition flex items-center space-x-3 ${
+                                isSelected
+                                  ? 'border-blue-500 bg-blue-50/60 dark:bg-blue-950/40 ring-2 ring-blue-500/20'
+                                  : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-slate-300'
+                              }`}
+                            >
+                              <input
+                                type="radio"
+                                name="facultySectionAssignment"
+                                checked={isSelected}
+                                onChange={() => setSelectedAssignmentIndex(idx)}
+                                className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                              />
+                              <div className="min-w-0">
+                                <div className="text-xs font-black text-slate-900 dark:text-white truncate">
+                                  {fa.branchGroup} • {fa.intermediateYear} • Sec{' '}
+                                  {fa.section?.replace(/^(section\s*)/i, '')}
+                                </div>
+                                <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                                  {fa.subjectName ? `${fa.subjectName} • ` : ''}
+                                  {fa.academicYear || ''}
+                                </div>
+                              </div>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Drag & Drop Upload Zone */}
               <div
@@ -381,27 +800,65 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
           {/* ============================================================ */}
           {step === 'PREVIEW' && previewData && (
             <div className="space-y-5">
-              
+              {/* Destination Section Header Banner */}
+              <div className="p-4 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-800/60 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 rounded-xl shrink-0">
+                    <School className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-300">
+                      {isAdmin ? 'Import Destination' : 'Your Assigned Section'}
+                    </span>
+                    <h3 className="text-sm font-black text-slate-900 dark:text-white">
+                      {displayGroup} • {displayYear} • Section {displaySection}
+                    </h3>
+                  </div>
+                </div>
+
+                <div className="text-xs text-indigo-700 dark:text-indigo-300 font-medium">
+                  {isAdmin
+                    ? 'Selected from database'
+                    : 'Enforced by faculty account'}
+                </div>
+              </div>
+
               {/* Summary Metric Cards */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div className="p-4 bg-blue-50/60 dark:bg-blue-950/40 border border-blue-200/70 dark:border-blue-800/50 rounded-2xl">
-                  <span className="text-[10px] uppercase font-bold text-blue-600 dark:text-blue-400 tracking-wider">Total Rows</span>
-                  <p className="text-2xl font-black text-blue-900 dark:text-blue-100 mt-0.5">{previewData.totalRows}</p>
+                  <span className="text-[10px] uppercase font-bold text-blue-600 dark:text-blue-400 tracking-wider">
+                    Total Rows
+                  </span>
+                  <p className="text-2xl font-black text-blue-900 dark:text-blue-100 mt-0.5">
+                    {previewData.totalRows}
+                  </p>
                 </div>
 
                 <div className="p-4 bg-emerald-50/60 dark:bg-emerald-950/40 border border-emerald-200/70 dark:border-emerald-800/50 rounded-2xl">
-                  <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 tracking-wider">Valid Rows</span>
-                  <p className="text-2xl font-black text-emerald-900 dark:text-emerald-100 mt-0.5">{previewData.validRows}</p>
+                  <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 tracking-wider">
+                    Valid Rows
+                  </span>
+                  <p className="text-2xl font-black text-emerald-900 dark:text-emerald-100 mt-0.5">
+                    {previewData.validRows}
+                  </p>
                 </div>
 
                 <div className="p-4 bg-amber-50/60 dark:bg-amber-950/40 border border-amber-200/70 dark:border-amber-800/50 rounded-2xl">
-                  <span className="text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400 tracking-wider">Duplicates</span>
-                  <p className="text-2xl font-black text-amber-900 dark:text-amber-100 mt-0.5">{previewData.duplicateRows}</p>
+                  <span className="text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400 tracking-wider">
+                    Duplicates
+                  </span>
+                  <p className="text-2xl font-black text-amber-900 dark:text-amber-100 mt-0.5">
+                    {previewData.duplicateRows}
+                  </p>
                 </div>
 
                 <div className="p-4 bg-rose-50/60 dark:bg-rose-950/40 border border-rose-200/70 dark:border-rose-800/50 rounded-2xl">
-                  <span className="text-[10px] uppercase font-bold text-rose-600 dark:text-rose-400 tracking-wider">Invalid Rows</span>
-                  <p className="text-2xl font-black text-rose-900 dark:text-rose-100 mt-0.5">{previewData.invalidRows}</p>
+                  <span className="text-[10px] uppercase font-bold text-rose-600 dark:text-rose-400 tracking-wider">
+                    Invalid Rows
+                  </span>
+                  <p className="text-2xl font-black text-rose-900 dark:text-rose-100 mt-0.5">
+                    {previewData.invalidRows}
+                  </p>
                 </div>
               </div>
 
@@ -421,7 +878,9 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
                       }}
                       className="w-4 h-4 text-blue-600 rounded-md border-slate-300 focus:ring-blue-500"
                     />
-                    <span><strong>Safe Mode:</strong> Skip existing student duplicates and continue</span>
+                    <span>
+                      <strong>Safe Mode:</strong> Skip existing student duplicates and continue
+                    </span>
                   </label>
 
                   <label className="flex items-center space-x-2 text-slate-700 dark:text-slate-300 cursor-pointer">
@@ -446,7 +905,7 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
                     { id: 'ALL', label: `All (${previewData.totalRows})` },
                     { id: 'VALID', label: `Valid (${previewData.validRows})` },
                     { id: 'DUPLICATE', label: `Duplicates (${previewData.duplicateRows})` },
-                    { id: 'ERROR', label: `Errors (${previewData.invalidRows})` },
+                    { id: 'ERROR', label: `Errors (${previewData.invalidRows})` }
                   ].map((tab) => (
                     <button
                       key={tab.id}
@@ -544,24 +1003,28 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
                             </td>
 
                             <td className="py-2 px-3 font-medium text-slate-800 dark:text-slate-200 whitespace-nowrap">
-                              {r.fullName || `${r.firstName || ''} ${r.lastName || ''}`.trim() || '—'}
+                              {r.fullName ||
+                                `${r.firstName || ''} ${r.lastName || ''}`.trim() ||
+                                '—'}
                             </td>
 
                             <td className="py-2 px-3 font-bold text-blue-600 dark:text-blue-400">
-                              {r.branchGroup || '—'}
+                              {displayGroup || r.branchGroup || '—'}
                             </td>
 
                             <td className="py-2 px-3">
-                              {r.intermediateYear || '—'}
+                              {displayYear || r.intermediateYear || '—'}
                             </td>
 
                             <td className="py-2 px-3 font-bold">
-                              {r.section ? `Sec ${r.section}` : '—'}
+                              {displaySection ? `Sec ${displaySection}` : '—'}
                             </td>
 
                             <td className="py-2 px-3 text-[11px] text-slate-500 dark:text-slate-400 whitespace-nowrap">
                               <div>{r.mobileNumber || '—'}</div>
-                              <div className="text-[10px] text-slate-400 truncate max-w-[140px]">{r.email || ''}</div>
+                              <div className="text-[10px] text-slate-400 truncate max-w-[140px]">
+                                {r.email || ''}
+                              </div>
                             </td>
 
                             <td className="py-2 px-3 text-[11px]">
@@ -600,7 +1063,11 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
                   Importing Students into Database...
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto">
-                  Executing transactional creation of student profiles, academic details, and parent contact records. Please do not close or navigate away from this page.
+                  Executing transactional creation of student profiles, academic details, and parent contact records in section{' '}
+                  <span className="font-bold text-slate-700 dark:text-slate-200">
+                    {displayGroup} • {displayYear} • Sec {displaySection}
+                  </span>
+                  . Please do not close this window.
                 </p>
               </div>
             </div>
@@ -621,27 +1088,53 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
                 <p className="text-xs text-slate-500 dark:text-slate-400">
                   {importResult.message}
                 </p>
+
+                {/* Destination Badge */}
+                <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 mt-2">
+                  <School className="w-3.5 h-3.5 text-blue-600" />
+                  <span>
+                    Destination: {importResult.targetGroup || displayGroup} •{' '}
+                    {importResult.targetYear || displayYear} • Section{' '}
+                    {importResult.targetSection || displaySection}
+                  </span>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto">
                 <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl text-center">
-                  <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase">Created</span>
-                  <p className="text-2xl font-black text-emerald-900 dark:text-emerald-100 mt-1">{importResult.importedCount}</p>
+                  <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase">
+                    Created
+                  </span>
+                  <p className="text-2xl font-black text-emerald-900 dark:text-emerald-100 mt-1">
+                    {importResult.importedCount}
+                  </p>
                 </div>
 
                 <div className="p-4 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-2xl text-center">
-                  <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase">Updated</span>
-                  <p className="text-2xl font-black text-blue-900 dark:text-blue-100 mt-1">{importResult.updatedCount}</p>
+                  <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase">
+                    Updated
+                  </span>
+                  <p className="text-2xl font-black text-blue-900 dark:text-blue-100 mt-1">
+                    {importResult.updatedCount}
+                  </p>
                 </div>
 
                 <div className="p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-2xl text-center">
-                  <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase">Skipped</span>
-                  <p className="text-2xl font-black text-amber-900 dark:text-amber-100 mt-1">{importResult.skippedCount}</p>
+                  <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase">
+                    Skipped
+                  </span>
+                  <p className="text-2xl font-black text-amber-900 dark:text-amber-100 mt-1">
+                    {importResult.skippedCount}
+                  </p>
                 </div>
 
                 <div className="p-4 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-2xl text-center">
-                  <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase">Failed</span>
-                  <p className="text-2xl font-black text-rose-900 dark:text-rose-100 mt-1">{importResult.failedCount}</p>
+                  <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase">
+                    Failed
+                  </span>
+                  <p className="text-2xl font-black text-rose-900 dark:text-rose-100 mt-1">
+                    {importResult.failedCount}
+                  </p>
                 </div>
               </div>
 
@@ -677,7 +1170,7 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
         </div>
 
         {/* Modal Bottom Footer Actions */}
-        <div className="px-6 py-4 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex flex-wrap items-center justify-between gap-3">
+        <div className="px-5 sm:px-6 py-4 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex flex-wrap items-center justify-between gap-3">
           {step === 'UPLOAD' && (
             <>
               <button
@@ -691,7 +1184,7 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
               <button
                 type="button"
                 onClick={handleValidate}
-                disabled={!selectedFile || validating}
+                disabled={isValidationDisabled}
                 className="py-2.5 px-6 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20 transition flex items-center space-x-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {validating ? (
