@@ -219,17 +219,17 @@ export const CertificateTypes = () => {
                       <div className="flex items-center gap-2 pt-1">
                         <button
                           onClick={() => handleOpenEditModal(type)}
-                          className="flex-1 py-2 px-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1 min-h-[40px] cursor-pointer"
+                          className="flex-1 py-2 px-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 min-h-[44px] cursor-pointer"
                         >
-                          <Edit3 className="w-3.5 h-3.5" />
+                          <Edit3 className="w-4 h-4" />
                           <span>Edit</span>
                         </button>
                         <button
                           onClick={() => setTypeToDelete(type)}
                           disabled={deleteLoadingId === type.id}
-                          className="flex-1 py-2 px-3 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 text-rose-600 dark:text-rose-400 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1 min-h-[40px] cursor-pointer disabled:opacity-50"
+                          className="flex-1 py-2 px-3 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 text-rose-600 dark:text-rose-400 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 min-h-[44px] cursor-pointer disabled:opacity-50"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="w-4 h-4" />
                           <span>Delete</span>
                         </button>
                       </div>

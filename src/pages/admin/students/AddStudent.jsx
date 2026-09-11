@@ -64,10 +64,10 @@ export const AddStudent = () => {
           </div>
           <button
             onClick={() => navigate('/admin/students')}
-            className="relative z-10 flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold rounded-2xl shadow-lg transition shrink-0 cursor-pointer"
+            className="relative z-10 flex items-center justify-center gap-2 px-5 py-2.5 bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold rounded-2xl shadow-lg transition shrink-0 cursor-pointer w-full sm:w-auto min-h-[44px]"
           >
             <ArrowLeft className="w-4 h-4 text-blue-600" />
-            Back to All Students
+            <span>Back to All Students</span>
           </button>
         </div>
 
@@ -80,13 +80,13 @@ export const AddStudent = () => {
         )}
 
         {/* Form Card */}
-        <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
-              <UserPlus className="w-4 h-4 text-blue-600" />
+        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/60 flex items-center justify-center">
+              <UserPlus className="w-4 h-4 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <h2 className="text-sm font-extrabold text-slate-900 uppercase tracking-wide">Student Registration Form</h2>
+              <h2 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wide">Student Registration Form</h2>
               <p className="text-xs text-slate-400">All fields marked with * are required</p>
             </div>
           </div>

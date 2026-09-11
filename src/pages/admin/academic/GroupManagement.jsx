@@ -105,12 +105,12 @@ export const GroupManagement = () => {
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() => setGroupToDelete(grp)}
-                      className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-slate-800 rounded-xl transition cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center"
+                      className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-slate-800 rounded-xl transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
                       title="Delete Academic Group"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
-                    <span className="px-2.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-[10px] font-extrabold">
+                    <span className="px-2.5 py-0.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 rounded-full text-[10px] font-extrabold">
                       ACTIVE
                     </span>
                   </div>
@@ -118,7 +118,7 @@ export const GroupManagement = () => {
 
                 <div className="space-y-2 text-xs text-slate-600 dark:text-slate-400">
                   <p className="font-medium">{grp.description || 'Standard Intermediate Academic Curriculum'}</p>
-                  <div className="flex justify-between pt-2 border-t text-slate-500">
+                  <div className="flex justify-between pt-2 border-t border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400">
                     <span>Compulsory Subjects:</span>
                     <strong className="text-slate-900 dark:text-white">{grp.subjects || 'English, Language & Core'}</strong>
                   </div>

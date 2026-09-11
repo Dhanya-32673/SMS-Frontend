@@ -57,7 +57,7 @@ export const FacultySidebar = ({ mobileOpen, setMobileOpen }) => {
 
       {/* Faculty Sidebar */}
       <aside
-        className={`fixed lg:sticky top-0 bottom-0 left-0 z-50 w-72 sm:w-64 bg-white/95 dark:bg-slate-950/95 lg:bg-blue-50/80 lg:dark:bg-slate-950 text-slate-700 dark:text-slate-300 flex flex-col transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none h-screen border-r border-slate-200/80 dark:border-slate-800/80 lg:border-blue-100/90 shrink-0 ${
+        className={`fixed lg:sticky top-0 bottom-0 left-0 z-50 w-[85vw] max-w-xs sm:w-64 bg-white/95 dark:bg-slate-950/95 lg:bg-blue-50/80 lg:dark:bg-slate-950 text-slate-700 dark:text-slate-300 flex flex-col transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none h-screen border-r border-slate-200/80 dark:border-slate-800/80 lg:border-blue-100/90 shrink-0 ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
@@ -79,14 +79,14 @@ export const FacultySidebar = ({ mobileOpen, setMobileOpen }) => {
                 <GraduationCap className="w-5 h-5 text-white" />
               </div>
             </div>
-            <div>
-              <span className="font-black text-white text-base tracking-wider block leading-tight">BHASHYAM</span>
-              <span className="text-[8.5px] text-blue-100 font-extrabold uppercase tracking-widest block mt-0.5">FACULTY PORTAL</span>
+            <div className="truncate">
+              <span className="font-black text-white text-base tracking-wider block leading-tight truncate">BHASHYAM</span>
+              <span className="text-[8.5px] text-blue-100 font-extrabold uppercase tracking-widest block mt-0.5 truncate">FACULTY PORTAL</span>
             </div>
           </Link>
           <button
             onClick={() => setMobileOpen(false)}
-            className="lg:hidden text-white/90 hover:text-white p-2 rounded-xl hover:bg-white/10 transition min-w-[44px] min-h-[44px] flex items-center justify-center"
+            className="lg:hidden text-white/90 hover:text-white p-2 rounded-xl hover:bg-white/10 transition min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer"
             aria-label="Close menu"
           >
             <X className="w-5 h-5" />

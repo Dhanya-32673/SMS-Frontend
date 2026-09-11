@@ -352,7 +352,7 @@ export const OtpVerificationCard = ({
                 : {}
             }
             transition={{ duration: isError ? 0.6 : isSuccess ? 0.8 : 0.4 }}
-            className="flex items-center justify-center gap-2 sm:gap-3.5 my-2"
+            className="flex items-center justify-center gap-1.5 xs:gap-2 sm:gap-3.5 my-2"
             style={{ transformStyle: 'preserve-3d', perspective: '1000px' }}
           >
             {Array.from({ length }).map((_, index) => {
@@ -396,7 +396,7 @@ export const OtpVerificationCard = ({
                     <motion.div
                       animate={{ opacity: [1, 0, 1] }}
                       transition={{ repeat: Infinity, duration: 1, ease: 'easeInOut' }}
-                      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[2px] h-[28px] bg-blue-600 dark:bg-blue-400 rounded-full pointer-events-none z-10"
+                      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[2px] h-[24px] sm:h-[28px] bg-blue-600 dark:bg-blue-400 rounded-full pointer-events-none z-10"
                     />
                   )}
 
@@ -415,7 +415,7 @@ export const OtpVerificationCard = ({
                     onFocus={() => handleBoxFocus(index)}
                     onPaste={handlePaste}
                     disabled={loading || isSuccess}
-                    className={`w-12 h-14 sm:w-16 sm:h-16 text-center text-xl sm:text-2xl font-bold bg-white dark:bg-slate-900 rounded-[16px] border-2 transition-all duration-200 outline-none caret-transparent select-none ${
+                    className={`w-10 h-12 xs:w-12 xs:h-14 sm:w-16 sm:h-16 text-center text-lg sm:text-2xl font-bold bg-white dark:bg-slate-900 rounded-[14px] sm:rounded-[16px] border-2 transition-all duration-200 outline-none caret-transparent select-none ${
                       isError
                         ? 'border-red-500 text-red-600 bg-red-50/20 shadow-[0_0_0_4px_rgba(239,68,68,0.2)]'
                         : isSuccess

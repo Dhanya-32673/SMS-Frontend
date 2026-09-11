@@ -172,16 +172,16 @@ export const FacultyManagement = () => {
                       <div className="flex items-center gap-2 pt-1">
                         <button
                           onClick={() => navigate(`/admin/faculty/${fac.id || fac.employeeId}`)}
-                          className="flex-1 py-2 px-3 bg-blue-50 dark:bg-blue-950/40 text-blue-600 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1 min-h-[40px]"
+                          className="flex-1 py-2 px-3 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1 min-h-[44px] cursor-pointer"
                         >
-                          <Eye className="w-3.5 h-3.5" />
+                          <Eye className="w-4 h-4" />
                           <span>Profile</span>
                         </button>
                         <button
                           onClick={() => navigate(`/admin/faculty/${fac.id || fac.employeeId}/edit`)}
-                          className="py-2 px-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1 min-h-[40px]"
+                          className="py-2 px-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1 min-h-[44px] cursor-pointer"
                         >
-                          <Edit3 className="w-3.5 h-3.5" />
+                          <Edit3 className="w-4 h-4" />
                           <span>Edit</span>
                         </button>
                         <button
@@ -189,9 +189,9 @@ export const FacultyManagement = () => {
                             setError('');
                             setFacultyToDelete(fac);
                           }}
-                          className="py-2 px-3 bg-rose-50 dark:bg-rose-950/40 text-rose-600 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1 min-h-[40px]"
+                          className="py-2 px-3 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1 min-h-[44px] cursor-pointer"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="w-4 h-4" />
                           <span>Delete</span>
                         </button>
                       </div>

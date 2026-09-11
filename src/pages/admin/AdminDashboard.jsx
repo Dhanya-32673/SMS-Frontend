@@ -326,7 +326,7 @@ export const AdminDashboard = () => {
                 </div>
                 <Link
                   to="/admin/students"
-                  className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center space-x-1 min-h-[36px]"
+                  className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center space-x-1 min-h-[44px]"
                 >
                   <span>View All</span>
                   <ArrowUpRight className="w-4 h-4" />
@@ -355,7 +355,7 @@ export const AdminDashboard = () => {
                       </div>
                       <button
                         onClick={() => navigate(`/admin/students/${st.studentId || st.id}`)}
-                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-xl transition cursor-pointer min-w-[40px] min-h-[40px] flex items-center justify-center shrink-0"
+                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-xl transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0"
                         aria-label="View Student"
                       >
                         <Eye className="w-4.5 h-4.5" />

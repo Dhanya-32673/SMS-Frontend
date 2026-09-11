@@ -74,7 +74,7 @@ export const CustomToast = ({ t, message, type = 'info', title, duration = 2000,
       transition={{ duration: t.visible ? 0.28 : 0.22, ease: [0.22, 1, 0.36, 1] }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`relative min-w-[280px] max-w-[420px] w-full overflow-hidden rounded-2xl border ${theme.border} bg-white/95 dark:bg-slate-900/95 p-4 shadow-2xl ${theme.glow} backdrop-blur-xl transition-shadow duration-300 pointer-events-auto group`}
+      className={`relative w-[calc(100vw-24px)] sm:w-auto max-w-[420px] min-w-0 sm:min-w-[280px] overflow-hidden rounded-2xl border ${theme.border} bg-white/95 dark:bg-slate-900/95 p-3.5 sm:p-4 shadow-2xl ${theme.glow} backdrop-blur-xl transition-shadow duration-300 pointer-events-auto group`}
       style={{
         boxShadow: isHovered
           ? '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 15px rgba(59, 130, 246, 0.15)'
@@ -84,9 +84,9 @@ export const CustomToast = ({ t, message, type = 'info', title, duration = 2000,
       {/* Left Accent Pillar */}
       <span className={`absolute inset-y-0 left-0 w-1.5 ${theme.accent}`} />
 
-      <div className="flex items-center gap-3 pl-1">
+      <div className="flex items-center gap-2.5 sm:gap-3 pl-1">
         {/* Leading Icon with Pulse Animation */}
-        <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${theme.iconBg} relative overflow-hidden`}>
+        <span className={`flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl ${theme.iconBg} relative overflow-hidden`}>
           <Icon className="h-5 w-5 animate-pulse" aria-hidden="true" />
         </span>
 
@@ -95,7 +95,7 @@ export const CustomToast = ({ t, message, type = 'info', title, duration = 2000,
           <p className={`text-[10px] font-black uppercase tracking-[0.15em] ${theme.titleColor}`}>
             {title || theme.title}
           </p>
-          <p className="mt-0.5 text-xs font-bold leading-5 text-slate-800 dark:text-slate-100 truncate">
+          <p className="mt-0.5 text-xs font-bold leading-snug text-slate-800 dark:text-slate-100 break-words">
             {message}
           </p>
         </div>
@@ -108,7 +108,7 @@ export const CustomToast = ({ t, message, type = 'info', title, duration = 2000,
               hotToast.dismiss(t.id);
               onUndo();
             }}
-            className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-black text-xs shadow-md shadow-blue-500/25 transition-all cursor-pointer flex items-center space-x-1 shrink-0"
+            className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-black text-xs shadow-md shadow-blue-500/25 transition-all cursor-pointer flex items-center space-x-1 shrink-0 min-h-[36px]"
           >
             <RotateCcw className="w-3.5 h-3.5 mr-1" />
             <span>Undo</span>
@@ -120,7 +120,7 @@ export const CustomToast = ({ t, message, type = 'info', title, duration = 2000,
           type="button"
           onClick={() => hotToast.dismiss(t.id)}
           aria-label="Close notification"
-          className="rounded-lg p-1 text-slate-400 opacity-60 hover:opacity-100 transition-all hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-white cursor-pointer"
+          className="rounded-lg p-1.5 text-slate-400 opacity-60 hover:opacity-100 transition-all hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-white cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center"
         >
           <X className="h-4 w-4" />
         </button>

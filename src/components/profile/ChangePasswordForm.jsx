@@ -240,7 +240,7 @@ export const ChangePasswordForm = () => {
         <button
           type="submit"
           disabled={loading}
-          className="py-3 px-6 bg-gradient-to-r from-blue-600 via-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white font-extrabold rounded-xl shadow-md shadow-blue-500/30 hover:shadow-lg transition cursor-pointer disabled:opacity-50 flex items-center space-x-2"
+          className="w-full sm:w-auto py-3 px-6 bg-gradient-to-r from-blue-600 via-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white font-extrabold rounded-xl shadow-md shadow-blue-500/30 hover:shadow-lg transition cursor-pointer disabled:opacity-50 flex items-center justify-center space-x-2 min-h-[44px]"
         >
           {loading ? (
             <Loader2 className="w-4 h-4 animate-spin text-white" />

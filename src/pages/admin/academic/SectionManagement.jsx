@@ -239,12 +239,12 @@ export const SectionManagement = () => {
                     </div>
                   </div>
 
-                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
                     <button
                       onClick={() => setSelectedSectionForMembers(sec)}
-                      className="px-3 py-2 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 rounded-xl text-xs font-bold hover:bg-blue-100 transition inline-flex items-center space-x-1 cursor-pointer min-h-[40px]"
+                      className="px-3 py-2 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 rounded-xl text-xs font-bold hover:bg-blue-100 transition inline-flex items-center space-x-1.5 cursor-pointer min-h-[44px]"
                     >
-                      <Users className="w-3.5 h-3.5" />
+                      <Users className="w-4 h-4" />
                       <span>View Members</span>
                     </button>
 
@@ -252,15 +252,17 @@ export const SectionManagement = () => {
                       <div className="flex items-center space-x-1">
                         <button
                           onClick={() => handleOpenEditModal(sec)}
-                          className="p-2 text-slate-400 hover:text-blue-600 rounded-xl hover:bg-slate-100 transition cursor-pointer min-w-[36px] min-h-[36px] inline-flex items-center justify-center"
+                          className="p-2.5 text-slate-400 hover:text-blue-600 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer min-w-[44px] min-h-[44px] inline-flex items-center justify-center"
                           title="Edit Section"
+                          aria-label="Edit Section"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDeleteSectionClick(sec)}
-                          className="p-2 text-slate-400 hover:text-rose-600 rounded-xl hover:bg-rose-50 transition cursor-pointer min-w-[36px] min-h-[36px] inline-flex items-center justify-center"
+                          className="p-2.5 text-slate-400 hover:text-rose-600 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer min-w-[44px] min-h-[44px] inline-flex items-center justify-center"
                           title="Delete Section"
+                          aria-label="Delete Section"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>

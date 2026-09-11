@@ -111,7 +111,7 @@ export const AdminLayout = ({ children }) => {
 
       {/* Sidebar (Responsive Desktop Sticky + Mobile Slide-In Drawer) */}
       <aside
-        className={`fixed lg:sticky top-0 bottom-0 left-0 z-50 w-72 sm:w-64 bg-white/95 dark:bg-slate-950/95 lg:bg-blue-50/80 lg:dark:bg-slate-950 text-slate-700 dark:text-slate-300 flex flex-col transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none h-screen border-r border-slate-200/80 dark:border-slate-800/80 lg:border-blue-100/90 shrink-0 ${
+        className={`fixed lg:sticky top-0 bottom-0 left-0 z-50 w-[85vw] max-w-xs sm:w-64 bg-white/95 dark:bg-slate-950/95 lg:bg-blue-50/80 lg:dark:bg-slate-950 text-slate-700 dark:text-slate-300 flex flex-col transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none h-screen border-r border-slate-200/80 dark:border-slate-800/80 lg:border-blue-100/90 shrink-0 ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
@@ -133,9 +133,9 @@ export const AdminLayout = ({ children }) => {
                 <GraduationCap className="w-5 h-5 text-white" />
               </div>
             </div>
-            <div>
-              <span className="font-black text-white text-base tracking-wider block leading-tight">BHASHYAM</span>
-              <span className="text-[8.5px] text-blue-100 font-extrabold uppercase tracking-widest block mt-0.5">EDUCATIONAL INSTITUTIONS</span>
+            <div className="truncate">
+              <span className="font-black text-white text-base tracking-wider block leading-tight truncate">BHASHYAM</span>
+              <span className="text-[8.5px] text-blue-100 font-extrabold uppercase tracking-widest block mt-0.5 truncate">EDUCATIONAL INSTITUTIONS</span>
             </div>
           </Link>
           <button
@@ -393,15 +393,20 @@ export const AdminLayout = ({ children }) => {
         {/* Floating Enterprise Top Navbar */}
         <header className="h-16 bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 px-3 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs">
 
-          {/* Left Section: Mobile Menu + Global Search */}
-          <div className="flex items-center space-x-2 sm:space-x-4 flex-1 max-w-xl">
+          {/* Left Section: Mobile Menu + Brand + Global Search */}
+          <div className="flex items-center space-x-2 sm:space-x-4 flex-1 max-w-xl min-w-0">
             <button
               onClick={() => setMobileOpen(true)}
-              className="lg:hidden p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 min-w-[44px] min-h-[44px] flex items-center justify-center"
+              className="lg:hidden p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0 cursor-pointer"
               aria-label="Open navigation menu"
             >
               <Menu className="w-5 h-5" />
             </button>
+
+            {/* Mobile Brand Title */}
+            <div className="flex items-center space-x-1.5 sm:hidden shrink-0">
+              <span className="font-black text-blue-600 dark:text-blue-400 text-sm tracking-tight">SICMS</span>
+            </div>
 
             {/* Global Search Input (Desktop) */}
             <div className="relative w-full max-w-md hidden sm:block">
@@ -422,10 +427,10 @@ export const AdminLayout = ({ children }) => {
             {/* Mobile Search Toggle Button */}
             <button
               onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
-              className="sm:hidden p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 min-w-[40px] min-h-[40px] flex items-center justify-center"
+              className="sm:hidden p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0 cursor-pointer"
               aria-label="Toggle search"
             >
-              <Search className="w-5 h-5" />
+              <Search className="w-4.5 h-4.5" />
             </button>
           </div>
 

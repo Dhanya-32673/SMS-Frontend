@@ -145,20 +145,20 @@ export const UserProfile = () => {
             </h3>
 
             <div className="space-y-3">
-              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between">
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                 <div>
                   <span className="font-bold text-slate-900 dark:text-white block">Password Encryption Standard</span>
                   <span className="text-slate-500 text-[11px]">BCrypt Hashing with Salt Strength 10</span>
                 </div>
-                <span className="px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-extrabold rounded-lg text-[10px]">ENFORCED</span>
+                <span className="px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-extrabold rounded-lg text-[10px] shrink-0">ENFORCED</span>
               </div>
 
-              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between">
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                 <div>
                   <span className="font-bold text-slate-900 dark:text-white block">Session Storage Isolation</span>
                   <span className="text-slate-500 text-[11px]">Browser Session Token cleared upon window closure</span>
                 </div>
-                <span className="px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-extrabold rounded-lg text-[10px]">ACTIVE</span>
+                <span className="px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-extrabold rounded-lg text-[10px] shrink-0">ACTIVE</span>
               </div>
             </div>
           </div>

@@ -465,7 +465,8 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
           <button
             onClick={handleClose}
             disabled={importing}
-            className="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer disabled:opacity-30"
+            className="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer disabled:opacity-30 min-w-[44px] min-h-[44px] flex items-center justify-center"
+            aria-label="Close modal"
           >
             <X className="w-5 h-5" />
           </button>
@@ -1170,13 +1171,13 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
         </div>
 
         {/* Modal Bottom Footer Actions */}
-        <div className="px-5 sm:px-6 py-4 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex flex-wrap items-center justify-between gap-3">
+        <div className="px-5 sm:px-6 py-4 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3">
           {step === 'UPLOAD' && (
             <>
               <button
                 type="button"
                 onClick={handleClose}
-                className="py-2.5 px-4 text-xs font-bold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-xl border border-slate-200 dark:border-slate-700 transition cursor-pointer"
+                className="w-full sm:w-auto py-2.5 px-4 text-xs font-bold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-xl border border-slate-200 dark:border-slate-700 transition cursor-pointer min-h-[44px] flex items-center justify-center"
               >
                 Cancel
               </button>
@@ -1185,7 +1186,7 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
                 type="button"
                 onClick={handleValidate}
                 disabled={isValidationDisabled}
-                className="py-2.5 px-6 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20 transition flex items-center space-x-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full sm:w-auto py-2.5 px-6 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20 transition flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
               >
                 {validating ? (
                   <>
@@ -1208,17 +1209,17 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
                 type="button"
                 onClick={() => setStep('UPLOAD')}
                 disabled={importing}
-                className="py-2.5 px-4 text-xs font-bold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-xl border border-slate-200 dark:border-slate-700 transition cursor-pointer"
+                className="w-full sm:w-auto py-2.5 px-4 text-xs font-bold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-xl border border-slate-200 dark:border-slate-700 transition cursor-pointer min-h-[44px] flex items-center justify-center"
               >
                 Upload Different File
               </button>
 
-              <div className="flex items-center space-x-2">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                 <button
                   type="button"
                   onClick={handleConfirmImport}
                   disabled={previewData?.validRows === 0 || importing}
-                  className="py-2.5 px-6 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20 transition flex items-center space-x-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full sm:w-auto py-2.5 px-6 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20 transition flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
                 >
                   <span>Confirm & Import ({previewData?.validRows || 0}) Students</span>
                   <ArrowRight className="w-4 h-4" />
@@ -1232,7 +1233,7 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
               <button
                 type="button"
                 onClick={handleClose}
-                className="py-2.5 px-6 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20 transition cursor-pointer"
+                className="w-full sm:w-auto py-2.5 px-6 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20 transition cursor-pointer min-h-[44px] flex items-center justify-center"
               >
                 Done • View Student Directory
               </button>

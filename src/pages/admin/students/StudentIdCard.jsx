@@ -45,17 +45,17 @@ export const StudentIdCard = () => {
               Official college identity card for <span className="font-mono font-black">{id}</span>
             </p>
           </div>
-          <div className="relative z-10 flex items-center gap-3 shrink-0">
+          <div className="relative z-10 flex flex-wrap items-center gap-3 w-full sm:w-auto shrink-0">
             <button
               onClick={() => navigate(-1)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold rounded-2xl transition cursor-pointer"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold rounded-2xl transition cursor-pointer min-h-[44px]"
             >
               <ArrowLeft className="w-4 h-4" />
               Back
             </button>
             <button
               onClick={() => window.print()}
-              className="flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold rounded-2xl shadow-lg transition cursor-pointer"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold rounded-2xl shadow-lg transition cursor-pointer min-h-[44px]"
             >
               <Printer className="w-4 h-4 text-blue-600" />
               Print
@@ -65,28 +65,28 @@ export const StudentIdCard = () => {
 
         {/* Content */}
         {loading ? (
-          <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm py-20 flex flex-col items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm py-20 flex flex-col items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/50 flex items-center justify-center">
               <CreditCard className="w-6 h-6 text-blue-400" />
             </div>
             <div className="w-8 h-8 rounded-full border-4 border-blue-600 border-t-transparent animate-spin" />
             <p className="text-xs font-bold text-slate-400">Generating Student Identity Card...</p>
           </div>
         ) : error ? (
-          <div className="bg-white rounded-3xl border border-rose-200 shadow-sm p-8 text-center space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-rose-50 flex items-center justify-center mx-auto">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-rose-200 dark:border-rose-900/50 shadow-sm p-6 sm:p-8 text-center space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/50 flex items-center justify-center mx-auto">
               <AlertCircle className="w-6 h-6 text-rose-500" />
             </div>
-            <p className="text-sm font-bold text-rose-700">{error}</p>
+            <p className="text-sm font-bold text-rose-700 dark:text-rose-400">{error}</p>
             <button
               onClick={() => navigate(-1)}
-              className="px-5 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl"
+              className="w-full sm:w-auto px-5 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-xl min-h-[44px] cursor-pointer"
             >
               Go Back
             </button>
           </div>
         ) : (
-          <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 print:p-0 print:border-none print:shadow-none">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-4 sm:p-6 print:p-0 print:border-none print:shadow-none">
             <StudentIdCardDisplay idCardData={idCardData} />
           </div>
         )}

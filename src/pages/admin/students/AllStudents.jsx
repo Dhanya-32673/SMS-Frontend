@@ -165,7 +165,7 @@ export const AllStudents = () => {
               />
             </div>
 
-            <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 w-full md:w-auto">
+            <div className="grid grid-cols-1 xs:grid-cols-2 sm:flex sm:items-center gap-2 w-full md:w-auto">
               <select
                 value={section}
                 onChange={(e) => {
@@ -249,22 +249,24 @@ export const AllStudents = () => {
                           <div className="min-w-0">
                             <h4 className="text-sm font-bold text-slate-900 dark:text-white truncate">{st.fullName}</h4>
                             <p className="text-xs font-mono font-bold text-blue-600 dark:text-blue-400">{st.studentId}</p>
-                            <p className="text-[11px] text-slate-400">Roll: {st.rollNumber || 'N/A'}</p>
+                            <p className="text-[11px] text-slate-400 truncate">
+                              Roll: {st.rollNumber || 'N/A'} {st.admissionNumber ? `• Adm: ${st.admissionNumber}` : ''}
+                            </p>
                           </div>
                         </div>
                         <StudentStatusBadge status={st.status} />
                       </div>
 
-                      <div className="flex items-center justify-between text-xs bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-xl">
+                      <div className="grid grid-cols-2 gap-2 text-xs bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-xl">
                         <div>
                           <span className="text-[10px] text-slate-400 block uppercase font-extrabold">Group & Year</span>
-                          <span className="font-bold text-blue-700 dark:text-blue-300">
+                          <span className="font-bold text-blue-700 dark:text-blue-300 truncate block">
                             {formatBranchGroup(st.branchGroup || st.academicDetail?.branchGroup)}
                           </span>
                         </div>
                         <div className="text-right">
                           <span className="text-[10px] text-slate-400 block uppercase font-extrabold">Section</span>
-                          <span className="font-bold text-slate-800 dark:text-slate-200">
+                          <span className="font-bold text-slate-800 dark:text-slate-200 truncate block">
                             Section {formatSectionName(st.section || st.academicDetail?.section)}
                           </span>
                         </div>
@@ -274,7 +276,8 @@ export const AllStudents = () => {
                       <div className="flex items-center gap-2 pt-1">
                         <button
                           onClick={() => navigate(`/admin/students/${st.studentId || st.id}`)}
-                          className="flex-1 py-2 px-3 bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 text-blue-700 dark:text-blue-300 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1 min-h-[40px]"
+                          className="flex-1 py-2 px-3 bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 text-blue-700 dark:text-blue-300 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 min-h-[44px] cursor-pointer"
+                          aria-label="View profile"
                         >
                           <Eye className="w-4 h-4" />
                           <span>View</span>
@@ -283,19 +286,21 @@ export const AllStudents = () => {
                           <>
                             <button
                               onClick={() => navigate(`/admin/students/${st.studentId || st.id}/edit`)}
-                              className="py-2 px-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1 min-h-[40px]"
+                              className="py-2 px-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 min-h-[44px] cursor-pointer"
                               title="Edit Student"
+                              aria-label="Edit Student"
                             >
                               <Edit3 className="w-4 h-4" />
-                              <span>Edit</span>
+                              <span className="hidden xs:inline">Edit</span>
                             </button>
                             <button
                               onClick={() => handleDeleteStudentClick(st)}
-                              className="py-2 px-3 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 text-rose-600 dark:text-rose-400 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1 min-h-[40px]"
+                              className="py-2 px-3 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 text-rose-600 dark:text-rose-400 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 min-h-[44px] cursor-pointer"
                               title="Delete Student"
+                              aria-label="Delete Student"
                             >
                               <Trash2 className="w-4 h-4" />
-                              <span>Delete</span>
+                              <span className="hidden xs:inline">Delete</span>
                             </button>
                           </>
                         )}
@@ -410,7 +415,7 @@ export const AllStudents = () => {
                 <button
                   onClick={() => setPage((p) => Math.max(0, p - 1))}
                   disabled={page === 0}
-                  className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-40 hover:bg-slate-50 transition cursor-pointer min-w-[40px] min-h-[40px] flex items-center justify-center"
+                  className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-40 hover:bg-slate-50 transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
                   aria-label="Previous page"
                 >
                   <ChevronLeft className="w-4 h-4" />
@@ -418,7 +423,7 @@ export const AllStudents = () => {
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                   disabled={page >= totalPages - 1}
-                  className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-40 hover:bg-slate-50 transition cursor-pointer min-w-[40px] min-h-[40px] flex items-center justify-center"
+                  className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-40 hover:bg-slate-50 transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
                   aria-label="Next page"
                 >
                   <ChevronRight className="w-4 h-4" />
@@ -442,16 +447,14 @@ export const AllStudents = () => {
       {/* 3D Trash Bin Loading Overlay during delete */}
       <DeleteLoadingOverlay isVisible={showOverlay} message="Moving to Recycle Bin..." />
 
-      {/* Bulk Student Import from Excel Modal (Admin Only) */}
-      {isAdmin && (
-        <ImportStudentsModal
-          isOpen={importModalOpen}
-          onClose={() => setImportModalOpen(false)}
-          onSuccess={() => {
-            fetchStudents();
-          }}
-        />
-      )}
+      {/* Bulk Student Import from Excel Modal */}
+      <ImportStudentsModal
+        isOpen={importModalOpen}
+        onClose={() => setImportModalOpen(false)}
+        onSuccess={() => {
+          fetchStudents();
+        }}
+      />
     </Layout>
   );
 };

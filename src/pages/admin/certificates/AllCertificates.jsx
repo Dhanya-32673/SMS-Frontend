@@ -128,14 +128,14 @@ export const AllCertificates = () => {
               />
             </div>
 
-            <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 w-full md:w-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-3 lg:flex lg:items-center gap-2 w-full md:w-auto">
               <select
                 value={groupFilter}
                 onChange={(e) => {
                   setGroupFilter(e.target.value);
                   setPage(0);
                 }}
-                className="px-3 py-2.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-700 dark:text-slate-300 focus:outline-none min-h-[44px]"
+                className="w-full sm:w-auto px-3 py-2.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-700 dark:text-slate-300 focus:outline-none min-h-[44px]"
               >
                 <option value="">All Groups</option>
                 <option value="MPC">MPC</option>
@@ -151,7 +151,7 @@ export const AllCertificates = () => {
                   setSectionFilter(e.target.value);
                   setPage(0);
                 }}
-                className="px-3 py-2.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-700 dark:text-slate-300 focus:outline-none min-h-[44px]"
+                className="w-full sm:w-auto px-3 py-2.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-700 dark:text-slate-300 focus:outline-none min-h-[44px]"
               >
                 <option value="">All Sections</option>
                 <option value="A">Section A</option>
@@ -166,7 +166,7 @@ export const AllCertificates = () => {
                   setStatusFilter(e.target.value);
                   setPage(0);
                 }}
-                className="px-3 py-2.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-700 dark:text-slate-300 focus:outline-none min-h-[44px]"
+                className="w-full sm:w-auto px-3 py-2.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-700 dark:text-slate-300 focus:outline-none min-h-[44px]"
               >
                 <option value="">All Statuses</option>
                 <option value="COMPLETED">Completed</option>
@@ -372,7 +372,7 @@ export const AllCertificates = () => {
                 <button
                   onClick={() => setPage((p) => Math.max(0, p - 1))}
                   disabled={page === 0}
-                  className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-40 hover:bg-slate-50 transition cursor-pointer min-w-[40px] min-h-[40px] flex items-center justify-center"
+                  className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-40 hover:bg-slate-50 transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
                   aria-label="Previous page"
                 >
                   <ChevronLeft className="w-4 h-4" />
@@ -380,7 +380,7 @@ export const AllCertificates = () => {
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                   disabled={page >= totalPages - 1}
-                  className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-40 hover:bg-slate-50 transition cursor-pointer min-w-[40px] min-h-[40px] flex items-center justify-center"
+                  className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-40 hover:bg-slate-50 transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
                   aria-label="Next page"
                 >
                   <ChevronRight className="w-4 h-4" />

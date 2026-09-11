@@ -311,18 +311,18 @@ export const FacultyForm = ({ initialValues = {}, onSubmit, onCancel, isEdit = f
       </div>
 
       {/* Submit Controls */}
-      <div className="flex items-center justify-end space-x-3 pt-2">
+      <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3 pt-2">
         <button
           type="button"
           onClick={onCancel}
-          className="px-5 py-2.5 text-xs font-bold text-slate-600 hover:text-slate-800 dark:text-slate-400 border border-slate-300 dark:border-slate-700 rounded-xl hover:bg-slate-100"
+          className="w-full sm:w-auto px-5 py-2.5 text-xs font-bold text-slate-600 hover:text-slate-800 dark:text-slate-400 border border-slate-300 dark:border-slate-700 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition min-h-[44px] flex items-center justify-center cursor-pointer"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={submitting}
-          className="px-6 py-2.5 text-xs font-bold text-white bg-[#5b50e5] hover:bg-[#4b40d5] rounded-xl shadow-md shadow-indigo-500/20 disabled:opacity-50 flex items-center"
+          className="w-full sm:w-auto px-6 py-2.5 text-xs font-bold text-white bg-[#5b50e5] hover:bg-[#4b40d5] rounded-xl shadow-md shadow-indigo-500/20 disabled:opacity-50 flex items-center justify-center min-h-[44px] cursor-pointer"
         >
           {submitting ? (
             <>

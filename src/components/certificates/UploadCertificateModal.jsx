@@ -392,12 +392,12 @@ export const UploadCertificateModal = ({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end space-x-3 p-4 bg-slate-50/70 dark:bg-slate-800/40 border-t border-slate-100 dark:border-slate-800 shrink-0">
+        <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3 p-4 bg-slate-50/70 dark:bg-slate-800/40 border-t border-slate-100 dark:border-slate-800 shrink-0">
           <button
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition cursor-pointer min-h-[40px]"
+            className="w-full sm:w-auto px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition cursor-pointer min-h-[44px] flex items-center justify-center"
           >
             Cancel
           </button>
@@ -405,11 +405,11 @@ export const UploadCertificateModal = ({
             type="submit"
             form="upload-certificate-form"
             disabled={loading || success || !file || (!studentContext?.studentId && !studentId)}
-            className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl font-bold shadow-md shadow-blue-500/20 transition cursor-pointer flex items-center space-x-2 min-h-[40px]"
+            className="w-full sm:w-auto px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl font-bold shadow-md shadow-blue-500/20 transition cursor-pointer flex items-center justify-center space-x-2 min-h-[44px]"
           >
             {loading ? (
               <>
-                <span className="w-3.5 h-3.5 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                <span className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
                 <span>Uploading...</span>
               </>
             ) : (

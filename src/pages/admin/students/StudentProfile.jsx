@@ -275,38 +275,39 @@ export const StudentProfile = () => {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center md:justify-end gap-2.5 shrink-0">
+          <div className="flex flex-wrap sm:flex-nowrap items-center justify-center md:justify-end gap-2.5 w-full md:w-auto shrink-0">
             <button
               onClick={() => navigate(`/admin/students/${student.studentId}/id-card`)}
-              className="py-2.5 px-4 text-xs font-extrabold text-slate-900 bg-white hover:bg-slate-100 rounded-xl shadow-md transition flex items-center space-x-1.5 cursor-pointer"
+              className="w-full sm:w-auto py-2.5 px-4 text-xs font-extrabold text-slate-900 bg-white hover:bg-slate-100 rounded-xl shadow-md transition flex items-center justify-center space-x-1.5 cursor-pointer min-h-[44px]"
             >
               <CreditCard className="w-4 h-4 text-blue-600" />
               <span>Generate ID Card</span>
             </button>
 
             {isAdmin && (
-              <>
+              <div className="flex items-center gap-2 w-full sm:w-auto">
                 <button
                   onClick={() => navigate(`/admin/students/${id}/edit`)}
-                  className="py-2.5 px-4 text-xs font-extrabold text-white bg-white/20 hover:bg-white/30 border border-white/30 rounded-xl transition flex items-center space-x-1.5 cursor-pointer backdrop-blur-md"
+                  className="flex-1 sm:flex-none py-2.5 px-4 text-xs font-extrabold text-white bg-white/20 hover:bg-white/30 border border-white/30 rounded-xl transition flex items-center justify-center space-x-1.5 cursor-pointer backdrop-blur-md min-h-[44px]"
                 >
                   <Edit3 className="w-4 h-4" />
                   <span>Edit Profile</span>
                 </button>
                 <button
                   onClick={() => setShowDeleteModal(true)}
-                  className="p-2.5 text-white/90 hover:text-white bg-rose-500/30 hover:bg-rose-500/50 border border-white/20 rounded-xl transition cursor-pointer backdrop-blur-md"
+                  className="p-2.5 text-white/90 hover:text-white bg-rose-500/30 hover:bg-rose-500/50 border border-white/20 rounded-xl transition cursor-pointer backdrop-blur-md min-h-[44px] min-w-[44px] flex items-center justify-center"
                   title="Delete Student Record"
+                  aria-label="Delete Student Record"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
-              </>
+              </div>
             )}
           </div>
         </div>
 
         {/* Responsive Navigation Bar */}
-        <div className="flex border-b border-slate-200 dark:border-slate-800 space-x-1.5 text-xs font-extrabold overflow-x-auto pb-0.5">
+        <div className="flex border-b border-slate-200 dark:border-slate-800 space-x-1.5 text-xs font-extrabold overflow-x-auto pb-1 scrollbar-none touch-pan-x">
           {[
             { id: 'PERSONAL', label: 'A. Personal Information', icon: User },
             { id: 'CONTACT', label: 'B. Contact Information', icon: Phone },
@@ -318,7 +319,7 @@ export const StudentProfile = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`py-3 px-4 sm:px-5 rounded-t-2xl border-b-2 transition flex items-center space-x-2 cursor-pointer shrink-0 ${
+              className={`py-3 px-4 sm:px-5 rounded-t-2xl border-b-2 transition flex items-center space-x-2 cursor-pointer shrink-0 min-h-[44px] whitespace-nowrap ${
                 activeTab === tab.id
                   ? 'border-blue-600 text-blue-600 dark:text-blue-400 bg-white dark:bg-slate-900 shadow-xs'
                   : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-slate-800/40'
@@ -678,21 +679,21 @@ export const StudentProfile = () => {
                       </div>
 
                       {/* Action Buttons Toolbar */}
-                      <div className="flex flex-wrap items-center justify-end gap-2 shrink-0 border-t md:border-t-0 pt-3 md:pt-0 border-slate-200 dark:border-slate-700">
+                      <div className="flex flex-wrap items-center justify-start sm:justify-end gap-2 shrink-0 border-t md:border-t-0 pt-3 md:pt-0 border-slate-200 dark:border-slate-700 w-full md:w-auto">
                         <button
                           onClick={() => setSelectedDoc(doc)}
-                          className="px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-blue-50 text-slate-700 dark:text-slate-300 hover:text-blue-600 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold transition flex items-center space-x-1 cursor-pointer"
+                          className="flex-1 sm:flex-none px-3 py-2 bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 text-slate-700 dark:text-slate-300 hover:text-blue-600 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold transition flex items-center justify-center space-x-1.5 cursor-pointer min-h-[44px]"
                         >
-                          <Eye className="w-3.5 h-3.5" />
+                          <Eye className="w-4 h-4" />
                           <span>View PDF</span>
                         </button>
 
                         <button
                           onClick={() => handleDownloadDocument(doc)}
-                          className="px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-emerald-50 text-slate-700 dark:text-slate-300 hover:text-emerald-600 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold transition flex items-center space-x-1 cursor-pointer"
+                          className="flex-1 sm:flex-none px-3 py-2 bg-white dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-slate-700 dark:text-slate-300 hover:text-emerald-600 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold transition flex items-center justify-center space-x-1.5 cursor-pointer min-h-[44px]"
                         >
-                          <Download className="w-3.5 h-3.5" />
-                          <span>Download PDF</span>
+                          <Download className="w-4 h-4" />
+                          <span>Download</span>
                         </button>
 
                         <button
@@ -700,10 +701,10 @@ export const StudentProfile = () => {
                             setSelectedDocTypeId(doc.documentTypeId || doc.documentType?.id);
                             setUploadModalOpen(true);
                           }}
-                          className="px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-purple-50 text-slate-700 dark:text-slate-300 hover:text-purple-600 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold transition flex items-center space-x-1 cursor-pointer"
+                          className="flex-1 sm:flex-none px-3 py-2 bg-white dark:bg-slate-800 hover:bg-purple-50 dark:hover:bg-purple-950/40 text-slate-700 dark:text-slate-300 hover:text-purple-600 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold transition flex items-center justify-center space-x-1.5 cursor-pointer min-h-[44px]"
                           title="Replace Document"
                         >
-                          <RefreshCw className="w-3.5 h-3.5" />
+                          <RefreshCw className="w-4 h-4" />
                           <span>Replace</span>
                         </button>
 
@@ -712,9 +713,9 @@ export const StudentProfile = () => {
                           <button
                             onClick={() => handleVerifyDocument(doc.id)}
                             disabled={actionLoadingId === doc.id}
-                            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1 cursor-pointer disabled:opacity-50"
+                            className="flex-1 sm:flex-none px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 cursor-pointer disabled:opacity-50 min-h-[44px]"
                           >
-                            <Check className="w-3.5 h-3.5" />
+                            <Check className="w-4 h-4" />
                             <span>Verify</span>
                           </button>
                         )}
@@ -723,8 +724,9 @@ export const StudentProfile = () => {
                           <button
                             onClick={() => setDocToDelete(doc)}
                             disabled={actionLoadingId === doc.id}
-                            className="p-1.5 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 text-rose-600 rounded-xl border border-rose-200 dark:border-rose-800 transition cursor-pointer"
+                            className="p-2.5 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 text-rose-600 rounded-xl border border-rose-200 dark:border-rose-800 transition cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
                             title="Delete Document (Admin Only)"
+                            aria-label="Delete Document"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>

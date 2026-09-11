@@ -66,6 +66,11 @@ export const FacultyTopbar = ({ setMobileOpen }) => {
             <Menu className="w-5 h-5" />
           </button>
 
+          <div className="lg:hidden flex items-center gap-1.5 font-bold text-slate-900 dark:text-white text-sm">
+            <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+            <span className="tracking-tight">SICMS</span>
+          </div>
+
           {/* Global Search Input (Desktop) */}
           <div className="relative w-full max-w-md hidden sm:block">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
@@ -82,7 +87,7 @@ export const FacultyTopbar = ({ setMobileOpen }) => {
           {/* Mobile Search Toggle */}
           <button
             onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
-            className="sm:hidden p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 min-w-[40px] min-h-[40px] flex items-center justify-center"
+            className="sm:hidden p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 min-w-[44px] min-h-[44px] flex items-center justify-center"
             aria-label="Toggle search"
           >
             <Search className="w-5 h-5" />
@@ -221,7 +226,7 @@ export const FacultyTopbar = ({ setMobileOpen }) => {
               value={globalSearch}
               onChange={(e) => setGlobalSearch(e.target.value)}
               onKeyDown={handleSearchSubmit}
-              className="w-full pl-10 pr-4 py-2 text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              className="w-full pl-10 pr-4 py-2.5 sm:py-2 text-sm sm:text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
         </div>

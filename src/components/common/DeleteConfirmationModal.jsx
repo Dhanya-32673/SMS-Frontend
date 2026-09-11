@@ -36,10 +36,10 @@ export const DeleteConfirmationModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
-      <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col font-sans">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
+      <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col font-sans max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="p-6 pb-4 border-b border-rose-100 dark:border-rose-950/50 bg-rose-50/60 dark:bg-rose-950/20 flex items-center justify-between">
+        <div className="p-5 sm:p-6 pb-4 border-b border-rose-100 dark:border-rose-950/50 bg-rose-50/60 dark:bg-rose-950/20 flex items-center justify-between">
           <div className="flex items-center space-x-3.5">
             <div className="w-12 h-12 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
               <AlertTriangle className="w-6 h-6 animate-pulse" />
@@ -57,7 +57,7 @@ export const DeleteConfirmationModal = ({
             type="button"
             onClick={onClose}
             disabled={isBusy}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+            className="p-2.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
           >
             <X className="w-5 h-5" />
           </button>
@@ -128,14 +128,14 @@ export const DeleteConfirmationModal = ({
             </>
           )}
 
-          {/* Footer Actions */}
-          <div className="pt-4 flex items-center justify-end space-x-3 border-t border-slate-100 dark:border-slate-800">
+        {/* Footer Actions */}
+          <div className="pt-4 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3 border-t border-slate-100 dark:border-slate-800">
             <button
               autoFocus
               type="button"
               onClick={onClose}
               disabled={isBusy}
-              className="py-2.5 px-4 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition cursor-pointer"
+              className="w-full sm:w-auto py-2.5 px-4 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition cursor-pointer min-h-[44px] flex items-center justify-center"
             >
               Cancel
             </button>
@@ -144,7 +144,7 @@ export const DeleteConfirmationModal = ({
               <button
                 type="submit"
                 disabled={!isInputMatched || isBusy}
-                className={`py-2.5 px-5 text-xs font-bold text-white rounded-xl shadow-md flex items-center space-x-2 transition ${
+                className={`w-full sm:w-auto py-2.5 px-5 text-xs font-bold text-white rounded-xl shadow-md flex items-center justify-center space-x-2 transition min-h-[44px] ${
                   isInputMatched && !isBusy
                     ? 'bg-rose-600 hover:bg-rose-700 shadow-rose-500/25 cursor-pointer'
                     : 'bg-slate-300 dark:bg-slate-800 cursor-not-allowed opacity-60'

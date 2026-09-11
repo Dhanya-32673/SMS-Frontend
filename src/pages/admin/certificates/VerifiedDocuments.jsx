@@ -92,9 +92,9 @@ export const VerifiedDocuments = () => {
 
                     <button
                       onClick={() => setSelectedDoc(doc)}
-                      className="w-full py-2 px-3 text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-xl inline-flex items-center justify-center min-h-[40px] cursor-pointer"
+                      className="w-full py-2.5 px-3 text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-xl inline-flex items-center justify-center min-h-[44px] cursor-pointer"
                     >
-                      <Eye className="w-3.5 h-3.5 mr-1.5" /> View Certificate
+                      <Eye className="w-4 h-4 mr-1.5" /> View Certificate
                     </button>
                   </div>
                 ))}

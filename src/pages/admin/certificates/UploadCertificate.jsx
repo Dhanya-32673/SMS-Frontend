@@ -400,18 +400,18 @@ export const UploadCertificate = () => {
             </div>
 
             {/* Submit Button */}
-            <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
               <button
                 type="button"
                 onClick={() => navigate('/admin/certificates')}
-                className="px-5 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-200 transition cursor-pointer"
+                className="w-full sm:w-auto px-5 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer min-h-[44px] flex items-center justify-center"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={submitting}
-                className="px-6 py-2.5 bg-gradient-to-r from-blue-600 via-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white font-extrabold rounded-xl shadow-md shadow-blue-500/30 transition cursor-pointer flex items-center space-x-2 disabled:opacity-50"
+                className="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-blue-600 via-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white font-extrabold rounded-xl shadow-md shadow-blue-500/30 transition cursor-pointer flex items-center justify-center space-x-2 disabled:opacity-50 min-h-[44px]"
               >
                 <span>{submitting ? 'Uploading PDF...' : 'Upload Certificate PDF'}</span>
                 <ArrowRight className="w-4 h-4" />

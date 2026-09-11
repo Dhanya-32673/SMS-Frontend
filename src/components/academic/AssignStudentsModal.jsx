@@ -74,16 +74,16 @@ export const AssignStudentsModal = ({ section, onClose, onAssigned }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
-      <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
+      <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[90vh]">
         {/* Header */}
-        <div className="p-6 pb-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <div className="p-4 sm:p-6 sm:pb-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-2xl bg-purple-100 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-800/50 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-2xl bg-purple-100 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-800/50 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
               <UserPlus className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
+              <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">
                 Assign Students to Section {section.name}
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -93,7 +93,8 @@ export const AssignStudentsModal = ({ section, onClose, onAssigned }) => {
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            className="w-11 h-11 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center justify-center shrink-0 cursor-pointer"
+            aria-label="Close modal"
           >
             <X className="w-5 h-5" />
           </button>
@@ -172,15 +173,15 @@ export const AssignStudentsModal = ({ section, onClose, onAssigned }) => {
         </div>
 
         {/* Footer */}
-        <div className="p-4 px-6 bg-slate-50 dark:bg-slate-800/40 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+        <div className="p-4 sm:px-6 bg-slate-50 dark:bg-slate-800/40 border-t border-slate-100 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 text-center sm:text-left">
             {selectedIds.length} student(s) selected
           </span>
-          <div className="flex items-center space-x-3">
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="py-2 px-4 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 rounded-xl transition"
+              className="py-2.5 px-4 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 rounded-xl transition min-h-[44px] w-full sm:w-auto cursor-pointer"
             >
               Cancel
             </button>
@@ -188,7 +189,7 @@ export const AssignStudentsModal = ({ section, onClose, onAssigned }) => {
               type="button"
               onClick={handleSubmit}
               disabled={selectedIds.length === 0 || submitting}
-              className="py-2.5 px-5 text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 rounded-xl shadow-md shadow-purple-500/20 disabled:opacity-50 transition"
+              className="py-2.5 px-5 text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 rounded-xl shadow-md shadow-purple-500/20 disabled:opacity-50 transition min-h-[44px] w-full sm:w-auto cursor-pointer"
             >
               {submitting ? 'Assigning...' : 'Assign Selected Students'}
             </button>

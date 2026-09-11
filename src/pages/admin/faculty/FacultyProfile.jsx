@@ -337,10 +337,10 @@ export const FacultyProfile = () => {
           </div>
 
           {isAdmin && (
-            <div className="flex flex-wrap items-center justify-center md:justify-end gap-2.5 shrink-0">
+            <div className="flex flex-wrap items-center justify-center md:justify-end gap-2.5 shrink-0 w-full sm:w-auto">
               <button
                 onClick={() => setShowAssignModal(true)}
-                className="py-2.5 px-4 text-xs font-extrabold text-slate-900 bg-white hover:bg-slate-100 rounded-xl shadow-md transition flex items-center space-x-1.5 cursor-pointer"
+                className="w-full sm:w-auto py-2.5 px-4 text-xs font-extrabold text-slate-900 bg-white hover:bg-slate-100 rounded-xl shadow-md transition flex items-center justify-center space-x-1.5 cursor-pointer min-h-[44px]"
               >
                 <PlusCircle className="w-4 h-4 text-blue-600" />
                 <span>Assign Section</span>
@@ -348,7 +348,7 @@ export const FacultyProfile = () => {
 
               <Link
                 to={`/admin/faculty/${faculty.id}/edit`}
-                className="py-2.5 px-4 text-xs font-extrabold text-white bg-white/20 hover:bg-white/30 border border-white/30 rounded-xl transition flex items-center space-x-1.5 backdrop-blur-md cursor-pointer"
+                className="w-full sm:w-auto py-2.5 px-4 text-xs font-extrabold text-white bg-white/20 hover:bg-white/30 border border-white/30 rounded-xl transition flex items-center justify-center space-x-1.5 backdrop-blur-md cursor-pointer min-h-[44px]"
               >
                 <Edit className="w-4 h-4" />
                 <span>Edit Profile</span>
@@ -358,7 +358,7 @@ export const FacultyProfile = () => {
         </div>
 
         {/* Responsive Navigation Tabs */}
-        <div className="flex border-b border-slate-200 dark:border-slate-800 space-x-1.5 text-xs font-extrabold overflow-x-auto pb-0.5">
+        <div className="flex border-b border-slate-200 dark:border-slate-800 space-x-1.5 text-xs font-extrabold overflow-x-auto pb-0.5 scrollbar-none touch-pan-x">
           {[
             { id: 'personal', label: '1. Personal Information', icon: User },
             { id: 'contact', label: '2. Contact Details', icon: Phone },
@@ -370,7 +370,7 @@ export const FacultyProfile = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-3 px-4 sm:px-5 rounded-t-2xl border-b-2 transition flex items-center space-x-2 cursor-pointer shrink-0 ${
+                className={`py-3 px-3 sm:px-5 rounded-t-2xl border-b-2 transition flex items-center space-x-2 cursor-pointer shrink-0 min-h-[44px] ${
                   activeTab === tab.id
                     ? 'border-blue-600 text-blue-600 dark:text-blue-400 bg-white dark:bg-slate-900 shadow-xs'
                     : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-slate-800/40'
@@ -548,7 +548,7 @@ export const FacultyProfile = () => {
           {/* TAB 4: SECTION ASSIGNMENTS */}
           {activeTab === 'assignments' && (
             <div className="space-y-6">
-              <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
                 <div>
                   <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center space-x-2">
                     <Layers className="w-5 h-5 text-blue-600" />
@@ -562,7 +562,7 @@ export const FacultyProfile = () => {
                 {isAdmin && (
                   <button
                     onClick={() => setShowAssignModal(true)}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-extrabold shadow-md shadow-blue-500/20 flex items-center space-x-1.5 cursor-pointer transition"
+                    className="w-full sm:w-auto px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-extrabold shadow-md shadow-blue-500/20 flex items-center justify-center space-x-1.5 cursor-pointer transition min-h-[44px]"
                   >
                     <Plus className="w-4 h-4" />
                     <span>Add New Assignment</span>
@@ -607,7 +607,7 @@ export const FacultyProfile = () => {
                             type="button"
                             onClick={() => setAssignmentToRemove(asg)}
                             title="Unassign Section"
-                            className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-xl transition cursor-pointer"
+                            className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-xl transition cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -626,8 +626,8 @@ export const FacultyProfile = () => {
 
       {/* Assignment Modal */}
       {showAssignModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white dark:bg-slate-900 w-full max-w-md p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-fadeIn">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-md p-5 sm:p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b pb-3 border-slate-100 dark:border-slate-800">
               <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">
                 Assign Section to Faculty
@@ -708,18 +708,18 @@ export const FacultyProfile = () => {
                 />
               </div>
 
-              <div className="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={() => setShowAssignModal(false)}
-                  className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-200 transition cursor-pointer"
+                  className="w-full sm:w-auto px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-200 transition cursor-pointer min-h-[44px] flex items-center justify-center"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={assignSubmitting || Boolean(assignedConflictSection) || availableSectionsForAssign.length === 0}
-                  className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-extrabold shadow-md shadow-blue-500/20 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full sm:w-auto px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-extrabold shadow-md shadow-blue-500/20 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] flex items-center justify-center"
                 >
                   {assignSubmitting ? 'Saving...' : 'Save Assignment'}
                 </button>
