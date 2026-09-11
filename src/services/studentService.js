@@ -74,6 +74,48 @@ export const studentService = {
     });
     return response;
   },
+
+  downloadImportTemplate: async () => {
+    const response = await api.get('/admin/students/import/template', {
+      responseType: 'blob',
+      cache: false,
+      timeout: 30000,
+    });
+    return response;
+  },
+
+  validateStudentImport: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post('/admin/students/import/validate', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 60000,
+    });
+    return response.data;
+  },
+
+  confirmStudentImport: async (file, { skipDuplicates = true, updateExisting = false } = {}) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('skipDuplicates', String(skipDuplicates));
+    formData.append('updateExisting', String(updateExisting));
+    const response = await api.post('/admin/students/import/confirm', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 120000, // allow up to 2 minutes for large bulk batches
+    });
+    apiCache.clear();
+    dataSync.invalidate(['students', 'sections', 'dashboard', 'certificates']);
+    return response.data;
+  },
+
+  downloadImportErrorReport: async (failedRows) => {
+    const response = await api.post('/admin/students/import/error-report', failedRows, {
+      responseType: 'blob',
+      headers: { 'Content-Type': 'application/json' },
+      timeout: 30000,
+    });
+    return response;
+  },
 };
 
 export default studentService;

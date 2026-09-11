@@ -16,8 +16,10 @@ import {
   Trash2,
   ChevronLeft,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  FileSpreadsheet
 } from 'lucide-react';
+import ImportStudentsModal from '../../../components/students/ImportStudentsModal';
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { useDebounce } from '../../../hooks/useDebounce';
@@ -38,6 +40,7 @@ export const AllStudents = () => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [importModalOpen, setImportModalOpen] = useState(false);
 
   // Filtering & Pagination state
   const [page, setPage] = useState(0);
@@ -120,13 +123,26 @@ export const AllStudents = () => {
 
           <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
             {isAdmin && (
-              <button
-                onClick={() => navigate('/admin/students/add')}
-                className="flex-1 sm:flex-none py-2.5 px-4 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20 transition flex items-center justify-center space-x-2 cursor-pointer min-h-[44px]"
-              >
-                <UserPlus className="w-4 h-4" />
-                <span>Add Student</span>
-              </button>
+              <>
+                <button
+                  id="add-student-btn"
+                  onClick={() => navigate('/admin/students/add')}
+                  className="flex-1 sm:flex-none py-2.5 px-4 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/20 transition flex items-center justify-center space-x-2 cursor-pointer min-h-[44px]"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  <span>Add Student</span>
+                </button>
+
+                <button
+                  id="import-students-excel-btn"
+                  onClick={() => setImportModalOpen(true)}
+                  className="flex-1 sm:flex-none py-2.5 px-4 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md shadow-indigo-500/20 transition flex items-center justify-center space-x-2 cursor-pointer min-h-[44px]"
+                  title="Import students from Excel (.xlsx)"
+                >
+                  <FileSpreadsheet className="w-4 h-4" />
+                  <span>Import Students</span>
+                </button>
+              </>
             )}
 
             <div className="flex-1 sm:flex-none">
@@ -429,6 +445,17 @@ export const AllStudents = () => {
 
       {/* 3D Trash Bin Loading Overlay during delete */}
       <DeleteLoadingOverlay isVisible={showOverlay} message="Moving to Recycle Bin..." />
+
+      {/* Bulk Student Import from Excel Modal (Admin Only) */}
+      {isAdmin && (
+        <ImportStudentsModal
+          isOpen={importModalOpen}
+          onClose={() => setImportModalOpen(false)}
+          onSuccess={() => {
+            fetchStudents();
+          }}
+        />
+      )}
     </Layout>
   );
 };
