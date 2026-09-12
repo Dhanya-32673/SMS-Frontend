@@ -228,12 +228,14 @@ export const OtpVerificationCard = ({
       
       {/* Expanding Green Verification Ring on Success */}
       {isSuccess && (
-        <motion.div
-          initial={{ scale: 0, opacity: 1 }}
-          animate={{ scale: 3.5, opacity: 0 }}
-          transition={{ duration: 2.2, ease: 'easeOut' }}
-          className="absolute w-72 h-72 rounded-full border-4 border-emerald-500/80 pointer-events-none z-0 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-        />
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+          <motion.div
+            initial={{ scale: 0, opacity: 1 }}
+            animate={{ scale: 2.2, opacity: 0 }}
+            transition={{ duration: 1.8, ease: 'easeOut' }}
+            className="absolute w-56 h-56 rounded-full border-4 border-emerald-500/80 pointer-events-none left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+          />
+        </div>
       )}
 
       {/* Main OTP Card with Fade-in and Slide Upward */}
@@ -321,10 +323,10 @@ export const OtpVerificationCard = ({
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
-              className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 flex items-start gap-3 text-rose-700 dark:text-rose-300 text-xs font-semibold"
+              className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 flex items-start gap-3 text-rose-700 dark:text-rose-300 text-xs font-semibold w-full shrink-0 max-w-full break-words"
             >
               <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-              <span className="leading-snug">{errorMsg}</span>
+              <span className="leading-snug flex-1 min-w-0">{errorMsg}</span>
             </motion.div>
           )}
 
@@ -333,10 +335,10 @@ export const OtpVerificationCard = ({
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
-              className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-start gap-3 text-emerald-700 dark:text-emerald-300 text-xs font-semibold"
+              className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-start gap-3 text-emerald-700 dark:text-emerald-300 text-xs font-semibold w-full shrink-0 max-w-full break-words"
             >
               <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-              <span className="leading-snug">{successMsg}</span>
+              <span className="leading-snug flex-1 min-w-0">{successMsg}</span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -470,7 +472,7 @@ export const OtpVerificationCard = ({
 
             {loading ? (
               <div className="flex items-center space-x-2">
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" style={{ animationDuration: '1s' }} />
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" style={{ animationDuration: '1s' }} />
                 <span>Verifying...</span>
               </div>
             ) : isSuccess ? (

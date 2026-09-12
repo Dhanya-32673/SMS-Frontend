@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Toaster, toast as hotToast } from 'react-hot-toast';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import { CheckCircle2, AlertCircle, AlertTriangle, Info, Trash2, X, RotateCcw } from 'lucide-react';
 
@@ -74,7 +74,7 @@ export const CustomToast = ({ t, message, type = 'info', title, duration = 2000,
       transition={{ duration: t.visible ? 0.28 : 0.22, ease: [0.22, 1, 0.36, 1] }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`relative w-[calc(100vw-24px)] sm:w-auto max-w-[420px] min-w-0 sm:min-w-[280px] overflow-hidden rounded-2xl border ${theme.border} bg-white/95 dark:bg-slate-900/95 p-3.5 sm:p-4 shadow-2xl ${theme.glow} backdrop-blur-xl transition-shadow duration-300 pointer-events-auto group`}
+      className={`relative shrink-0 w-[calc(100vw-32px)] sm:w-auto max-w-[420px] min-w-0 sm:min-w-[280px] max-h-[160px] overflow-hidden rounded-2xl border ${theme.border} bg-white/95 dark:bg-slate-900/95 p-3.5 sm:p-4 shadow-2xl ${theme.glow} backdrop-blur-xl transition-shadow duration-300 pointer-events-auto group`}
       style={{
         boxShadow: isHovered
           ? '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 15px rgba(59, 130, 246, 0.15)'
@@ -82,7 +82,7 @@ export const CustomToast = ({ t, message, type = 'info', title, duration = 2000,
       }}
     >
       {/* Left Accent Pillar */}
-      <span className={`absolute inset-y-0 left-0 w-1.5 ${theme.accent}`} />
+      <span className={`absolute inset-y-0 left-0 w-1.5 rounded-l-2xl ${theme.accent}`} />
 
       <div className="flex items-center gap-2.5 sm:gap-3 pl-1">
         {/* Leading Icon with Pulse Animation */}
@@ -162,31 +162,28 @@ export const CustomToast = ({ t, message, type = 'info', title, duration = 2000,
  */
 export const ResponsiveToaster = () => {
   const { position } = useIsMobile();
+  const isCenter = position === 'top-center';
 
   return (
     <Toaster
       position={position}
       containerStyle={{
-        top: position === 'top-center' ? '1rem' : '1.5rem',
-        right: position === 'top-right' ? '1.5rem' : 'auto',
-        left: position === 'top-center' ? '50%' : 'auto',
-        transform: position === 'top-center' ? 'translateX(-50%)' : 'none',
+        top: isCenter ? '1rem' : '1.5rem',
+        bottom: 'auto',
+        left: isCenter ? 0 : 'auto',
+        right: isCenter ? 0 : '1.5rem',
+        width: isCenter ? '100%' : 'auto',
+        maxWidth: '100vw',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: isCenter ? 'center' : 'flex-end',
+        pointerEvents: 'none',
         zIndex: 99999,
       }}
       toastOptions={{
         duration: 2000,
       }}
-    >
-      {(t) => (
-        <ToastBar toast={t}>
-          {({ icon, message }) => (
-            <div className="contents">
-              {message}
-            </div>
-          )}
-        </ToastBar>
-      )}
-    </Toaster>
+    />
   );
 };
 

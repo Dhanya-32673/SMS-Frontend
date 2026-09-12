@@ -4,7 +4,7 @@ import AuthLeftBrandPanel from './AuthLeftBrandPanel';
 
 export const AuthLayout = ({ children, title = "Admin Portal", subtitle = "Student Information & Certificate Management System" }) => {
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[#f8fafc] p-2.5 sm:p-4 lg:p-6 font-sans relative overflow-x-hidden">
+    <div className="min-h-[100dvh] min-h-screen w-full max-w-full flex items-center justify-center bg-[#f8fafc] p-2.5 sm:p-4 lg:p-6 font-sans relative overflow-x-hidden">
       
       {/* Background Soft Ambient Light Blobs */}
       <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-blue-400/10 rounded-full blur-3xl pointer-events-none" />
@@ -21,7 +21,7 @@ export const AuthLayout = ({ children, title = "Admin Portal", subtitle = "Stude
         <AuthLeftBrandPanel title={title} subtitle={subtitle} />
 
         {/* Right Authentication Content Container */}
-        <div className="w-full lg:w-[58%] p-4 sm:p-6 lg:p-7 flex flex-col justify-center bg-white relative">
+        <div className="w-full lg:w-[58%] p-3.5 sm:p-6 lg:p-7 flex flex-col justify-center bg-white relative overflow-hidden">
           {children}
         </div>
       </motion.div>

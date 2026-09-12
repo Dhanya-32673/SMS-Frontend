@@ -226,7 +226,7 @@ api.interceptors.response.use(
     // Handle 401 Unauthorized with Refresh Token rotation
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (url.includes('/auth/') || url.includes('/reset-password')) {
-        if (!url.includes('/auth/refresh')) {
+        if (!url.includes('/auth/refresh') && !url.includes('/auth/admin/login') && !url.includes('/auth/faculty/login') && !url.includes('/auth/login') && !url.includes('/auth/verify')) {
           toast.error(getOperationMessage(url, method, true), { operation: `error:${method}:${url}` });
         }
         return Promise.reject(error);
@@ -281,7 +281,8 @@ api.interceptors.response.use(
     }
 
     // Other non-401 errors
-    if (!url.includes('/auth/refresh')) {
+    const isAuthRoute = url.includes('/auth/admin/login') || url.includes('/auth/faculty/login') || url.includes('/auth/login') || url.includes('/auth/verify') || url.includes('/auth/refresh');
+    if (!isAuthRoute) {
       if (error.response?.status === 403) {
         toast.error('Unauthorized access.', { operation: `error:${method}:${url}` });
       } else if (['post', 'put', 'patch', 'delete'].includes(method)) {

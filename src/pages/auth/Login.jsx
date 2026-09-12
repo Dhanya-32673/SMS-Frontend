@@ -17,6 +17,7 @@ import {
   UserCheck 
 } from "lucide-react";
 import { API_ORIGIN, getNormalizedApiBaseUrl } from "../../services/api";
+import { toast as hotToast } from "react-hot-toast";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -91,6 +92,7 @@ const Login = () => {
     e.preventDefault();
     if (!validateCredentials()) return;
 
+    hotToast.dismiss();
     setLoading(true);
     setError("");
     setSuccessMsg("");
@@ -167,13 +169,15 @@ const Login = () => {
       <div className="w-full max-w-[430px] mx-auto space-y-3.5 my-auto px-1 sm:px-0">
         
         {/* Tab Switcher */}
-        <div className="bg-[#f1f5f9] rounded-[14px] p-1 flex h-[48px] w-full border border-slate-200/80 text-xs font-bold">
+        <div className="bg-[#f1f5f9] rounded-[14px] p-1 flex h-[48px] w-full border border-slate-200/80 text-xs font-bold shrink-0">
           <button
             type="button"
             onClick={() => {
+              hotToast.dismiss();
               setRoleTab("ADMIN");
               setError("");
               setSuccessMsg("");
+              setFieldErrors({});
             }}
             className={"flex-1 py-2 rounded-[10px] transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer " + (
               roleTab === "ADMIN"
@@ -187,9 +191,11 @@ const Login = () => {
           <button
             type="button"
             onClick={() => {
+              hotToast.dismiss();
               setRoleTab("FACULTY");
               setError("");
               setSuccessMsg("");
+              setFieldErrors({});
             }}
             className={"flex-1 py-2 rounded-[10px] transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer " + (
               roleTab === "FACULTY"
@@ -227,23 +233,23 @@ const Login = () => {
 
         {/* Notifications */}
         {isInactiveLoggedOut && (
-          <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-2 text-amber-700 text-xs font-semibold">
+          <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-2 text-amber-700 text-xs font-semibold w-full shrink-0 break-words max-w-full">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-500" />
-            <span>You were logged out due to inactivity for security reasons. Please log in again.</span>
+            <span className="flex-1 min-w-0">You were logged out due to inactivity for security reasons. Please log in again.</span>
           </div>
         )}
 
         {error && (
-          <div className="p-3 rounded-xl bg-red-50 border border-red-200 flex items-start gap-2 text-red-700 text-xs font-semibold">
+          <div className="p-3 rounded-xl bg-red-50 border border-red-200 flex items-start gap-2 text-red-700 text-xs font-semibold w-full shrink-0 break-words max-w-full">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-500" />
-            <span>{error}</span>
+            <span className="flex-1 min-w-0">{error}</span>
           </div>
         )}
 
         {successMsg && (
-          <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex items-start gap-2 text-emerald-700 text-xs font-semibold">
+          <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex items-start gap-2 text-emerald-700 text-xs font-semibold w-full shrink-0 break-words max-w-full">
             <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-emerald-500" />
-            <span>{successMsg}</span>
+            <span className="flex-1 min-w-0">{successMsg}</span>
           </div>
         )}
 
@@ -320,16 +326,21 @@ const Login = () => {
           <motion.button
             type="submit"
             disabled={loading}
+            aria-busy={loading}
+            aria-label={loading ? (roleTab === "ADMIN" ? "Sending login OTP" : "Signing in as Faculty") : (roleTab === "ADMIN" ? "Send Login OTP" : "Sign in as Faculty")}
             whileHover={{ scale: loading ? 1 : 1.01 }}
             whileTap={{ scale: loading ? 1 : 0.98 }}
-            className="w-full h-[48px] sm:h-[50px] rounded-[12px] text-white font-bold text-xs sm:text-sm bg-gradient-to-r from-[#2563eb] to-[#3b82f6] hover:from-blue-700 hover:to-blue-600 shadow-[0_10px_24px_rgba(37,99,235,0.22)] transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed mt-3"
+            className="w-full min-h-[48px] sm:min-h-[50px] rounded-[12px] text-white font-bold text-xs sm:text-sm bg-gradient-to-r from-[#2563eb] to-[#3b82f6] hover:from-blue-700 hover:to-blue-600 shadow-[0_10px_24px_rgba(37,99,235,0.22)] transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed mt-3"
           >
             {loading ? (
-              <div className="w-4.5 h-4.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" />
+                <span className="font-semibold">{roleTab === "ADMIN" ? "Sending OTP..." : "Signing in..."}</span>
+              </div>
             ) : (
               <>
                 <span>{roleTab === "ADMIN" ? "Send Login OTP" : "Sign in as Faculty"}</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 shrink-0" />
               </>
             )}
           </motion.button>
