@@ -109,7 +109,7 @@ export const StudentProfile = () => {
     setDeleting(true);
     try {
       await studentService.deleteStudent(student.studentId || id);
-      showSuccess('Student and login account deleted successfully');
+      showSuccess('Student deleted successfully');
       navigate('/admin/students');
     } catch (err) {
       setError('Failed to delete student record.');

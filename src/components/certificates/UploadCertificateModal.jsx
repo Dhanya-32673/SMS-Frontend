@@ -342,27 +342,36 @@ export const UploadCertificateModal = ({
             {/* PDF Upload Dropzone */}
             <div>
               <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                Certificate PDF Document *
+                Certificate PDF File * (PDF only, Max 5 MB)
               </label>
               <AnimatedFileUpload
                 selectedFile={file}
                 onFileSelect={(selected) => {
-                  setFile(selected);
-                  setError('');
+                  if (selected) {
+                    const isPdfExt = selected.name.toLowerCase().endsWith('.pdf');
+                    const isPdfMime = selected.type === 'application/pdf' || selected.type === '';
+                    if (!isPdfExt || !isPdfMime) {
+                      setError('Only valid PDF files (.pdf) are allowed.');
+                      showWarning('Invalid file. Only PDF files are allowed.');
+                      setFile(null);
+                      return;
+                    }
+                    if (selected.size > 5 * 1024 * 1024) {
+                      setError('PDF file size exceeds maximum 5 MB limit.');
+                      showWarning('File size exceeds 5 MB limit.');
+                      setFile(null);
+                      return;
+                    }
+                    setError('');
+                    setFile(selected);
+                  }
                 }}
-                onFileRemove={() => {
-                  setFile(null);
-                  setError('');
-                }}
-                onValidationError={(msg) => {
-                  setError(msg);
-                  if (msg) showWarning(msg);
-                }}
+                onFileRemove={() => setFile(null)}
                 uploading={loading}
                 accept=".pdf,application/pdf"
                 maxSizeMB={5}
-                label="Upload PDF Certificate"
-                sublabel="Drag & drop your PDF file here or browse from your computer"
+                label="Click or drag certificate PDF here"
+                sublabel="Official PDF format (max 5 MB)"
               />
             </div>
 
