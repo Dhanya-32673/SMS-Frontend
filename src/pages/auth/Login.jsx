@@ -22,9 +22,9 @@ import { toast as hotToast } from "react-hot-toast";
 const Login = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { isAuthenticated, user, isInactiveLoggedOut, adminVerifyOtp, facultyLogin, setAuthUser } = useAuth();
+  const { isAuthenticated, user, isInactiveLoggedOut, adminVerifyOtp, studentLogin, facultyLogin, setAuthUser } = useAuth();
 
-  // Selected Role Tab: "ADMIN" | "FACULTY"
+  // Selected Role Tab: "ADMIN" | "STUDENT"
   const [roleTab, setRoleTab] = useState("ADMIN");
 
   // Authentication Flow State: "LOGIN" | "OTP"
@@ -64,8 +64,12 @@ const Login = () => {
       else if (user.role?.name) rawRole = user.role.name;
 
       const role = rawRole.replace("ROLE_", "").toUpperCase();
-      if (role === "FACULTY") {
-        navigate("/faculty/dashboard", { replace: true });
+      if (role === "STUDENT" || role === "FACULTY") {
+        if (user.mustChangePassword) {
+          navigate("/student/change-password", { replace: true });
+        } else {
+          navigate("/student/dashboard", { replace: true });
+        }
       } else if (role === "ADMIN") {
         navigate("/admin/dashboard", { replace: true });
       }
@@ -77,8 +81,6 @@ const Login = () => {
     const cleanEmail = email.trim();
     if (!cleanEmail) {
       errors.email = "Email address is required";
-    } else if (!/\S+@\S+\.\S+/.test(cleanEmail)) {
-      errors.email = "Please enter a valid email address";
     }
     if (!password) {
       errors.password = "Password is required";
@@ -108,15 +110,21 @@ const Login = () => {
         setStep("OTP");
         setSuccessMsg(response?.message || "OTP sent successfully to " + targetEmail);
       } else {
-        const response = await facultyLogin(cleanEmail, password);
-        const targetUser = response?.user || { email: cleanEmail, role: 'FACULTY' };
-        if (setAuthUser) setAuthUser(targetUser);
-        setSuccessMsg("Faculty login successful. Redirecting to dashboard...");
-        navigate("/faculty/dashboard", { replace: true });
+        const loginFn = studentLogin || facultyLogin;
+        const response = await loginFn(cleanEmail, password);
+        const targetUser = response?.user || tokenUtils.getUser() || { email: cleanEmail, role: 'STUDENT' };
+        if (targetUser?.mustChangePassword) {
+          setSuccessMsg("Initial login detected. Redirecting to password change...");
+          navigate("/student/change-password", { replace: true });
+        } else {
+          setSuccessMsg("Student login successful. Redirecting to portal...");
+          navigate("/student/dashboard", { replace: true });
+        }
       }
     } catch (err) {
       const msg = err.response?.data?.message || err.customMessage || err.message || "Invalid credentials or access denied";
       setError(msg);
+      hotToast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -163,7 +171,7 @@ const Login = () => {
 
   return (
     <AuthLayout
-      title={roleTab === "ADMIN" ? "Admin Portal" : "Faculty Portal"}
+      title={roleTab === "ADMIN" ? "Admin Portal" : "Student Portal"}
       subtitle="Student Information & Certificate Management System"
     >
       <div className="w-full max-w-[430px] mx-auto space-y-3.5 my-auto px-1 sm:px-0">
@@ -192,19 +200,19 @@ const Login = () => {
             type="button"
             onClick={() => {
               hotToast.dismiss();
-              setRoleTab("FACULTY");
+              setRoleTab("STUDENT");
               setError("");
               setSuccessMsg("");
               setFieldErrors({});
             }}
             className={"flex-1 py-2 rounded-[10px] transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer " + (
-              roleTab === "FACULTY"
+              roleTab === "STUDENT"
                 ? "bg-gradient-to-r from-[#2563eb] to-[#3b82f6] text-white shadow-xs font-bold"
                 : "text-slate-500 hover:text-slate-900"
             )}
           >
             <UserCheck className="w-3.5 h-3.5" /> 
-            <span>Faculty (Direct)</span>
+            <span>Student (Direct)</span>
           </button>
         </div>
 
@@ -224,10 +232,10 @@ const Login = () => {
 
           {/* Page Title & Subtitle */}
           <h2 className="text-2xl sm:text-[26px] font-black text-slate-900 tracking-tight mt-2">
-            {roleTab === "ADMIN" ? "Admin Sign In" : "Faculty Sign In"}
+            {roleTab === "ADMIN" ? "Admin Sign In" : "Student Sign In"}
           </h2>
           <p className="text-slate-500 text-xs sm:text-sm font-medium max-w-[320px] mx-auto mt-0.5">
-            {roleTab === "ADMIN" ? "Enter your credentials to receive an email OTP" : "Enter your credentials to access the faculty portal"}
+            {roleTab === "ADMIN" ? "Enter your credentials to receive an email OTP" : "Enter your credentials to access your student portal"}
           </p>
         </div>
 
@@ -315,7 +323,7 @@ const Login = () => {
 
           <div className="flex items-center justify-end pt-0.5">
             <Link
-              to="/reset-password?mode=faculty"
+              to="/reset-password?mode=student"
               className="text-xs font-bold text-[#2563eb] hover:underline transition-colors"
             >
               Forgot password?
@@ -327,7 +335,7 @@ const Login = () => {
             type="submit"
             disabled={loading}
             aria-busy={loading}
-            aria-label={loading ? (roleTab === "ADMIN" ? "Sending login OTP" : "Signing in as Faculty") : (roleTab === "ADMIN" ? "Send Login OTP" : "Sign in as Faculty")}
+            aria-label={loading ? (roleTab === "ADMIN" ? "Sending login OTP" : "Signing in as Student") : (roleTab === "ADMIN" ? "Send Login OTP" : "Sign in as Student")}
             whileHover={{ scale: loading ? 1 : 1.01 }}
             whileTap={{ scale: loading ? 1 : 0.98 }}
             className="w-full min-h-[48px] sm:min-h-[50px] rounded-[12px] text-white font-bold text-xs sm:text-sm bg-gradient-to-r from-[#2563eb] to-[#3b82f6] hover:from-blue-700 hover:to-blue-600 shadow-[0_10px_24px_rgba(37,99,235,0.22)] transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed mt-3"
@@ -339,7 +347,7 @@ const Login = () => {
               </div>
             ) : (
               <>
-                <span>{roleTab === "ADMIN" ? "Send Login OTP" : "Sign in as Faculty"}</span>
+                <span>{roleTab === "ADMIN" ? "Send Login OTP" : "Sign in as Student"}</span>
                 <ArrowRight className="w-4 h-4 shrink-0" />
               </>
             )}

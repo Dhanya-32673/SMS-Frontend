@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { UserPlus, Search, Award, UserCheck, FileText } from 'lucide-react';
+import { UserPlus, Search, Award, FileText } from 'lucide-react';
 
 export const QuickActions = ({ role = 'ADMIN' }) => {
   return (
@@ -37,16 +37,6 @@ export const QuickActions = ({ role = 'ADMIN' }) => {
           </div>
           <span className="text-[9px] bg-slate-200 dark:bg-slate-800 px-1.5 py-0.5 rounded font-mono">Part 3</span>
         </div>
-
-        {role === 'ADMIN' && (
-          <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 text-slate-400 font-medium text-xs border border-slate-100 dark:border-slate-800 cursor-not-allowed">
-            <div className="flex items-center space-x-3">
-              <UserCheck className="w-4 h-4 text-slate-400" />
-              <span>Add Faculty</span>
-            </div>
-            <span className="text-[9px] bg-slate-200 dark:bg-slate-800 px-1.5 py-0.5 rounded font-mono">Part 4</span>
-          </div>
-        )}
 
         <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 text-slate-400 font-medium text-xs border border-slate-100 dark:border-slate-800 cursor-not-allowed">
           <div className="flex items-center space-x-3">

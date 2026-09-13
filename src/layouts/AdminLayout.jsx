@@ -15,8 +15,6 @@ import {
   Clock,
   AlertCircle,
   ShieldCheck,
-  Layers,
-  UserCheck,
   Building2,
   Bell,
   LogOut,
@@ -121,7 +119,7 @@ export const AdminLayout = ({ children }) => {
             <div className="relative flex items-center justify-center shrink-0">
               <img
                 src="https://ookzjdmkoaunbrufvmvq.supabase.co/storage/v1/object/public/student-profile-photos/info/ChatGPT%20Image%20Aug%206,%202026,%2012_07_23%20AM.png"
-                alt="Bhashyam Educational Institutions"
+                alt="Bhashyam IIT JEE Academy"
                 className="w-8 h-8 rounded-lg object-contain shrink-0 group-hover:scale-105 transition"
                 loading="eager"
                 onError={(e) => {
@@ -135,7 +133,7 @@ export const AdminLayout = ({ children }) => {
             </div>
             <div className="truncate">
               <span className="font-black text-white text-base tracking-wider block leading-tight truncate">BHASHYAM</span>
-              <span className="text-[8.5px] text-blue-100 font-extrabold uppercase tracking-widest block mt-0.5 truncate">EDUCATIONAL INSTITUTIONS</span>
+              <span className="text-[8.5px] text-blue-100 font-extrabold uppercase tracking-widest block mt-0.5 truncate">IIT JEE ACADEMY</span>
             </div>
           </Link>
           <button
@@ -298,57 +296,29 @@ export const AdminLayout = ({ children }) => {
             )}
           </div>
 
-          {/* System Operations & Faculty Management Accordion */}
+          {/* Campus & Management Accordion */}
           <div className="space-y-1">
             <button
               onClick={() => setFacultyOpen(!facultyOpen)}
               className="w-full flex items-center justify-between px-3 py-2 text-blue-900/70 dark:text-blue-400 hover:text-blue-900 dark:hover:text-white text-[11px] font-extrabold uppercase tracking-widest cursor-pointer min-h-[38px]"
             >
-              <span>Faculty & Roles</span>
+              <span>Campus & Management</span>
               <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${facultyOpen ? 'rotate-180' : ''}`} />
             </button>
             {facultyOpen && (
               <div className="space-y-1 pl-1">
                 <Link
-                  to="/admin/faculty"
+                  to="/admin/academic/campus"
                   className={`flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition min-h-[42px] ${
-                    isActive('/admin/faculty')
+                    isActive('/admin/academic/campus') || isActive('/admin/academic/sections')
                       ? 'bg-blue-600 text-white font-extrabold shadow-md shadow-blue-500/25'
                       : 'text-slate-700 dark:text-slate-300 hover:bg-blue-100/70 dark:hover:bg-slate-800/60 hover:text-blue-700 dark:hover:text-white'
                   }`}
                 >
-                  <div className={`p-1.5 rounded-lg ${isActive('/admin/faculty') ? 'bg-white/20 text-white' : 'bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400'}`}>
-                    <UserCheck className="w-4 h-4" />
-                  </div>
-                  <span>Faculty Management</span>
-                </Link>
-
-                <Link
-                  to="/admin/academic/sections"
-                  className={`flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition min-h-[42px] ${
-                    isActive('/admin/academic/sections')
-                      ? 'bg-blue-600 text-white font-extrabold shadow-md shadow-blue-500/25'
-                      : 'text-slate-700 dark:text-slate-300 hover:bg-blue-100/70 dark:hover:bg-slate-800/60 hover:text-blue-700 dark:hover:text-white'
-                  }`}
-                >
-                  <div className={`p-1.5 rounded-lg ${isActive('/admin/academic/sections') ? 'bg-white/20 text-white' : 'bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400'}`}>
+                  <div className={`p-1.5 rounded-lg ${isActive('/admin/academic/campus') || isActive('/admin/academic/sections') ? 'bg-white/20 text-white' : 'bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400'}`}>
                     <Building2 className="w-4 h-4" />
                   </div>
-                  <span>Section Management</span>
-                </Link>
-
-                <Link
-                  to="/admin/academic/groups"
-                  className={`flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition min-h-[42px] ${
-                    isActive('/admin/academic/groups')
-                      ? 'bg-blue-600 text-white font-extrabold shadow-md shadow-blue-500/25'
-                      : 'text-slate-700 dark:text-slate-300 hover:bg-blue-100/70 dark:hover:bg-slate-800/60 hover:text-blue-700 dark:hover:text-white'
-                  }`}
-                >
-                  <div className={`p-1.5 rounded-lg ${isActive('/admin/academic/groups') ? 'bg-white/20 text-white' : 'bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400'}`}>
-                    <Layers className="w-4 h-4" />
-                  </div>
-                  <span>Academic Groups</span>
+                  <span>Campus Management</span>
                 </Link>
               </div>
             )}

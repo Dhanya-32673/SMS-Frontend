@@ -16,6 +16,25 @@ export const studentService = {
     return response.data;
   },
 
+  getStudentGroups: async () => {
+    const cacheKey = '/students/groups';
+    const cached = apiCache.get(cacheKey);
+    if (cached) return cached;
+    try {
+      const response = await api.get('/students/groups');
+      apiCache.set(cacheKey, response.data, 300000);
+      return response.data;
+    } catch (err) {
+      try {
+        const agResponse = await api.get('/academic/groups');
+        const list = (agResponse.data || []).map(g => (g.code || g.name || '').trim().toUpperCase()).filter(Boolean);
+        return [...new Set(list)];
+      } catch (e) {
+        return [];
+      }
+    }
+  },
+
   getStudentById: async (studentId) => {
     const response = await api.get(`/students/${studentId}`, { cache: false });
     return response.data;
@@ -66,6 +85,15 @@ export const studentService = {
     return response.data;
   },
 
+  deleteStudentsBulk: async (studentIds = []) => {
+    if (!studentIds || studentIds.length === 0) return { count: 0 };
+    const response = await api.delete('/students/bulk', { data: studentIds });
+    apiCache.clear('/students');
+    apiCache.clear('/academic/sections');
+    dataSync.invalidate(['students', 'sections', 'dashboard']);
+    return response.data;
+  },
+
   exportStudentsToExcel: async () => {
     const response = await api.get('/students/export/excel', {
       responseType: 'blob',
@@ -85,10 +113,12 @@ export const studentService = {
     return response;
   },
 
-  validateAdminImport: async (file, { branchGroup, intermediateYear, section } = {}) => {
+  validateAdminImport: async (file, { campus, branchGroup, academicYear, intermediateYear, section } = {}) => {
     const formData = new FormData();
     formData.append('file', file);
+    if (campus) formData.append('campus', campus);
     if (branchGroup) formData.append('branchGroup', branchGroup);
+    if (academicYear) formData.append('academicYear', academicYear);
     if (intermediateYear) formData.append('intermediateYear', intermediateYear);
     if (section) formData.append('section', section);
 
@@ -99,10 +129,12 @@ export const studentService = {
     return response.data;
   },
 
-  confirmAdminImport: async (file, { branchGroup, intermediateYear, section, skipDuplicates = true, updateExisting = false } = {}) => {
+  confirmAdminImport: async (file, { campus, branchGroup, academicYear, intermediateYear, section, skipDuplicates = true, updateExisting = false } = {}) => {
     const formData = new FormData();
     formData.append('file', file);
+    if (campus) formData.append('campus', campus);
     if (branchGroup) formData.append('branchGroup', branchGroup);
+    if (academicYear) formData.append('academicYear', academicYear);
     if (intermediateYear) formData.append('intermediateYear', intermediateYear);
     if (section) formData.append('section', section);
     formData.append('skipDuplicates', String(skipDuplicates));
@@ -161,6 +193,11 @@ export const studentService = {
       timeout: 30000,
     });
     return response;
+  },
+
+  getStudentMe: async () => {
+    const response = await api.get('/students/me', { cache: false });
+    return response.data;
   },
 };
 

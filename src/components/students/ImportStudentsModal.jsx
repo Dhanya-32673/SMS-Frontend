@@ -22,6 +22,27 @@ import facultyService from '../../services/facultyService';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 
+const OFFICIAL_CAMPUSES = [
+  'TITANIC',
+  'SUSRUTHA',
+  'DHANVANTARI',
+  'GIRLS',
+  'VAIDEHI',
+  'MEDEX',
+  'AIIMS CCO',
+  'CCO',
+  'ABDUL KALAM',
+  'DCO',
+  'INDRA BHAVAN',
+  'APARNA',
+  'VISWAKARMA',
+  'VASISTA',
+  'GARUDA',
+  'GCO',
+  'ADITHYA CO',
+  'VAARAHI'
+];
+
 export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
   const { user } = useAuth();
   const { showSuccess, showError } = useToast();
@@ -45,13 +66,13 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
   const [dragActive, setDragActive] = useState(false);
   const [downloadingTemplate, setDownloadingTemplate] = useState(false);
 
-  // Admin Section Selection State
+  // Admin Campus & Academic Selection State
   const [allGroups, setAllGroups] = useState([]);
   const [allSections, setAllSections] = useState([]);
   const [loadingAcademicData, setLoadingAcademicData] = useState(false);
+  const [selectedCampus, setSelectedCampus] = useState('');
   const [selectedGroup, setSelectedGroup] = useState('');
   const [selectedYear, setSelectedYear] = useState('');
-  const [selectedSection, setSelectedSection] = useState('');
 
   // Faculty Assignment State
   const [facultyAssignments, setFacultyAssignments] = useState([]);
@@ -136,46 +157,17 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
     return Array.from(new Set(years)).sort();
   }, [activeSections, selectedGroup]);
 
-  const sectionOptions = useMemo(() => {
-    if (!selectedGroup || !selectedYear) return [];
-    const matched = activeSections.filter(
-      (s) =>
-        (s.branchGroup || '').toUpperCase() === selectedGroup.toUpperCase() &&
-        (s.intermediateYear || '').toUpperCase() === selectedYear.toUpperCase()
-    );
-
-    // Normalize and sort distinct section names (e.g., 'A', 'B', 'Section A')
-    const seen = new Set();
-    const result = [];
-    matched.forEach((s) => {
-      const rawName = (s.name || '').trim();
-      const cleanName = rawName.replace(/^(section\s*)/i, '').trim();
-      if (cleanName && !seen.has(cleanName)) {
-        seen.add(cleanName);
-        result.push({
-          raw: rawName,
-          clean: cleanName,
-          academicYear: s.academicYear
-        });
-      }
-    });
-
-    return result.sort((a, b) => a.clean.localeCompare(b.clean));
-  }, [activeSections, selectedGroup, selectedYear]);
-
   // Handle Group change for Admin
   const handleGroupChange = (e) => {
     const val = e.target.value;
     setSelectedGroup(val);
     setSelectedYear('');
-    setSelectedSection('');
   };
 
   // Handle Year change for Admin
   const handleYearChange = (e) => {
     const val = e.target.value;
     setSelectedYear(val);
-    setSelectedSection('');
   };
 
   // Active faculty assignment record
@@ -252,13 +244,17 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
     }
 
     if (isAdmin) {
-      if (!selectedGroup || !selectedYear || !selectedSection) {
-        showError('Please select Academic Group, Year, and Section before validating.');
+      if (!selectedCampus) {
+        showError('Please select a Campus.');
+        return;
+      }
+      if (!selectedGroup || !selectedYear) {
+        showError('Please select Academic Group and Academic Year before validating.');
         return;
       }
     } else {
       if (!currentFacultyAssignment) {
-        showError('No active section assignment found for your faculty account.');
+        showError('No active assignment found for your faculty account.');
         return;
       }
     }
@@ -268,12 +264,13 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
       let data;
       if (isAdmin) {
         data = await studentService.validateAdminImport(selectedFile, {
+          campus: selectedCampus,
           branchGroup: selectedGroup,
-          intermediateYear: selectedYear,
-          section: selectedSection
+          intermediateYear: selectedYear
         });
       } else {
         data = await studentService.validateFacultyImport(selectedFile, {
+          campus: currentFacultyAssignment.campus,
           branchGroup: currentFacultyAssignment.branchGroup,
           intermediateYear: currentFacultyAssignment.intermediateYear,
           section: currentFacultyAssignment.section
@@ -308,14 +305,15 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
       let result;
       if (isAdmin) {
         result = await studentService.confirmAdminImport(selectedFile, {
+          campus: selectedCampus,
           branchGroup: selectedGroup,
           intermediateYear: selectedYear,
-          section: selectedSection,
           skipDuplicates,
           updateExisting
         });
       } else {
         result = await studentService.confirmFacultyImport(selectedFile, {
+          campus: currentFacultyAssignment.campus,
           branchGroup: currentFacultyAssignment.branchGroup,
           intermediateYear: currentFacultyAssignment.intermediateYear,
           section: currentFacultyAssignment.section,
@@ -384,9 +382,9 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
     setImportResult(null);
     setFilterTab('ALL');
     setSearchQuery('');
+    setSelectedCampus('');
     setSelectedGroup('');
     setSelectedYear('');
-    setSelectedSection('');
     onClose();
     if (shouldRefresh && typeof onSuccess === 'function') {
       onSuccess();
@@ -401,17 +399,21 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      const matchRoll = (row.rollNumber || '').toLowerCase().includes(q);
+      const matchAdm = (row.admissionNumber || row.rollNumber || '').toLowerCase().includes(q);
       const matchName = (row.fullName || '').toLowerCase().includes(q);
-      const matchAdm = (row.admissionNumber || '').toLowerCase().includes(q);
-      const matchEmail = (row.email || '').toLowerCase().includes(q);
+      const matchEmail = (row.emailAddress1 || row.email || '').toLowerCase().includes(q);
+      const matchPhone = (row.mobileNumber || '').toLowerCase().includes(q);
       const matchGroup = (row.branchGroup || '').toLowerCase().includes(q);
-      return matchRoll || matchName || matchAdm || matchEmail || matchGroup;
+      return matchAdm || matchName || matchEmail || matchPhone || matchGroup;
     }
     return true;
   });
 
   // Effective destination labels for display
+  const displayCampus = isAdmin
+    ? previewData?.targetCampus || selectedCampus
+    : currentFacultyAssignment?.campus || '—';
+
   const displayGroup = isAdmin
     ? previewData?.targetGroup || selectedGroup
     : currentFacultyAssignment?.branchGroup || '—';
@@ -420,14 +422,10 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
     ? previewData?.targetYear || selectedYear
     : currentFacultyAssignment?.intermediateYear || '—';
 
-  const displaySection = isAdmin
-    ? previewData?.targetSection || selectedSection
-    : currentFacultyAssignment?.section?.replace(/^(section\s*)/i, '') || '—';
-
   const isValidationDisabled =
     !selectedFile ||
     validating ||
-    (isAdmin && (!selectedGroup || !selectedYear || !selectedSection)) ||
+    (isAdmin && (!selectedCampus || !selectedGroup || !selectedYear)) ||
     (!isAdmin && (!currentFacultyAssignment || facultyAssignments.length === 0));
 
   return (
@@ -456,7 +454,7 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 {isAdmin
-                  ? 'Select destination Group, Year, and Section to bulk create students'
+                  ? 'Select destination Campus, Group, and Year to bulk create students'
                   : 'Bulk upload students directly into your authenticated section assignment'}
               </p>
             </div>
@@ -511,27 +509,47 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
                 </button>
               </div>
 
-              {/* SECTION ASSIGNMENT CARD */}
+              {/* DESTINATION CAMPUS ASSIGNMENT CARD */}
               {isAdmin ? (
                 /* ADMIN: Dependent Database Dropdowns */
                 <div className="p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3.5">
                   <div className="flex items-center space-x-2">
                     <School className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                     <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                      Assign Destination Section <span className="text-rose-500">*</span>
+                      🏫 ASSIGN DESTINATION CAMPUS <span className="text-rose-500">*</span>
                     </h3>
                   </div>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    All imported students will be assigned to this database Group, Year, and Section.
+                    All imported students will be assigned to this database Campus, Group, and Academic Year.
                   </p>
 
                   {loadingAcademicData ? (
                     <div className="py-4 flex items-center space-x-2 text-xs text-slate-500">
                       <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
-                      <span>Loading active groups and sections from database...</span>
+                      <span>Loading active groups and academic data from database...</span>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">
+                      {/* Campus Dropdown */}
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                          Campus <span className="text-rose-500">*</span>
+                        </label>
+                        <select
+                          id="admin-import-campus-select"
+                          value={selectedCampus}
+                          onChange={(e) => setSelectedCampus(e.target.value)}
+                          className="w-full px-3 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                        >
+                          <option value="">Select Campus</option>
+                          {OFFICIAL_CAMPUSES.map((c) => (
+                            <option key={c} value={c}>
+                              {c}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
                       {/* Academic Group Dropdown */}
                       <div className="space-y-1">
                         <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
@@ -570,29 +588,6 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
                           {yearOptions.map((y) => (
                             <option key={y} value={y}>
                               {y}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {/* Section Dropdown */}
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                          Section <span className="text-rose-500">*</span>
-                        </label>
-                        <select
-                          id="admin-import-section-select"
-                          value={selectedSection}
-                          onChange={(e) => setSelectedSection(e.target.value)}
-                          disabled={!selectedGroup || !selectedYear}
-                          className="w-full px-3 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50 disabled:bg-slate-100 dark:disabled:bg-slate-800"
-                        >
-                          <option value="">
-                            {selectedYear ? 'Select Section' : 'Choose Year First'}
-                          </option>
-                          {sectionOptions.map((sec) => (
-                            <option key={sec.clean} value={sec.clean}>
-                              Section {sec.clean}
                             </option>
                           ))}
                         </select>
@@ -801,7 +796,7 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
           {/* ============================================================ */}
           {step === 'PREVIEW' && previewData && (
             <div className="space-y-5">
-              {/* Destination Section Header Banner */}
+              {/* Destination Campus & Group Header Banner */}
               <div className="p-4 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-800/60 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center space-x-3">
                   <div className="p-2 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 rounded-xl shrink-0">
@@ -809,10 +804,10 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
                   </div>
                   <div>
                     <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-300">
-                      {isAdmin ? 'Import Destination' : 'Your Assigned Section'}
+                      {isAdmin ? 'Import Destination' : 'Your Assigned Destination'}
                     </span>
                     <h3 className="text-sm font-black text-slate-900 dark:text-white">
-                      {displayGroup} • {displayYear} • Section {displaySection}
+                      Campus: {displayCampus} • Group: {displayGroup} • Year: {displayYear}
                     </h3>
                   </div>
                 </div>
@@ -894,7 +889,7 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
                       }}
                       className="w-4 h-4 text-blue-600 rounded-md border-slate-300 focus:ring-blue-500"
                     />
-                    <span>Update existing records with matching Roll/Admission No</span>
+                    <span>Update existing records with matching Admission No</span>
                   </label>
                 </div>
               </div>
@@ -941,11 +936,11 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
                     <tr>
                       <th className="py-2.5 px-3">Row #</th>
                       <th className="py-2.5 px-3">Status</th>
-                      <th className="py-2.5 px-3">Roll Number</th>
+                      <th className="py-2.5 px-3">Adm No</th>
                       <th className="py-2.5 px-3">Student Name</th>
+                      <th className="py-2.5 px-3">Campus</th>
                       <th className="py-2.5 px-3">Group</th>
                       <th className="py-2.5 px-3">Year</th>
-                      <th className="py-2.5 px-3">Section</th>
                       <th className="py-2.5 px-3">Mobile / Email</th>
                       <th className="py-2.5 px-3 min-w-[200px]">Validation Notes</th>
                     </tr>
@@ -1000,13 +995,17 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
                             </td>
 
                             <td className="py-2 px-3 font-mono font-bold text-slate-900 dark:text-white">
-                              {r.rollNumber || '—'}
+                              {r.admissionNumber || r.rollNumber || '—'}
                             </td>
 
                             <td className="py-2 px-3 font-medium text-slate-800 dark:text-slate-200 whitespace-nowrap">
                               {r.fullName ||
                                 `${r.firstName || ''} ${r.lastName || ''}`.trim() ||
                                 '—'}
+                            </td>
+
+                             <td className="py-2 px-3 font-bold text-purple-600 dark:text-purple-400">
+                              {displayCampus || r.campus || '—'}
                             </td>
 
                             <td className="py-2 px-3 font-bold text-blue-600 dark:text-blue-400">
@@ -1017,14 +1016,10 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
                               {displayYear || r.intermediateYear || '—'}
                             </td>
 
-                            <td className="py-2 px-3 font-bold">
-                              {displaySection ? `Sec ${displaySection}` : '—'}
-                            </td>
-
                             <td className="py-2 px-3 text-[11px] text-slate-500 dark:text-slate-400 whitespace-nowrap">
                               <div>{r.mobileNumber || '—'}</div>
                               <div className="text-[10px] text-slate-400 truncate max-w-[140px]">
-                                {r.email || ''}
+                                {r.emailAddress1 || r.email || ''}
                               </div>
                             </td>
 
@@ -1064,9 +1059,9 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
                   Importing Students into Database...
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto">
-                  Executing transactional creation of student profiles, academic details, and parent contact records in section{' '}
+                  Executing transactional creation of student profiles, academic details, and parent contact records for destination{' '}
                   <span className="font-bold text-slate-700 dark:text-slate-200">
-                    {displayGroup} • {displayYear} • Sec {displaySection}
+                    Campus: {displayCampus} • Group: {displayGroup} • Year: {displayYear}
                   </span>
                   . Please do not close this window.
                 </p>
@@ -1094,9 +1089,9 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
                 <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 mt-2">
                   <School className="w-3.5 h-3.5 text-blue-600" />
                   <span>
-                    Destination: {importResult.targetGroup || displayGroup} •{' '}
-                    {importResult.targetYear || displayYear} • Section{' '}
-                    {importResult.targetSection || displaySection}
+                    Destination: {importResult.targetCampus || displayCampus} —{' '}
+                    {importResult.targetGroup || displayGroup} —{' '}
+                    {importResult.targetYear || displayYear}
                   </span>
                 </div>
               </div>

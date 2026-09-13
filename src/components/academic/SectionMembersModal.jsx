@@ -1,45 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, UserPlus, Trash2, Eye, X, AlertCircle, UserX, CheckSquare, Square } from 'lucide-react';
+import { Users, UserPlus, Eye, X, AlertCircle, UserX, Building2 } from 'lucide-react';
 import { academicService } from '../../services/academicService';
-import studentService from '../../services/studentService';
 import { formatBranchGroup, formatIntermediateYear } from '../../utils/studentDataFormatter';
 import AssignStudentsModal from './AssignStudentsModal';
 import DeleteConfirmationModal from '../common/DeleteConfirmationModal';
-import DeleteStudentModal from '../students/DeleteStudentModal';
 
-export const SectionMembersModal = ({ section, onClose, onUpdated, isAdmin = true }) => {
+export const SectionMembersModal = (props) => {
+  const { onClose, onUpdated, isAdmin = true } = props;
+  const campus = props.campus || props.section;
   const navigate = useNavigate();
+
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [studentToRemove, setStudentToRemove] = useState(null);
-  const [studentToDelete, setStudentToDelete] = useState(null);
   const [selectedIds, setSelectedIds] = useState([]);
   const [removing, setRemoving] = useState(false);
   const [bulkUnassigning, setBulkUnassigning] = useState(false);
-  const [deletingStudent, setDeletingStudent] = useState(false);
   const [showBulkUnassignConfirm, setShowBulkUnassignConfirm] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
 
-  const targetSectionId = section?.id || section?.sectionId;
+  const targetCampusId = campus?.id || campus?.campusId;
 
   useEffect(() => {
     fetchMembers();
-  }, [section]);
+  }, [campus]);
 
   const fetchMembers = async () => {
-    if (!targetSectionId) return;
+    if (!targetCampusId) return;
     setLoading(true);
     setError('');
     try {
-      const data = await academicService.getSectionMembers(targetSectionId);
+      const data = await academicService.getCampusStudents(targetCampusId);
       setMembers(data || []);
       setSelectedIds([]);
     } catch (err) {
-      console.error('Failed to load section members:', err);
-      setError('Failed to load section members');
+      console.error('Failed to load campus students:', err);
+      const msg = err.response?.data?.message || err.message || 'Failed to load campus students';
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -70,15 +70,14 @@ export const SectionMembersModal = ({ section, onClose, onUpdated, isAdmin = tru
     setError('');
     setSuccessMessage('');
     try {
-      await academicService.removeStudentsFromSection(targetSectionId, selectedIds);
-      setSuccessMessage(`${selectedIds.length} student(s) unassigned successfully.`);
+      await academicService.removeStudentsFromCampus(targetCampusId, selectedIds);
+      setSuccessMessage(`${selectedIds.length} student(s) unassigned from ${campus?.name || 'campus'} successfully.`);
       setSelectedIds([]);
-      fetchMembers();
+      await fetchMembers();
       if (onUpdated) onUpdated();
       setTimeout(() => {
         setSuccessMessage('');
-        onClose();
-      }, 1200);
+      }, 3000);
     } catch (err) {
       console.error('Failed bulk unassigning students:', err);
       setError(err.response?.data?.message || err.response?.data || err.message || 'Failed to unassign selected students');
@@ -93,37 +92,19 @@ export const SectionMembersModal = ({ section, onClose, onUpdated, isAdmin = tru
     setRemoving(true);
     try {
       const studentName = studentToRemove.fullName || studentToRemove.name || 'Student';
-      await academicService.removeStudentFromSection(targetSectionId, studentToRemove.studentId || studentToRemove.id);
-      setSuccessMessage(`${studentName} unassigned successfully.`);
+      const targetId = studentToRemove.studentId || studentToRemove.id;
+      await academicService.removeStudentFromCampus(targetCampusId, targetId);
+      setSuccessMessage(`${studentName} unassigned from ${campus?.name || 'campus'} successfully.`);
       setStudentToRemove(null);
-      fetchMembers();
+      await fetchMembers();
       if (onUpdated) onUpdated();
       setTimeout(() => {
         setSuccessMessage('');
-        onClose();
-      }, 1200);
+      }, 3000);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to remove student from section');
+      setError(err.response?.data?.message || 'Failed to remove student from campus');
     } finally {
       setRemoving(false);
-    }
-  };
-
-  const handleConfirmDeleteStudent = async (studentIdParam) => {
-    if (deletingStudent) return;
-    const targetId = studentIdParam || studentToDelete?.studentId || studentToDelete?.id;
-    if (!targetId) return;
-
-    setDeletingStudent(true);
-    try {
-      await studentService.deleteStudent(targetId);
-      setStudentToDelete(null);
-      fetchMembers();
-      if (onUpdated) onUpdated();
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to permanently delete student profile');
-    } finally {
-      setDeletingStudent(false);
     }
   };
 
@@ -136,15 +117,15 @@ export const SectionMembersModal = ({ section, onClose, onUpdated, isAdmin = tru
           {/* Header */}
           <div className="p-4 sm:p-6 pb-4 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-2xl bg-purple-100 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-800/50 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold text-sm shrink-0">
-                {section?.name || 'S'}
+              <div className="w-10 h-10 rounded-2xl bg-blue-100 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800/50 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-sm shrink-0">
+                <Building2 className="w-5 h-5" />
               </div>
               <div>
                 <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
-                  Section {section?.name} Members
+                  Campus {campus?.name} Students
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {section?.branchGroup} • {section?.intermediateYear} ({members.length} Enrolled)
+                  {campus?.code || campus?.name} • {loading ? 'Loading...' : error ? 'Error loading' : `${members.length} ${members.length === 1 ? 'Student' : 'Students'} Enrolled`}
                 </p>
               </div>
             </div>
@@ -184,9 +165,17 @@ export const SectionMembersModal = ({ section, onClose, onUpdated, isAdmin = tru
           {/* Content Area */}
           <div className="p-4 sm:p-6 overflow-y-auto flex-1">
             {error && (
-              <div className="mb-4 p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-xs text-rose-700 dark:text-rose-300 flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
-                <span>{error}</span>
+              <div className="mb-4 p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-xs text-rose-700 dark:text-rose-300 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
+                  <span>{error}</span>
+                </div>
+                <button
+                  onClick={fetchMembers}
+                  className="px-3 py-1.5 bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-200 rounded-lg text-xs font-bold hover:bg-rose-200 transition cursor-pointer"
+                >
+                  Retry
+                </button>
               </div>
             )}
 
@@ -198,11 +187,16 @@ export const SectionMembersModal = ({ section, onClose, onUpdated, isAdmin = tru
             )}
 
             {loading ? (
-              <div className="p-12 text-center text-xs text-slate-400">Loading section members...</div>
-            ) : members.length === 0 ? (
+              <div className="p-12 text-center text-xs text-slate-400">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent mb-2" />
+                <p className="font-bold">Loading campus students...</p>
+              </div>
+            ) : !error && members.length === 0 ? (
               <div className="p-12 text-center space-y-3">
                 <Users className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600" />
-                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">No students currently assigned to Section {section?.name}</p>
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  No students currently assigned to Campus {campus?.name}
+                </p>
                 {isAdmin && (
                   <button
                     onClick={() => setShowAssignModal(true)}
@@ -221,7 +215,7 @@ export const SectionMembersModal = ({ section, onClose, onUpdated, isAdmin = tru
                     const sid = student.studentId || student.id;
                     const isSelected = selectedIds.includes(sid);
                     return (
-                      <div key={sid} className={`p-3.5 space-y-2 rounded-2xl transition ${isSelected ? 'bg-purple-50/50 dark:bg-purple-950/30' : ''}`}>
+                      <div key={sid} className={`p-3.5 space-y-2 rounded-2xl transition ${isSelected ? 'bg-blue-50/50 dark:bg-blue-950/30' : ''}`}>
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex items-center space-x-2.5 min-w-0">
                             {isAdmin && (
@@ -235,7 +229,7 @@ export const SectionMembersModal = ({ section, onClose, onUpdated, isAdmin = tru
                             <div className="min-w-0">
                               <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">{student.fullName || student.name}</h4>
                               <p className="text-[11px] font-mono text-blue-600 dark:text-blue-400 font-bold">{student.studentId}</p>
-                              <p className="text-[10px] text-slate-400">Roll: {student.rollNumber || 'N/A'}</p>
+                              <p className="text-[10px] text-slate-400">Adm: {student.admissionNumber || student.rollNumber || '—'}</p>
                             </div>
                           </div>
                           <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase ${
@@ -263,7 +257,7 @@ export const SectionMembersModal = ({ section, onClose, onUpdated, isAdmin = tru
                             <button
                               onClick={() => setStudentToRemove(student)}
                               className="p-2 rounded-xl text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/40 min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
-                              title="Unassign"
+                              title="Unassign from Campus"
                               aria-label="Unassign Student"
                             >
                               <UserX className="w-4 h-4" />
@@ -291,11 +285,10 @@ export const SectionMembersModal = ({ section, onClose, onUpdated, isAdmin = tru
                           </th>
                         )}
                         <th className="p-3.5 px-4">Student ID</th>
-                        <th className="p-3.5">Roll No</th>
                         <th className="p-3.5">Admission No</th>
                         <th className="p-3.5">Student Name</th>
                         <th className="p-3.5">Group</th>
-                        <th className="p-3.5">Year</th>
+                        <th className="p-3.5">Academic Year</th>
                         <th className="p-3.5">Status</th>
                         <th className="p-3.5 text-right pr-4">Actions</th>
                       </tr>
@@ -309,7 +302,7 @@ export const SectionMembersModal = ({ section, onClose, onUpdated, isAdmin = tru
                             {isAdmin && (
                               <td className="p-3.5 px-4">
                                 <input
-                                 type="checkbox"
+                                  type="checkbox"
                                   checked={isSelected}
                                   onChange={() => handleToggleSelect(sid)}
                                   className="w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500 cursor-pointer"
@@ -317,11 +310,10 @@ export const SectionMembersModal = ({ section, onClose, onUpdated, isAdmin = tru
                               </td>
                             )}
                             <td className="p-3.5 px-4 font-mono font-bold text-blue-600 dark:text-blue-400">{student.studentId}</td>
-                            <td className="p-3.5 font-medium">{student.rollNumber || 'N/A'}</td>
-                            <td className="p-3.5 text-slate-500">{student.admissionNumber || 'N/A'}</td>
+                            <td className="p-3.5 font-medium">{student.admissionNumber || student.rollNumber || '—'}</td>
                             <td className="p-3.5 font-bold text-slate-900 dark:text-white">{student.fullName || student.name}</td>
                             <td className="p-3.5 font-semibold text-slate-600 dark:text-slate-400">{formatBranchGroup(student.branchGroup)}</td>
-                            <td className="p-3.5 text-slate-500">{formatIntermediateYear(student.intermediateYear)}</td>
+                            <td className="p-3.5 text-slate-500">{student.academicYear || formatIntermediateYear(student.intermediateYear)}</td>
                             <td className="p-3.5">
                               <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${
                                 student.status === 'ACTIVE'
@@ -346,7 +338,7 @@ export const SectionMembersModal = ({ section, onClose, onUpdated, isAdmin = tru
                               {isAdmin && (
                                 <button
                                   onClick={() => setStudentToRemove(student)}
-                                  title="Unassign Student from Section"
+                                  title="Unassign Student from Campus"
                                   className="p-1.5 rounded-lg text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/50 transition inline-flex items-center cursor-pointer min-w-[32px] min-h-[32px]"
                                 >
                                   <UserX className="w-4 h-4" />
@@ -368,7 +360,7 @@ export const SectionMembersModal = ({ section, onClose, onUpdated, isAdmin = tru
       {/* Assign Students Modal */}
       {showAssignModal && (
         <AssignStudentsModal
-          section={section}
+          campus={campus}
           onClose={() => setShowAssignModal(false)}
           onAssigned={() => {
             fetchMembers();
@@ -381,15 +373,15 @@ export const SectionMembersModal = ({ section, onClose, onUpdated, isAdmin = tru
       {studentToRemove && (
         <DeleteConfirmationModal
           isOpen={!!studentToRemove}
-          title="Unassign Student from Section"
-          subtitle="Section Membership Removal"
+          title={`Unassign Student from Campus ${campus?.name || ''}`}
+          subtitle="Campus Allocation Removal"
           entityDetails={[
             { label: 'Student Name', value: studentToRemove.fullName || studentToRemove.name },
             { label: 'Student ID', value: studentToRemove.studentId },
-            { label: 'Section', value: `Section ${section.name}` },
+            { label: 'Current Campus', value: campus?.name || 'Assigned Campus' },
           ]}
           warningList={[
-            'Removes this student from this section roster',
+            'Removes this student from this campus roster',
             'Student record itself is NOT deleted and remains active in Student Directory',
           ]}
           dangerButtonText="Unassign Student"
@@ -404,13 +396,13 @@ export const SectionMembersModal = ({ section, onClose, onUpdated, isAdmin = tru
         <DeleteConfirmationModal
           isOpen={showBulkUnassignConfirm}
           title={`Unassign ${selectedIds.length} Students`}
-          subtitle="Bulk Section Removal"
+          subtitle="Bulk Campus Removal"
           entityDetails={[
-            { label: 'Section', value: `Section ${section.name}` },
+            { label: 'Campus', value: campus?.name || 'Campus' },
             { label: 'Selected Students', value: `${selectedIds.length} student(s)` },
           ]}
           warningList={[
-            'Removes all selected students from Section ' + section.name,
+            'Removes all selected students from Campus ' + (campus?.name || ''),
             'Students will remain active in the college directory',
           ]}
           dangerButtonText="Unassign Selected"
@@ -423,4 +415,5 @@ export const SectionMembersModal = ({ section, onClose, onUpdated, isAdmin = tru
   );
 };
 
+export const CampusStudentsModal = SectionMembersModal;
 export default SectionMembersModal;

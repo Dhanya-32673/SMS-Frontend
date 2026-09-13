@@ -259,11 +259,12 @@ export const StudentProfile = () => {
               </div>
 
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1 text-xs text-blue-100 font-medium">
-                <span>Roll No: <strong className="text-white font-bold">{formatVal(student.rollNumber)}</strong></span>
-                <span>Adm No: <strong className="text-white font-bold">{formatVal(student.admissionNumber)}</strong></span>
+                <span>Adm No: <strong className="text-white font-bold font-mono">{formatVal(student.admissionNumber)}</strong></span>
                 <span>Group: <strong className="text-white font-bold">{formatBranchGroup(student.branchGroup)}</strong></span>
                 <span>Year: <strong className="text-white font-bold">{formatIntermediateYear(student.intermediateYear)}</strong></span>
-                <span>Section: <strong className="text-white font-bold">{formatSectionName(student.section)}</strong></span>
+                <span>Batch: <strong className="text-white font-bold">{formatVal(student.batch)}</strong></span>
+                <span>Campus: <strong className="text-white font-bold">{student.campus || 'Unassigned'}</strong></span>
+                <span>Type: <strong className="text-white font-bold">{student.hostelDayScholar === 'HOSTEL' ? 'Hostel' : 'Day Scholar'}</strong></span>
               </div>
 
               <div className="flex items-center justify-center sm:justify-start space-x-2 pt-1">
@@ -309,9 +310,9 @@ export const StudentProfile = () => {
         {/* Responsive Navigation Bar */}
         <div className="flex border-b border-slate-200 dark:border-slate-800 space-x-1.5 text-xs font-extrabold overflow-x-auto pb-1 scrollbar-none touch-pan-x">
           {[
-            { id: 'PERSONAL', label: 'A. Personal Information', icon: User },
+            { id: 'PERSONAL', label: 'A. Basic Information', icon: User },
             { id: 'CONTACT', label: 'B. Contact Information', icon: Phone },
-            { id: 'PARENT', label: 'C. Parent & Guardian', icon: Users },
+            { id: 'FAMILY', label: 'C. Family Information', icon: Users },
             { id: 'ACADEMIC', label: 'D. Academic Information', icon: BookOpen },
             { id: 'CERTIFICATES', label: `E. Certificates (${documents.length})`, icon: Award },
             { id: 'ACCOUNT', label: 'F. Account & Security', icon: ShieldCheck },
@@ -334,40 +335,30 @@ export const StudentProfile = () => {
         {/* Main Tab Details Card */}
         <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-800 shadow-xl text-xs space-y-6 animate-fadeIn">
           
-          {/* TAB A: PERSONAL INFORMATION */}
+          {/* TAB A: BASIC INFORMATION */}
           {activeTab === 'PERSONAL' && (
             <div className="space-y-6">
               <div className="flex items-center space-x-2 border-b border-slate-100 dark:border-slate-800 pb-3">
                 <User className="w-5 h-5 text-blue-600" />
                 <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">
-                  1. Personal Information
+                  1. Basic Information
                 </h2>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 block">Roll Number</span>
-                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.rollNumber)}</p>
+                  <span className="text-[11px] font-bold text-slate-400 block">Student ID</span>
+                  <p className="font-mono font-extrabold text-blue-600 dark:text-blue-400">{formatVal(student.studentId)}</p>
                 </div>
 
                 <div className="space-y-1">
                   <span className="text-[11px] font-bold text-slate-400 block">Admission Number</span>
-                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.admissionNumber)}</p>
+                  <p className="font-mono font-extrabold text-slate-900 dark:text-white">{formatVal(student.admissionNumber)}</p>
                 </div>
 
                 <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 block">First Name</span>
-                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.firstName)}</p>
-                </div>
-
-                <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 block">Middle Name</span>
-                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.middleName)}</p>
-                </div>
-
-                <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 block">Last Name</span>
-                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.lastName)}</p>
+                  <span className="text-[11px] font-bold text-slate-400 block">Full Name</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.fullName)}</p>
                 </div>
 
                 <div className="space-y-1">
@@ -381,11 +372,6 @@ export const StudentProfile = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 block">Blood Group</span>
-                  <p className="font-extrabold text-rose-600 dark:text-rose-400">{formatVal(student.bloodGroup)}</p>
-                </div>
-
-                <div className="space-y-1">
                   <span className="text-[11px] font-bold text-slate-400 block">Nationality</span>
                   <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.nationality || 'Indian')}</p>
                 </div>
@@ -396,8 +382,8 @@ export const StudentProfile = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 block">Caste Category</span>
-                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.casteCategory)}</p>
+                  <span className="text-[11px] font-bold text-slate-400 block">Category</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.category || student.casteCategory)}</p>
                 </div>
 
                 {/* Aadhaar Number with Eye Toggle */}
@@ -409,7 +395,7 @@ export const StudentProfile = () => {
                     <span className="font-mono font-bold text-slate-900 dark:text-white text-xs">
                       {showAadhaar
                         ? (student.aadhaarNumber || student.maskedAadhaar || 'Not Provided')
-                        : (student.maskedAadhaar || 'XXXX XXXX 1234')}
+                        : (student.maskedAadhaar || (student.aadhaarNumber ? `•••• •••• ${student.aadhaarNumber.slice(-4)}` : '•••• •••• ••••'))}
                     </span>
                   </div>
                   {isAdmin && (
@@ -421,34 +407,6 @@ export const StudentProfile = () => {
                       {showAadhaar ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                     </button>
                   )}
-                </div>
-
-                {/* PAN Number with Eye Toggle */}
-                <div className="p-3 bg-blue-50/80 dark:bg-blue-950/40 rounded-2xl border border-blue-200 dark:border-blue-900/40 flex items-center justify-between col-span-1 sm:col-span-2 lg:col-span-1">
-                  <div>
-                    <span className="text-[10px] font-extrabold uppercase text-blue-600 dark:text-blue-400 block">
-                      PAN Number
-                    </span>
-                    <span className="font-mono font-bold text-slate-900 dark:text-white text-xs">
-                      {showPan
-                        ? (student.panNumber || student.maskedPan || 'Not Provided')
-                        : (student.maskedPan || 'XXXXXX1234')}
-                    </span>
-                  </div>
-                  {isAdmin && (
-                    <button
-                      onClick={() => setShowPan(!showPan)}
-                      className="p-1.5 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition cursor-pointer"
-                      title={showPan ? "Mask PAN" : "Show Full PAN"}
-                    >
-                      {showPan ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                    </button>
-                  )}
-                </div>
-
-                <div className="space-y-1 col-span-full">
-                  <span className="text-[11px] font-bold text-slate-400 block">Identification Marks</span>
-                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.identificationMarks)}</p>
                 </div>
               </div>
             </div>
@@ -466,7 +424,7 @@ export const StudentProfile = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 block">Mobile Number</span>
+                  <span className="text-[11px] font-bold text-slate-400 block">Mobile Number *</span>
                   <p className="font-mono font-extrabold text-slate-900 dark:text-white">{formatVal(student.mobileNumber)}</p>
                 </div>
 
@@ -476,84 +434,37 @@ export const StudentProfile = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 block">Email Address</span>
-                  <p className="font-bold text-blue-600 dark:text-blue-400">{formatVal(student.email)}</p>
-                </div>
-
-                <div className="space-y-1 col-span-full">
-                  <span className="text-[11px] font-bold text-slate-400 block">Residential Address</span>
-                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.address)}</p>
+                  <span className="text-[11px] font-bold text-slate-400 block">Email Address - 1 *</span>
+                  <p className="font-bold text-blue-600 dark:text-blue-400">{formatVal(student.emailAddress1 || student.email)}</p>
                 </div>
 
                 <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 block">City</span>
-                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.city)}</p>
-                </div>
-
-                <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 block">District</span>
-                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.district)}</p>
-                </div>
-
-                <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 block">State</span>
-                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.state)}</p>
-                </div>
-
-                <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 block">PIN Code</span>
-                  <p className="font-mono font-extrabold text-slate-900 dark:text-white">{formatVal(student.pinCode)}</p>
-                </div>
-
-                <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 block">Country</span>
-                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.country || 'India')}</p>
+                  <span className="text-[11px] font-bold text-slate-400 block">Email Address - 2 *</span>
+                  <p className="font-bold text-blue-600 dark:text-blue-400">{formatVal(student.emailAddress2)}</p>
                 </div>
               </div>
             </div>
           )}
 
-          {/* TAB C: PARENT / GUARDIAN DETAILS */}
-          {activeTab === 'PARENT' && (
+          {/* TAB C: FAMILY INFORMATION */}
+          {activeTab === 'FAMILY' && (
             <div className="space-y-6">
               <div className="flex items-center space-x-2 border-b border-slate-100 dark:border-slate-800 pb-3">
                 <Users className="w-5 h-5 text-blue-600" />
                 <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">
-                  3. Parent / Guardian Details
+                  3. Family Information
                 </h2>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 block">Father Name</span>
+                  <span className="text-[11px] font-bold text-slate-400 block">Father Name *</span>
                   <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.fatherName)}</p>
                 </div>
 
                 <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 block">Mother Name</span>
+                  <span className="text-[11px] font-bold text-slate-400 block">Mother Name *</span>
                   <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.motherName)}</p>
-                </div>
-
-                <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 block">Parent Mobile</span>
-                  <p className="font-mono font-extrabold text-slate-900 dark:text-white">{formatVal(student.parentMobile || student.fatherMobile)}</p>
-                </div>
-
-                <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 block">Parent Email</span>
-                  <p className="font-bold text-slate-700 dark:text-slate-300">{formatVal(student.parentEmail || student.fatherEmail)}</p>
-                </div>
-
-                <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 block">Occupation</span>
-                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.occupation || student.fatherOccupation)}</p>
-                </div>
-
-                <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 block">Annual Income (₹)</span>
-                  <p className="font-mono font-extrabold text-emerald-600 dark:text-emerald-400 text-sm">
-                    {student.annualIncome ? `₹${Number(student.annualIncome).toLocaleString('en-IN')}` : 'Not Provided'}
-                  </p>
                 </div>
               </div>
             </div>
@@ -571,43 +482,38 @@ export const StudentProfile = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 block">Intermediate Group / Branch</span>
-                  <p className="font-extrabold text-blue-600 dark:text-blue-400 text-sm">{formatVal(student.branchGroup)}</p>
-                </div>
-
-                <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 block">Intermediate Year</span>
-                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.intermediateYear)}</p>
-                </div>
-
-                <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 block">Section</span>
-                  <p className="font-extrabold text-slate-900 dark:text-white">Section {formatVal(student.section)}</p>
-                </div>
-
-                <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 block">Batch</span>
-                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.batch)}</p>
-                </div>
-
-                <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 block">Academic Year</span>
+                  <span className="text-[11px] font-bold text-slate-400 block">Academic Year *</span>
                   <p className="font-extrabold text-blue-600 dark:text-blue-400">{formatVal(student.academicYear)}</p>
                 </div>
 
                 <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 block">Admission Date</span>
-                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.admissionDate)}</p>
+                  <span className="text-[11px] font-bold text-slate-400 block">Branch / Group *</span>
+                  <p className="font-extrabold text-blue-600 dark:text-blue-400 text-sm">{formatVal(student.branchGroup)}</p>
                 </div>
 
                 <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 block">Hostel / Day Scholar</span>
-                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.hostelDayScholar)}</p>
+                  <span className="text-[11px] font-bold text-slate-400 block">Intermediate Year *</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.intermediateYear)}</p>
                 </div>
 
                 <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 block">Medium</span>
-                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.medium)}</p>
+                  <span className="text-[11px] font-bold text-slate-400 block">Batch *</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.batch)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Admission Type</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{formatVal(student.admissionType)}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Hostel / Day Scholar *</span>
+                  <p className="font-extrabold text-slate-900 dark:text-white">{student.hostelDayScholar === 'HOSTEL' ? 'Hostel' : 'Day Scholar'}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-slate-400 block">Campus Assignment *</span>
+                  <p className="font-extrabold text-blue-600 dark:text-blue-400 text-sm">{student.campus || 'Unassigned'}</p>
                 </div>
 
                 <div className="space-y-1">

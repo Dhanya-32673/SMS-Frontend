@@ -86,11 +86,11 @@ export const FacultyStudentProfile = () => {
   }
 
   const TABS = [
-    { id: 'PERSONAL',      label: 'Personal',      icon: User },
-    { id: 'CONTACT',       label: 'Contact',        icon: Phone },
-    { id: 'PARENT',        label: 'Parent',         icon: Users },
-    { id: 'ACADEMIC',      label: 'Academic',       icon: BookOpen },
-    { id: 'CERTIFICATES',  label: 'Certificates',   icon: Award },
+    { id: 'PERSONAL',      label: 'Basic Info',    icon: User },
+    { id: 'CONTACT',       label: 'Contact',       icon: Phone },
+    { id: 'FAMILY',        label: 'Family',        icon: Users },
+    { id: 'ACADEMIC',      label: 'Academic',      icon: BookOpen },
+    { id: 'CERTIFICATES',  label: 'Certificates',  icon: Award },
   ];
 
   return (
@@ -120,7 +120,7 @@ export const FacultyStudentProfile = () => {
               <div className="flex flex-wrap gap-3 text-[11px] text-blue-100">
                 <span className="font-mono font-bold">{student.studentId}</span>
                 <span>·</span>
-                <span>Roll: <span className="font-mono font-bold text-white">{student.rollNumber}</span></span>
+                <span>Adm No: <span className="font-mono font-bold text-white">{student.admissionNumber}</span></span>
                 <span>·</span>
                 <span><span className="font-bold text-white">{formatSectionName(student.section)}</span></span>
               </div>
@@ -184,44 +184,42 @@ export const FacultyStudentProfile = () => {
           <div className="p-4 sm:p-6">
             {activeTab === 'PERSONAL' && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                <InfoField label="First Name"     value={student.firstName} />
-                <InfoField label="Middle Name"    value={student.middleName} />
-                <InfoField label="Last Name"      value={student.lastName} />
-                <InfoField label="Date of Birth"  value={student.dateOfBirth} />
-                <InfoField label="Gender"         value={student.gender} />
-                <InfoField label="Blood Group"    value={student.bloodGroup} />
-                <InfoField label="Nationality"    value={student.nationality || 'Indian'} />
-                <InfoField label="Religion"       value={student.religion} />
-                <InfoField label="Caste Category" value={student.casteCategory} />
-                <InfoField label="Masked Aadhaar" value={student.maskedAadhaar || 'XXXX XXXX 1234'} mono highlight />
+                <InfoField label="Student ID"       value={student.studentId} mono highlight />
+                <InfoField label="Admission Number" value={student.admissionNumber} mono />
+                <InfoField label="Full Name"        value={student.fullName} />
+                <InfoField label="Date of Birth"    value={student.dateOfBirth} />
+                <InfoField label="Gender"           value={student.gender} />
+                <InfoField label="Nationality"      value={student.nationality || 'Indian'} />
+                <InfoField label="Religion"         value={student.religion} />
+                <InfoField label="Category"         value={student.category || student.casteCategory} />
+                <InfoField label="Masked Aadhaar"   value={student.maskedAadhaar || (student.aadhaarNumber ? `•••• •••• ${student.aadhaarNumber.slice(-4)}` : '•••• •••• ••••')} mono highlight />
               </div>
             )}
 
             {activeTab === 'CONTACT' && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                <InfoField label="Mobile Number" value={student.mobileNumber} />
-                <InfoField label="Email Address" value={student.email} />
-                <InfoField label="Address" value={student.address} />
+                <InfoField label="Mobile Number"    value={student.mobileNumber} />
+                <InfoField label="Alternate Mobile" value={student.alternateMobile} />
+                <InfoField label="Email Address 1"  value={student.emailAddress1 || student.email} />
+                <InfoField label="Email Address 2"  value={student.emailAddress2} />
               </div>
             )}
 
-            {activeTab === 'PARENT' && (
+            {activeTab === 'FAMILY' && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                <InfoField label="Father Name"  value={student.fatherName} />
-                <InfoField label="Mother Name"  value={student.motherName} />
-                <InfoField label="Parent Mobile" value={student.parentMobile} />
+                <InfoField label="Father Name"      value={student.fatherName} />
+                <InfoField label="Mother Name"      value={student.motherName} />
               </div>
             )}
 
             {activeTab === 'ACADEMIC' && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <InfoField label="Academic Year"      value={student.academicYear} />
                 <InfoField label="Intermediate Group" value={student.branchGroup} />
                 <InfoField label="Intermediate Year"  value={student.intermediateYear} />
-                <InfoField label="Section"            value={student.section} />
                 <InfoField label="Batch"              value={student.batch} />
-                <InfoField label="Academic Year"      value={student.academicYear} />
-                <InfoField label="Admission Date"     value={student.admissionDate} />
-                <InfoField label="Hostel / Day"       value={student.hostelDayScholar} />
+                <InfoField label="Admission Type"     value={student.admissionType} />
+                <InfoField label="Hostel / Day"       value={student.hostelDayScholar === 'HOSTEL' ? 'Hostel' : 'Day Scholar'} />
               </div>
             )}
 

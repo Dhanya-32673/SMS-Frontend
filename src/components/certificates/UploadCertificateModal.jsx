@@ -143,7 +143,7 @@ export const UploadCertificateModal = ({
   };
 
   const studentDisplayName = studentContext?.fullName || studentContext?.studentName || studentContext?.name || 'Student';
-  const studentDisplayRoll = studentContext?.rollNumber || 'N/A';
+  const studentDisplayAdm = studentContext?.admissionNumber || studentContext?.rollNumber || '';
   const studentDisplayGroup = studentContext?.branchGroup || studentContext?.academicDetail?.branchGroup || '';
   const studentDisplaySection = studentContext?.section || studentContext?.academicDetail?.section || '';
   const studentDisplayYear = studentContext?.intermediateYear || studentContext?.academicDetail?.intermediateYear || '';
@@ -217,10 +217,10 @@ export const UploadCertificateModal = ({
                     <span className="font-mono font-bold text-slate-700 dark:text-slate-300">
                       ID: {studentContext?.studentId || initialStudentId}
                     </span>
-                    {studentDisplayRoll !== 'N/A' && (
+                    {studentDisplayAdm && (
                       <>
                         <span>•</span>
-                        <span>Roll: {studentDisplayRoll}</span>
+                        <span>Adm: {studentDisplayAdm}</span>
                       </>
                     )}
                     {studentDisplayGroup && (
@@ -249,7 +249,7 @@ export const UploadCertificateModal = ({
                       />
                       <div className="min-w-0">
                         <p className="font-bold text-slate-900 dark:text-white truncate">{studentContext.fullName}</p>
-                        <p className="text-[10px] font-mono text-blue-600">{studentContext.studentId} • Roll: {studentContext.rollNumber || 'N/A'}</p>
+                        <p className="text-[10px] font-mono text-blue-600">{studentContext.studentId} • Adm: {studentContext.admissionNumber || studentContext.rollNumber || '—'}</p>
                       </div>
                     </div>
                     <button
@@ -268,7 +268,7 @@ export const UploadCertificateModal = ({
                     <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                     <input
                       type="text"
-                      placeholder="Search student by Name, Roll No, or ID..."
+                      placeholder="Search student by Name, Admission No, or ID..."
                       value={studentSearchQuery}
                       onChange={(e) => setStudentSearchQuery(e.target.value)}
                       className="w-full pl-9 pr-3 py-2.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
@@ -294,7 +294,7 @@ export const UploadCertificateModal = ({
                             <StudentAvatar src={st.profilePhotoUrl} name={st.fullName} studentId={st.studentId} size="xs" />
                             <div className="min-w-0 flex-1">
                               <p className="font-bold text-slate-900 dark:text-white truncate">{st.fullName}</p>
-                              <p className="text-[10px] font-mono text-slate-400">{st.studentId} • Roll: {st.rollNumber || 'N/A'}</p>
+                              <p className="text-[10px] font-mono text-slate-400">{st.studentId} • Adm: {st.admissionNumber || st.rollNumber || '—'}</p>
                             </div>
                           </button>
                         ))}

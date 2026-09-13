@@ -15,7 +15,7 @@ export const DeleteStudentModal = ({ student, onClose, onConfirm, onDeleteConfir
       entityDetails={[
         { label: 'Student Name', value: student.fullName || student.name },
         { label: 'Student ID', value: student.studentId },
-        { label: 'Roll Number', value: student.rollNumber || 'N/A' },
+        { label: 'Admission Number', value: student.admissionNumber || student.rollNumber || '—' },
         { label: 'Group / Year', value: `${formatBranchGroup(student.branchGroup)} • ${formatIntermediateYear(student.intermediateYear)}` },
         { label: 'Section', value: formatSectionName(student.section), fullWidth: true },
       ]}

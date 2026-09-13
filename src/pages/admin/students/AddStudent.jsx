@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ChevronRight, ArrowLeft, AlertCircle, UserPlus, Users } from 'lucide-react';
+import { ChevronRight, ArrowLeft, AlertCircle, UserPlus, ShieldCheck } from 'lucide-react';
 import StudentForm from '../../../components/students/StudentForm';
 import studentService from '../../../services/studentService';
 import AdminLayout from '../../../layouts/AdminLayout';
@@ -30,7 +30,7 @@ export const AddStudent = () => {
           showError('Student record was created, but photo failed to upload. You can re-upload the photo via Edit Student.');
         }
       }
-      showSuccess('Student added successfully');
+      showSuccess('Student registered successfully. Student Portal account created.');
       navigate(`/admin/students/${createdStudent.studentId}`);
     } catch (err) {
       console.error('Failed to create student:', err);
@@ -69,6 +69,17 @@ export const AddStudent = () => {
             <ArrowLeft className="w-4 h-4 text-blue-600" />
             <span>Back to All Students</span>
           </button>
+        </div>
+
+        {/* Automatic Account Information Banner */}
+        <div className="p-4 bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-800/60 rounded-2xl flex items-start gap-3 text-xs text-indigo-900 dark:text-indigo-200">
+          <ShieldCheck className="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
+          <div>
+            <span className="font-bold">Automatic Student Portal Account Creation:</span>
+            <p className="text-indigo-700 dark:text-indigo-300 mt-0.5">
+              A Student Portal account will be automatically created using the student's Primary Registered Email. The student will use their Date of Birth (DD-MM-YYYY) as their initial password and will be required to change it upon first login.
+            </p>
+          </div>
         </div>
 
         {/* Error Banner */}

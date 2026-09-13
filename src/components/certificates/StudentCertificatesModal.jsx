@@ -166,7 +166,7 @@ export const StudentCertificatesModal = ({ student, onClose, onUpdated, isAdmin 
                   </span>
                 </div>
                 <p className="text-xs text-slate-500 font-medium mt-0.5">
-                  Roll: <strong className="text-slate-900 dark:text-white">{student.rollNumber || 'N/A'}</strong> • Group: <strong className="text-blue-600">{formatBranchGroup(student.branchGroup)}</strong> • Year: <strong>{formatIntermediateYear(student.intermediateYear)}</strong> • Section: <strong>{formatSectionName(student.section)}</strong>
+                  Adm No: <strong className="text-slate-900 dark:text-white">{student.admissionNumber || student.rollNumber || '—'}</strong> • Group: <strong className="text-blue-600">{formatBranchGroup(student.branchGroup)}</strong> • Year: <strong>{formatIntermediateYear(student.intermediateYear)}</strong> • Section: <strong>{formatSectionName(student.section)}</strong>
                 </p>
               </div>
             </div>

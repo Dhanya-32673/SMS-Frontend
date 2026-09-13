@@ -66,7 +66,7 @@ export const StudentTable = ({
                 <div className="min-w-0">
                   <h4 className="text-sm font-bold text-slate-900 dark:text-white truncate">{student.fullName}</h4>
                   <p className="text-xs font-mono font-bold text-blue-600 dark:text-blue-400">{student.studentId}</p>
-                  <p className="text-[11px] text-slate-400">Roll: {student.rollNumber || 'N/A'}</p>
+                  <p className="text-[11px] text-slate-500 font-mono">Adm No: {student.admissionNumber || '—'}</p>
                 </div>
               </div>
               <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold shrink-0 ${statusBadge(student.status)}`}>
@@ -76,15 +76,15 @@ export const StudentTable = ({
 
             <div className="grid grid-cols-2 gap-2 text-xs bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-xl">
               <div>
-                <span className="text-[10px] text-slate-400 block uppercase font-extrabold">Department / Group</span>
+                <span className="text-[10px] text-slate-400 block uppercase font-extrabold">Branch / Group</span>
                 <span className="font-bold text-blue-700 dark:text-blue-300 truncate block">
-                  {student.department || student.branchGroup || 'N/A'}
+                  {student.branchGroup || student.department || '—'}
                 </span>
               </div>
               <div className="text-right">
-                <span className="text-[10px] text-slate-400 block uppercase font-extrabold">Year & Sec</span>
+                <span className="text-[10px] text-slate-400 block uppercase font-extrabold">Year & Type</span>
                 <span className="font-bold text-slate-800 dark:text-slate-200 truncate block">
-                  {formatIntermediateYear(student.intermediateYear || student.currentYear)} / Sec {formatSectionName(student.section)}
+                  {formatIntermediateYear(student.intermediateYear)} · {student.hostelDayScholar === 'HOSTEL' ? 'Hostel' : 'Day Scholar'}
                 </span>
               </div>
             </div>
@@ -142,10 +142,11 @@ export const StudentTable = ({
           <thead className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200/80 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-extrabold uppercase text-[11px] tracking-wider whitespace-nowrap">
             <tr>
               <th className="px-6 py-3.5">Student</th>
+              <th className="px-4 py-3.5">Adm No</th>
               <th className="px-4 py-3.5">Student ID</th>
-              <th className="px-4 py-3.5">Roll Number</th>
-              <th className="px-4 py-3.5">Department</th>
-              <th className="px-4 py-3.5">Year / Sec</th>
+              <th className="px-4 py-3.5">Branch / Group</th>
+              <th className="px-4 py-3.5">Year</th>
+              <th className="px-4 py-3.5">Hostel / Day</th>
               <th className="px-4 py-3.5">Status</th>
               <th className="px-4 py-3.5 text-right pr-6">Actions</th>
             </tr>
@@ -165,15 +166,18 @@ export const StudentTable = ({
                     <span className="font-bold text-slate-900 dark:text-white">{student.fullName}</span>
                   </div>
                 </td>
+                <td className="px-4 py-3.5 font-mono font-bold text-slate-800 dark:text-slate-200">{student.admissionNumber || '—'}</td>
                 <td className="px-4 py-3.5 font-mono font-bold text-blue-600 dark:text-blue-400">{student.studentId}</td>
-                <td className="px-4 py-3.5 font-mono text-slate-500">{student.rollNumber}</td>
                 <td className="px-4 py-3.5">
                   <span className="px-2 py-0.5 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 rounded-md text-[10px] font-extrabold">
-                    {student.department || 'N/A'}
+                    {student.branchGroup || '—'}
                   </span>
                 </td>
                 <td className="px-4 py-3.5 font-bold text-slate-700 dark:text-slate-200">
-                  {formatIntermediateYear(student.intermediateYear || student.currentYear)} / {formatSectionName(student.section)}
+                  {formatIntermediateYear(student.intermediateYear)}
+                </td>
+                <td className="px-4 py-3.5 text-slate-600 dark:text-slate-300 font-medium">
+                  {student.hostelDayScholar === 'HOSTEL' ? 'Hostel' : 'Day Scholar'}
                 </td>
                 <td className="px-4 py-3.5">
                   <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${statusBadge(student.status)}`}>

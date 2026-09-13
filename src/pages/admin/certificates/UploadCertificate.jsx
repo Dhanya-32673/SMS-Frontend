@@ -244,7 +244,7 @@ export const UploadCertificate = () => {
                         {selectedStudent.fullName}
                       </h4>
                       <p className="text-xs font-mono font-bold text-blue-600 dark:text-blue-400">
-                        {selectedStudent.studentId} {selectedStudent.rollNumber ? `• Roll: ${selectedStudent.rollNumber}` : ''}
+                        {selectedStudent.studentId} {selectedStudent.admissionNumber ? `• Adm: ${selectedStudent.admissionNumber}` : (selectedStudent.rollNumber ? `• Roll: ${selectedStudent.rollNumber}` : '')}
                       </p>
                     </div>
                   </div>
@@ -272,7 +272,7 @@ export const UploadCertificate = () => {
                   <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
                   <input
                     type="text"
-                    placeholder="Type Student ID, Full Name, or Roll No..."
+                    placeholder="Type Student ID, Full Name, or Admission No..."
                     value={studentSearchQuery}
                     onChange={handleSearchChange}
                     className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600"
@@ -292,7 +292,7 @@ export const UploadCertificate = () => {
                         <StudentAvatar src={st.profilePhotoUrl} name={st.fullName} studentId={st.studentId} size="xs" />
                         <div className="min-w-0 flex-1">
                           <span className="font-bold text-slate-900 dark:text-white block truncate">{st.fullName}</span>
-                          <span className="font-mono text-[10px] text-blue-600 dark:text-blue-400">{st.studentId} • Roll: {st.rollNumber || 'N/A'}</span>
+                          <span className="font-mono text-[10px] text-blue-600 dark:text-blue-400">{st.studentId} • Adm: {st.admissionNumber || st.rollNumber || '—'}</span>
                         </div>
                       </button>
                     ))}

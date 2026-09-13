@@ -15,8 +15,16 @@ export const authService = {
     return response.data;
   },
 
+  studentLogin: async (email, password) => {
+    const response = await api.post('/auth/student/login', { email, password });
+    if (response.data && (response.data.accessToken || response.data.token)) {
+      tokenUtils.saveAuth(response.data);
+    }
+    return response.data;
+  },
+
   facultyLogin: async (email, password) => {
-    const response = await api.post('/auth/faculty/login', { email, password });
+    const response = await api.post('/auth/student/login', { email, password });
     if (response.data && (response.data.accessToken || response.data.token)) {
       tokenUtils.saveAuth(response.data);
     }

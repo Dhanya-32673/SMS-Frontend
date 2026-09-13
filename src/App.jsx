@@ -36,17 +36,20 @@ const MissingDocuments = lazy(() => import('./pages/admin/certificates/MissingDo
 const VerifiedDocuments = lazy(() => import('./pages/admin/certificates/VerifiedDocuments').then(m => ({ default: m.VerifiedDocuments })));
 const CertificateTypes = lazy(() => import('./pages/admin/certificates/CertificateTypes').then(m => ({ default: m.CertificateTypes })));
 
-// Faculty, Group, Section & Security Pages (Lazy loaded)
-const FacultyManagement = lazy(() => import('./pages/admin/faculty/FacultyManagement').then(m => ({ default: m.FacultyManagement })));
-const AddFaculty = lazy(() => import('./pages/admin/faculty/AddFaculty').then(m => ({ default: m.AddFaculty })));
-const EditFaculty = lazy(() => import('./pages/admin/faculty/EditFaculty').then(m => ({ default: m.EditFaculty })));
-const FacultyProfile = lazy(() => import('./pages/admin/faculty/FacultyProfile').then(m => ({ default: m.FacultyProfile })));
+// Group, Section & Security Pages (Lazy loaded)
 const GroupManagement = lazy(() => import('./pages/admin/academic/GroupManagement').then(m => ({ default: m.GroupManagement })));
 const SectionManagement = lazy(() => import('./pages/admin/academic/SectionManagement').then(m => ({ default: m.SectionManagement })));
 const RoleManagement = lazy(() => import('./pages/admin/security/RoleManagement').then(m => ({ default: m.RoleManagement })));
 
 // Common User Profile Page (Lazy loaded)
 const UserProfile = lazy(() => import('./pages/common/UserProfile').then(m => ({ default: m.UserProfile })));
+
+// Student Portal Pages & Layout (Lazy loaded)
+const StudentLayout = lazy(() => import('./layouts/StudentLayout').then(m => ({ default: m.StudentLayout || m.default })));
+const StudentDashboard = lazy(() => import('./pages/student/StudentDashboard').then(m => ({ default: m.StudentDashboard || m.default })));
+const StudentProfilePage = lazy(() => import('./pages/student/StudentProfilePage').then(m => ({ default: m.StudentProfilePage || m.default })));
+const StudentCertificatesPage = lazy(() => import('./pages/student/StudentCertificatesPage').then(m => ({ default: m.StudentCertificatesPage || m.default })));
+const StudentChangePassword = lazy(() => import('./pages/student/StudentChangePassword').then(m => ({ default: m.StudentChangePassword || m.default })));
 
 import { warmupServer } from './services/api';
 
@@ -181,41 +184,7 @@ function App() {
             }
           />
 
-          {/* Faculty Management Routes */}
-          <Route
-            path="/admin/faculty"
-            element={
-              <RoleRoute allowedRoles={['ADMIN']}>
-                <FacultyManagement />
-              </RoleRoute>
-            }
-          />
-          <Route
-            path="/admin/faculty/add"
-            element={
-              <RoleRoute allowedRoles={['ADMIN']}>
-                <AddFaculty />
-              </RoleRoute>
-            }
-          />
-          <Route
-            path="/admin/faculty/:id"
-            element={
-              <RoleRoute allowedRoles={['ADMIN']}>
-                <FacultyProfile />
-              </RoleRoute>
-            }
-          />
-          <Route
-            path="/admin/faculty/:id/edit"
-            element={
-              <RoleRoute allowedRoles={['ADMIN']}>
-                <EditFaculty />
-              </RoleRoute>
-            }
-          />
-
-          {/* Academic Management Routes */}
+          {/* Academic & Campus Management Routes */}
           <Route
             path="/admin/academic/groups"
             element={
@@ -225,12 +194,16 @@ function App() {
             }
           />
           <Route
-            path="/admin/academic/sections"
+            path="/admin/academic/campus"
             element={
               <RoleRoute allowedRoles={['ADMIN']}>
                 <SectionManagement />
               </RoleRoute>
             }
+          />
+          <Route
+            path="/admin/academic/sections"
+            element={<Navigate to="/admin/academic/campus" replace />}
           />
 
           {/* Security Management Routes */}
@@ -268,12 +241,37 @@ function App() {
               </RoleRoute>
             }
           />
+          <Route
+            path="/faculty/students/:id/id-card"
+            element={
+              <RoleRoute allowedRoles={['FACULTY', 'ADMIN']}>
+                <StudentIdCard />
+              </RoleRoute>
+            }
+          />
+
+          {/* Student Portal Protected Routes */}
+          <Route path="/student/login" element={<Navigate to="/login" replace />} />
+          <Route
+            path="/student"
+            element={
+              <RoleRoute allowedRoles={['STUDENT']}>
+                <StudentLayout />
+              </RoleRoute>
+            }
+          >
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<StudentDashboard />} />
+            <Route path="profile" element={<StudentProfilePage />} />
+            <Route path="certificates" element={<StudentCertificatesPage />} />
+            <Route path="change-password" element={<StudentChangePassword />} />
+          </Route>
 
           {/* Shared Common Profile */}
           <Route
             path="/profile"
             element={
-              <RoleRoute allowedRoles={['ADMIN', 'FACULTY']}>
+              <RoleRoute allowedRoles={['ADMIN', 'FACULTY', 'STUDENT']}>
                 <UserProfile />
               </RoleRoute>
             }

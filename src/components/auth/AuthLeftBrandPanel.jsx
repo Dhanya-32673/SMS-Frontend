@@ -30,7 +30,7 @@ export const AuthLeftBrandPanel = ({ title = "Admin Portal", subtitle = "Student
           <div className="w-[36px] h-[36px] sm:w-[42px] sm:h-[42px] bg-white rounded-lg p-1 flex items-center justify-center shadow-sm shrink-0">
             <img
               src="https://ookzjdmkoaunbrufvmvq.supabase.co/storage/v1/object/public/student-profile-photos/info/ChatGPT%20Image%20Aug%206,%202026,%2012_07_23%20AM.png"
-              alt="Bhashyam Educational Institution"
+              alt="Bhashyam IIT JEE Academy"
               className="w-full h-full object-contain"
               loading="eager"
               onError={(e) => {
@@ -44,7 +44,7 @@ export const AuthLeftBrandPanel = ({ title = "Admin Portal", subtitle = "Student
           </div>
           <div className="text-left">
             <span className="font-black text-white text-base sm:text-lg tracking-wider block leading-none">BHASHYAM</span>
-            <span className="text-[7.5px] sm:text-[8.5px] text-blue-100 font-extrabold uppercase tracking-widest block mt-0.5">EDUCATIONAL INSTITUTION</span>
+            <span className="text-[7.5px] sm:text-[8.5px] text-blue-100 font-extrabold uppercase tracking-widest block mt-0.5">IIT JEE ACADEMY</span>
           </div>
         </div>
 

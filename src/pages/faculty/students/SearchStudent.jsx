@@ -64,7 +64,7 @@ export const SearchStudent = () => {
             </span>
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight leading-tight">Search Student</h1>
             <p className="text-xs sm:text-sm text-blue-100 font-medium max-w-xl">
-              Search by Student ID, Roll Number, Name, or Department.
+              Search by Student ID, Admission Number, Name, or Group.
             </p>
           </div>
 
@@ -75,7 +75,7 @@ export const SearchStudent = () => {
               <input
                 type="text"
                 required
-                placeholder="Enter Student ID, Roll Number, or Name..."
+                placeholder="Enter Student ID, Admission Number, or Name..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 sm:py-3 text-xs sm:text-sm bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/60 focus:outline-none focus:bg-white/20 focus:border-white/40 transition min-h-[44px]"
@@ -139,12 +139,12 @@ export const SearchStudent = () => {
                       </span>
                     </div>
                     <h3 className="text-sm font-extrabold text-slate-900 dark:text-white truncate mt-0.5">{student.fullName}</h3>
-                    <p className="text-xs text-slate-500 mt-0.5">Roll: <span className="font-mono font-bold">{student.rollNumber || 'N/A'}</span></p>
+                    <p className="text-xs text-slate-500 mt-0.5">Adm No: <span className="font-mono font-bold">{student.admissionNumber || '—'}</span></p>
 
                     <div className="mt-3 pt-2 border-t border-slate-100 dark:border-slate-800 grid grid-cols-2 gap-1 text-[11px] text-slate-500">
                       <div>
-                        <span className="text-slate-400">Dept:</span>{' '}
-                        <span className="font-bold text-slate-700 dark:text-slate-300">{student.department || 'N/A'}</span>
+                        <span className="text-slate-400">Group:</span>{' '}
+                        <span className="font-bold text-slate-700 dark:text-slate-300">{student.branchGroup || student.department || '—'}</span>
                       </div>
                       <div>
                         <span className="text-slate-400">Yr/Sec:</span>{' '}

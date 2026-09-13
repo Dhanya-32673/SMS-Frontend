@@ -274,7 +274,7 @@ export const AllCertificates = () => {
                     <tr>
                       <th className="py-3.5 px-4">Student ID</th>
                       <th className="py-3.5 px-4 min-w-[160px]">Student Name</th>
-                      <th className="py-3.5 px-4">Roll No</th>
+                      <th className="py-3.5 px-4">Adm No</th>
                       <th className="py-3.5 px-4">Group & Year</th>
                       <th className="py-3.5 px-4">Section</th>
                       <th className="py-3.5 px-4 min-w-[180px]">Certificates Progress</th>
@@ -303,7 +303,7 @@ export const AllCertificates = () => {
                           </div>
                         </td>
                         <td className="py-3.5 px-4 font-mono font-medium text-slate-500 whitespace-nowrap">
-                          {st.rollNumber || 'N/A'}
+                          {st.admissionNumber || 'N/A'}
                         </td>
                         <td className="py-3.5 px-4 whitespace-nowrap">
                           <div className="flex items-center space-x-1.5">

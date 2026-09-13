@@ -51,10 +51,20 @@ const RoleRoute = ({ allowedRoles = [], children }) => {
   const normalizedAllowed = allowedRoles.map((r) => r.replace('ROLE_', '').toUpperCase());
   const hasPermission = normalizedAllowed.includes(userRole);
 
-  // 3. If logged in but route is restricted for current role, automatically redirect to allowed dashboard (NO 403 PAGE)
+  // 3. If logged in as STUDENT and must change password on first login
+  if (userRole === 'STUDENT' && Boolean(effectiveUser?.mustChangePassword)) {
+    if (window.location.pathname !== '/student/change-password') {
+      return <Navigate to="/student/change-password" replace />;
+    }
+  }
+
+  // 4. If logged in but route is restricted for current role, automatically redirect to allowed dashboard (NO 403 PAGE)
   if (!hasPermission) {
+    if (userRole === 'STUDENT') {
+      return <Navigate to={effectiveUser?.mustChangePassword ? "/student/change-password" : "/student/dashboard"} replace />;
+    }
     if (userRole === 'FACULTY') {
-      return <Navigate to="/faculty/dashboard" replace />;
+      return <Navigate to="/student/dashboard" replace />;
     }
     return <Navigate to="/admin/dashboard" replace />;
   }

@@ -67,7 +67,7 @@ export const FacultySidebar = ({ mobileOpen, setMobileOpen }) => {
             <div className="relative flex items-center justify-center shrink-0">
               <img
                 src="https://ookzjdmkoaunbrufvmvq.supabase.co/storage/v1/object/public/student-profile-photos/info/ChatGPT%20Image%20Aug%206,%202026,%2012_07_23%20AM.png"
-                alt="Bhashyam Educational Institutions"
+                alt="Bhashyam IIT JEE Academy"
                 className="w-8 h-8 rounded-lg object-contain shrink-0 group-hover:scale-105 transition"
                 loading="eager"
                 onError={(e) => {

@@ -1,11 +1,13 @@
 import React from 'react';
-import { QRCodeSVG } from 'qrcode.react';
-import { GraduationCap, ShieldCheck, Printer } from 'lucide-react';
-import { formatSectionName, formatBranchGroup, formatIntermediateYear } from '../../utils/studentDataFormatter';
-import StudentAvatar from '../common/StudentAvatar';
+import { Printer } from 'lucide-react';
+import StudentIdCard from './StudentIdCard';
 
-export const StudentIdCardDisplay = ({ idCardData }) => {
-  if (!idCardData) return null;
+/**
+ * StudentIdCardDisplay
+ * Wraps the StudentIdCard component with print functionality and container layout.
+ */
+export const StudentIdCardDisplay = ({ idCardData, student }) => {
+  if (!idCardData && !student) return null;
 
   const handlePrint = () => {
     window.print();
@@ -13,109 +15,24 @@ export const StudentIdCardDisplay = ({ idCardData }) => {
 
   return (
     <div className="flex flex-col items-center space-y-6 w-full px-2 sm:px-0">
-      {/* Identity Card Container */}
-      <div className="w-full max-w-[380px] bg-gradient-to-b from-slate-900 via-slate-900 to-purple-950 text-white rounded-3xl border-2 border-purple-500/30 shadow-2xl overflow-hidden p-4 sm:p-6 space-y-4 sm:space-y-5 print:shadow-none print:border-slate-300">
-
-        {/* Card Header: College Logo & Name */}
-        <div className="flex items-center space-x-3.5 border-b border-purple-500/30 pb-3 sm:pb-4">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white p-1 shadow-md flex items-center justify-center shrink-0 border border-white/20">
-            <img
-              src="https://ookzjdmkoaunbrufvmvq.supabase.co/storage/v1/object/public/student-profile-photos/info/ChatGPT%20Image%20Aug%206,%202026,%2012_07_23%20AM.png"
-              alt="Bhashyam Logo"
-              className="w-full h-full object-contain"
-            />
-          </div>
-          <div className="min-w-0">
-            <h2 className="text-[11px] sm:text-xs font-black tracking-wider uppercase text-purple-200 truncate">
-              {idCardData.collegeName || 'BHASHYAM EDUCATIONAL INSTITUTION'}
-            </h2>
-            <span className="inline-block px-2 py-0.5 mt-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[9px] font-extrabold tracking-widest uppercase border border-purple-500/30">
-              STUDENT IDENTITY CARD
-            </span>
-          </div>
-        </div>
-
-        {/* Card Body: Photo & Key Details */}
-        <div className="flex items-start space-x-3 sm:space-x-4">
-          <StudentAvatar
-            src={idCardData.studentPhotoUrl}
-            name={idCardData.studentName}
-            studentId={idCardData.studentId}
-            size="xl"
-            rounded="rounded-2xl"
-            className="w-20 h-24 sm:w-24 sm:h-28 border-2 border-purple-400/40 shadow-lg shrink-0"
-          />
-
-          <div className="flex-1 min-w-0 space-y-1.5 text-xs">
-            <div>
-              <span className="text-[10px] text-slate-400 block uppercase tracking-wider font-semibold">Student Name</span>
-              <p className="font-extrabold text-xs sm:text-sm text-white truncate">{idCardData.studentName}</p>
-            </div>
-
-            <div>
-              <span className="text-[10px] text-purple-400 block uppercase tracking-wider font-bold">Student ID</span>
-              <p className="font-mono font-bold text-xs text-purple-300 truncate">{idCardData.studentId}</p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-1.5 sm:gap-2 text-[11px] pt-1">
-              <div>
-                <span className="text-[9px] text-slate-400 block">Roll No</span>
-                <span className="font-semibold text-slate-200 truncate block">{idCardData.rollNumber}</span>
-              </div>
-              <div>
-                <span className="text-[9px] text-slate-400 block">Group</span>
-                <span className="font-bold text-purple-400 truncate block">{formatBranchGroup(idCardData.branchGroup)}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Academic Details Row */}
-        <div className="grid grid-cols-3 gap-1.5 sm:gap-2 bg-slate-800/80 p-2 sm:p-2.5 rounded-xl border border-slate-700/60 text-center text-[10px]">
-          <div>
-            <span className="text-slate-400 block text-[8px] sm:text-[9px]">Year</span>
-            <span className="font-bold text-slate-200 truncate block">{formatIntermediateYear(idCardData.intermediateYear)}</span>
-          </div>
-          <div>
-            <span className="text-slate-400 block text-[8px] sm:text-[9px]">Section</span>
-            <span className="font-bold text-slate-200 truncate block">{formatSectionName(idCardData.section)}</span>
-          </div>
-          <div>
-            <span className="text-slate-400 block text-[8px] sm:text-[9px]">Academic</span>
-            <span className="font-bold text-purple-300 truncate block">{idCardData.academicYear || '2026-27'}</span>
-          </div>
-        </div>
-
-        {/* Card Footer: Non-PII Verification QR Code */}
-        <div className="flex items-center justify-between border-t border-purple-500/20 pt-3 sm:pt-4 gap-2">
-          <div className="space-y-1 min-w-0">
-            <div className="flex items-center text-[10px] text-emerald-400 font-bold space-x-1">
-              <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
-              <span className="truncate">Record Verified</span>
-            </div>
-            <p className="text-[9px] text-slate-400 truncate">Scan for Safe Verification</p>
-          </div>
-
-          <div className="p-1.5 bg-white rounded-xl shadow-md shrink-0">
-            <QRCodeSVG
-              value={idCardData.qrCodePayload || `https://sicms.example.com/student/verify/${idCardData.studentId}`}
-              size={56}
-              level="H"
-            />
-          </div>
-        </div>
+      {/* Printable ID Card Container */}
+      <div className="id-card-print-target w-full flex justify-center">
+        <StudentIdCard idCardData={idCardData} student={student} />
       </div>
 
       {/* Print Action Button */}
-      <button
-        onClick={handlePrint}
-        className="w-full sm:w-auto px-6 py-3 text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 rounded-xl shadow-lg shadow-purple-600/20 flex items-center justify-center space-x-2 print:hidden min-h-[44px] cursor-pointer"
-      >
-        <Printer className="w-4 h-4" />
-        <span>Print Identity Card</span>
-      </button>
+      <div className="flex items-center justify-center gap-3 w-full max-w-[360px] sm:max-w-[380px] print:hidden">
+        <button
+          onClick={handlePrint}
+          className="w-full py-3 px-6 text-xs font-black uppercase tracking-wider text-white bg-[#2563EB] hover:bg-[#1D4ED8] rounded-2xl shadow-lg shadow-blue-500/20 flex items-center justify-center space-x-2 transition cursor-pointer min-h-[44px] active:scale-[0.98]"
+        >
+          <Printer className="w-4 h-4" />
+          <span>Print Identity Card</span>
+        </button>
+      </div>
     </div>
   );
 };
 
+export { StudentIdCard };
 export default StudentIdCardDisplay;

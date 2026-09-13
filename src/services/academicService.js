@@ -1,7 +1,111 @@
 import api from './api';
 import apiCache from '../utils/apiCache';
 
+export const OFFICIAL_CAMPUSES = [
+  "TITANIC",
+  "SUSRUTHA",
+  "DHANVANTARI",
+  "GIRLS",
+  "VAIDEHI",
+  "MEDEX",
+  "AIIMS CCO",
+  "CCO",
+  "ABDUL KALAM",
+  "DCO",
+  "INDRA BHAVAN",
+  "APARNA",
+  "VISWAKARMA",
+  "VASISTA",
+  "GARUDA",
+  "GCO",
+  "ADITHYA CO",
+  "VAARAHI"
+];
+
 export const academicService = {
+  // Official Campuses Master Data & Campus Management
+  getOfficialCampuses: async () => {
+    const cacheKey = '/campuses';
+    const cached = apiCache.get(cacheKey);
+    if (cached) return cached;
+    try {
+      const response = await api.get('/campuses');
+      apiCache.set(cacheKey, response.data, 60000);
+      return response.data;
+    } catch (err) {
+      return OFFICIAL_CAMPUSES.map((name, idx) => ({
+        id: idx + 1,
+        name,
+        code: name.replace(/\s+/g, '_'),
+        displayOrder: idx + 1,
+        active: true,
+        totalStudents: 0
+      }));
+    }
+  },
+
+  getCampuses: async () => {
+    return academicService.getOfficialCampuses();
+  },
+
+  getCampus: async (id) => {
+    const response = await api.get(`/campuses/${id}`);
+    return response.data;
+  },
+
+  createCampus: async (campusData) => {
+    const response = await api.post('/campuses', campusData);
+    apiCache.clear('/campuses');
+    return response.data;
+  },
+
+  updateCampus: async (id, campusData) => {
+    const response = await api.put(`/campuses/${id}`, campusData);
+    apiCache.clear('/campuses');
+    return response.data;
+  },
+
+  deleteCampus: async (id) => {
+    const response = await api.delete(`/campuses/${id}`);
+    apiCache.clear('/campuses');
+    return response.data;
+  },
+
+  getCampusStudents: async (campusId) => {
+    const response = await api.get(`/campuses/${campusId}/students`);
+    return response.data;
+  },
+
+  assignStudentsToCampus: async (campusId, studentIds) => {
+    const response = await api.post(`/campuses/${campusId}/students`, { studentIds });
+    apiCache.clear('/campuses');
+    return response.data;
+  },
+
+  removeStudentFromCampus: async (campusId, studentId) => {
+    const response = await api.delete(`/campuses/${campusId}/students/${studentId}`);
+    apiCache.clear('/campuses');
+    return response.data;
+  },
+
+  removeStudentsFromCampus: async (campusId, studentIds) => {
+    const response = await api.post(`/campuses/${campusId}/remove-students`, studentIds);
+    apiCache.clear('/campuses');
+    return response.data;
+  },
+
+  getCampusNames: async () => {
+    try {
+      const response = await api.get('/campuses/names');
+      if (Array.isArray(response.data) && response.data.length > 0) {
+        return response.data;
+      }
+    } catch (e) {
+      // fallback
+    }
+    return OFFICIAL_CAMPUSES;
+  },
+
   // Groups (Cached for 5 minutes)
   getAllGroups: async () => {
     const cacheKey = '/academic/groups';
@@ -67,17 +171,7 @@ export const academicService = {
     const response = await api.delete(`/academic/sections/${id}/members/${studentId}`);
     apiCache.clear('/academic/sections');
     return response.data;
-  },
-
-  removeStudentsFromSection: async (id, studentIds) => {
-    const response = await api.post(`/academic/sections/${id}/remove-students`, studentIds);
-    apiCache.clear('/academic/sections');
-    return response.data;
-  },
-
-  clearSectionsCache: () => {
-    apiCache.clear('/academic/sections');
-  },
+  }
 };
 
 export default academicService;

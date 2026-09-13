@@ -69,10 +69,20 @@ export const warmupServer = () => {
     .catch(() => console.log('>>> [WARMUP] Backend warming up...'));
 };
 
+export const clearApiCacheAndPending = () => {
+  apiCache.clear();
+  pendingRequests.clear();
+};
+
 api.get = function getWithCaching(url, config = {}) {
-  const requestKey = getRequestCacheKey('get', url, config);
   const shouldCache = config?.cache !== false;
-  const cached = shouldCache ? apiCache.get(requestKey) : null;
+  // If caching is disabled or an AbortSignal is attached, bypass cache and in-flight deduplication
+  if (!shouldCache || config?.signal) {
+    return api.request({ ...config, method: 'get', url });
+  }
+
+  const requestKey = getRequestCacheKey('get', url, config);
+  const cached = apiCache.get(requestKey);
 
   if (cached) {
     return Promise.resolve({
@@ -91,9 +101,7 @@ api.get = function getWithCaching(url, config = {}) {
 
   const requestPromise = api.request({ ...config, method: 'get', url })
     .then((response) => {
-      if (shouldCache) {
-        apiCache.set(requestKey, response.data, getRequestCacheTtl(config));
-      }
+      apiCache.set(requestKey, response.data, getRequestCacheTtl(config));
       pendingRequests.delete(requestKey);
       return response;
     })
@@ -181,9 +189,6 @@ const getOperationMessage = (url = '', method = 'post', failed = false) => {
   }
   if (url.includes('/faculty')) {
     if (url.includes('/assignments')) return failed ? 'Failed to assign faculty.' : 'Faculty assigned successfully.';
-    if (action === 'post') return failed ? 'Failed to add faculty.' : 'Faculty added successfully.';
-    if (action === 'delete') return failed ? 'Failed to delete faculty.' : 'Faculty deleted successfully.';
-    return failed ? 'Failed to update faculty.' : 'Faculty updated successfully.';
   }
   if (url.includes('/academic/sections')) {
     if (url.includes('/assign')) return failed ? 'Failed to assign student.' : 'Student assigned successfully.';
@@ -226,7 +231,7 @@ api.interceptors.response.use(
     // Handle 401 Unauthorized with Refresh Token rotation
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (url.includes('/auth/') || url.includes('/reset-password')) {
-        if (!url.includes('/auth/refresh') && !url.includes('/auth/admin/login') && !url.includes('/auth/faculty/login') && !url.includes('/auth/login') && !url.includes('/auth/verify')) {
+        if (!url.includes('/auth/refresh') && !url.includes('/auth/admin/login') && !url.includes('/auth/faculty/login') && !url.includes('/auth/student/login') && !url.includes('/auth/login') && !url.includes('/auth/verify')) {
           toast.error(getOperationMessage(url, method, true), { operation: `error:${method}:${url}` });
         }
         return Promise.reject(error);
@@ -281,7 +286,7 @@ api.interceptors.response.use(
     }
 
     // Other non-401 errors
-    const isAuthRoute = url.includes('/auth/admin/login') || url.includes('/auth/faculty/login') || url.includes('/auth/login') || url.includes('/auth/verify') || url.includes('/auth/refresh');
+    const isAuthRoute = url.includes('/auth/admin/login') || url.includes('/auth/faculty/login') || url.includes('/auth/student/login') || url.includes('/auth/login') || url.includes('/auth/verify') || url.includes('/auth/refresh');
     if (!isAuthRoute) {
       if (error.response?.status === 403) {
         toast.error('Unauthorized access.', { operation: `error:${method}:${url}` });

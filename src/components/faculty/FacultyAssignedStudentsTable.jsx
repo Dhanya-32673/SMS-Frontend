@@ -69,7 +69,7 @@ export const FacultyAssignedStudentsTable = ({ studentList }) => {
             <tr>
               <th className="p-3.5 px-6">Student ID</th>
               <th className="p-3.5">Student Name</th>
-              <th className="p-3.5">Roll Number</th>
+              <th className="p-3.5">Admission Number</th>
               <th className="p-3.5">Group & Year</th>
               <th className="p-3.5">Section</th>
               <th className="p-3.5 text-right pr-6">Action</th>
@@ -96,7 +96,7 @@ export const FacultyAssignedStudentsTable = ({ studentList }) => {
                     <span>{st.fullName}</span>
                   </td>
                   <td className="p-3.5 font-mono text-slate-500">
-                    {st.rollNumber || 'N/A'}
+                    {st.admissionNumber || st.rollNumber || '—'}
                   </td>
                   <td className="p-3.5">
                     <span className="px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 rounded-md font-extrabold text-[10px]">

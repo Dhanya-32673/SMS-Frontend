@@ -26,6 +26,12 @@ export const certificateService = {
     return response.data;
   },
 
+  // Get authenticated student's own documents
+  getMyCertificates: async () => {
+    const response = await api.get('/documents/me', { cache: false });
+    return response.data;
+  },
+
   // Upload new certificate with multipart form data
   uploadCertificate: async (formData) => {
     const response = await api.post('/documents', formData);

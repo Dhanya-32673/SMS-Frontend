@@ -447,7 +447,9 @@ export const MissingDocuments = () => {
                             />
                             <div className="min-w-0">
                               <span className="font-bold text-slate-900 dark:text-white block truncate">{st.fullName}</span>
-                              <span className="text-[10px] text-slate-400 font-mono">{st.rollNumber ? `Roll: ${st.rollNumber}` : ''}</span>
+                              <span className="text-[10px] text-slate-400 font-mono">
+                                {st.admissionNumber ? `Adm: ${st.admissionNumber}` : (st.rollNumber ? `Roll: ${st.rollNumber}` : '')}
+                              </span>
                             </div>
                           </div>
                         </td>

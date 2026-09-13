@@ -4,6 +4,8 @@ import { tokenUtils } from '../utils/tokenUtils';
 import SessionTimeoutModal from '../components/common/SessionTimeoutModal';
 import toast from '../utils/toastService';
 
+import { clearApiCacheAndPending } from '../services/api';
+
 const AuthContext = createContext(null);
 
 // Inactivity Threshold Constants
@@ -192,14 +194,18 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
-  const facultyLogin = async (email, password) => {
+  const studentLogin = async (email, password) => {
     setIsInactiveLoggedOut(false);
-    const data = await authService.facultyLogin(email, password);
-    const resolvedUser = data?.user || tokenUtils.getUser() || { email, role: 'FACULTY' };
+    const data = await authService.studentLogin(email, password);
+    const resolvedUser = data?.user || tokenUtils.getUser() || { email, role: 'STUDENT' };
     setUser(resolvedUser);
     tokenUtils.setUser(resolvedUser);
     resetInactivityTimer(true);
     return data;
+  };
+
+  const facultyLogin = async (email, password) => {
+    return studentLogin(email, password);
   };
 
   const googleLogin = async (idToken) => {
@@ -234,6 +240,7 @@ export const AuthProvider = ({ children }) => {
       }
     }
     await authService.logout();
+    clearApiCacheAndPending();
     tokenUtils.clearAuth();
     setUser(null);
     if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
@@ -245,24 +252,41 @@ export const AuthProvider = ({ children }) => {
   const userRole = tokenUtils.getRole() || (effectiveUser ? (typeof effectiveUser.role === 'string' ? effectiveUser.role.replace(/^ROLE_/i, '').toUpperCase() : effectiveUser.role?.roleName?.replace(/^ROLE_/i, '').toUpperCase()) : '');
   const hasToken = Boolean(tokenUtils.getAccessToken());
 
-  const value = {
+  const value = React.useMemo(() => ({
     user: effectiveUser,
     loading,
     isAuthenticated: Boolean(effectiveUser || hasToken),
     role: userRole,
     isAdmin: userRole === 'ADMIN',
     isFaculty: userRole === 'FACULTY',
+    isStudent: userRole === 'STUDENT',
     isInactiveLoggedOut,
     clearInactivityNotice: () => setIsInactiveLoggedOut(false),
     setAuthUser,
     login,
     adminVerifyOtp,
+    studentLogin,
     facultyLogin,
     googleLogin,
     verifyOtp,
     logout,
     resetInactivityTimer: () => resetInactivityTimer(true),
-  };
+  }), [
+    effectiveUser,
+    loading,
+    hasToken,
+    userRole,
+    isInactiveLoggedOut,
+    setAuthUser,
+    login,
+    adminVerifyOtp,
+    studentLogin,
+    facultyLogin,
+    googleLogin,
+    verifyOtp,
+    logout,
+    resetInactivityTimer,
+  ]);
 
   return (
     <AuthContext.Provider value={value}>
