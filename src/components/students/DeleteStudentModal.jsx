@@ -21,6 +21,7 @@ export const DeleteStudentModal = ({ student, onClose, onConfirm, onDeleteConfir
       ]}
       warningList={[
         'Student Profile & Personal Records',
+        'Student Login Account & Credentials',
         'Uploaded Certificates & PDF Files from Supabase Storage',
         'Academic Section Assignment & Faculty Mappings',
         'Student QR Code, ID Card, and Linked Notifications',
