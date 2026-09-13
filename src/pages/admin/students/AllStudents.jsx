@@ -164,14 +164,22 @@ export const AllStudents = () => {
     confirmDelete({
       id: targetId,
       item: st,
-      title: 'Delete Student?',
+      title: 'Delete Student & Login Account?',
       message: (
         <div className="space-y-3">
-          <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Are you sure you want to delete:</p>
+          <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Are you sure you want to delete this student?</p>
           <div className="bg-slate-50 dark:bg-slate-800/80 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs space-y-1">
             <p className="font-bold text-slate-900 dark:text-white text-sm">{st.fullName}</p>
             <p className="font-mono text-blue-600 dark:text-blue-400">Student ID: {st.studentId}</p>
             <p className="font-mono text-slate-500 dark:text-slate-400">Admission Number: {st.admissionNumber || 'N/A'}</p>
+          </div>
+          <div className="bg-amber-50 dark:bg-amber-950/40 p-3 rounded-xl border border-amber-200 dark:border-amber-800/50 text-xs text-amber-800 dark:text-amber-300 space-y-1">
+            <p className="font-semibold">This action will permanently remove:</p>
+            <ul className="list-disc list-inside space-y-0.5 text-xs text-amber-700 dark:text-amber-300">
+              <li>Student profile & records</li>
+              <li>Student login account & credentials</li>
+              <li>Student-owned certificates & documents</li>
+            </ul>
           </div>
           <p className="text-xs text-rose-600 dark:text-rose-400 font-semibold">This action cannot be undone.</p>
         </div>
@@ -182,7 +190,7 @@ export const AllStudents = () => {
         setStudents((prev) => prev.filter((s) => String(s.studentId || s.id) !== String(id)));
         setSelectedStudentIds((prev) => prev.filter((item) => item !== String(id)));
         setTotalElements((prev) => Math.max(0, prev - 1));
-        setSuccessNotification('Student deleted successfully.');
+        setSuccessNotification('Student and login account deleted successfully.');
         setTimeout(() => setSuccessNotification(''), 4000);
       },
       onFinalized: () => {
@@ -205,7 +213,7 @@ export const AllStudents = () => {
       const count = result?.count || selectedStudentIds.length;
       setSelectedStudentIds([]);
       setBulkDeleteModalOpen(false);
-      setSuccessNotification(`${count} student${count !== 1 ? 's' : ''} deleted successfully.`);
+      setSuccessNotification(`${count} student${count !== 1 ? 's' : ''} and their login account${count !== 1 ? 's were' : ' was'} deleted successfully.`);
       setTimeout(() => setSuccessNotification(''), 4000);
       fetchStudents();
     } catch (err) {
@@ -719,7 +727,7 @@ export const AllStudents = () => {
         message={
           <div className="space-y-3">
             <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-              You are about to delete <strong className="text-slate-900 dark:text-white font-bold">{selectedStudentIds.length}</strong> {selectedStudentIds.length === 1 ? 'student' : 'students'}. This action cannot be undone.
+              You are about to delete <strong className="text-slate-900 dark:text-white font-bold">{selectedStudentIds.length}</strong> {selectedStudentIds.length === 1 ? 'student profile and linked login account' : 'student profiles and linked login accounts'}. This action cannot be undone.
             </p>
             {selectedStudentsList.length > 0 && (
               <div className="bg-slate-50 dark:bg-slate-800/80 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs space-y-1.5 max-h-40 overflow-y-auto">
@@ -732,8 +740,16 @@ export const AllStudents = () => {
                 ))}
               </div>
             )}
+            <div className="bg-amber-50 dark:bg-amber-950/40 p-3 rounded-xl border border-amber-200 dark:border-amber-800/50 text-xs text-amber-800 dark:text-amber-300 space-y-1">
+              <p className="font-semibold">This action will permanently remove:</p>
+              <ul className="list-disc list-inside space-y-0.5 text-xs text-amber-700 dark:text-amber-300">
+                <li>Selected student profiles</li>
+                <li>Linked login accounts & credentials</li>
+                <li>Associated certificates & documents</li>
+              </ul>
+            </div>
             <p className="text-xs text-rose-600 dark:text-rose-400 font-semibold">
-              This will permanently delete student records and un-link associated user accounts.
+              This will permanently delete the selected student profiles and their linked login accounts.
             </p>
           </div>
         }
