@@ -67,11 +67,17 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
   const [downloadingTemplate, setDownloadingTemplate] = useState(false);
 
   // Admin Campus & Academic Selection State
-  const [allGroups, setAllGroups] = useState([]);
-  const [allSections, setAllSections] = useState([]);
-  const [loadingAcademicData, setLoadingAcademicData] = useState(false);
+  const [campusList, setCampusList] = useState([]);
+  const [loadingCampuses, setLoadingCampuses] = useState(false);
   const [selectedCampus, setSelectedCampus] = useState('');
+
+  const [groupOptions, setGroupOptions] = useState([]);
+  const [loadingGroups, setLoadingGroups] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState('');
+
+  const [yearOptions, setYearOptions] = useState([]);
+  const [loadingYears, setLoadingYears] = useState(false);
+  const [yearError, setYearError] = useState(null);
   const [selectedYear, setSelectedYear] = useState('');
 
   // Faculty Assignment State
@@ -101,16 +107,20 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
     if (!isOpen) return;
 
     if (isAdmin) {
-      setLoadingAcademicData(true);
-      Promise.all([
-        academicService.getAllGroups().catch(() => []),
-        academicService.getAllSections().catch(() => [])
-      ])
-        .then(([groups, sections]) => {
-          setAllGroups(Array.isArray(groups) ? groups : []);
-          setAllSections(Array.isArray(sections) ? sections : []);
+      setLoadingCampuses(true);
+      academicService.getCampuses()
+        .then((campuses) => {
+          const list = Array.isArray(campuses) ? campuses : [];
+          const names = list
+            .map((c) => (typeof c === 'string' ? c : c?.name || ''))
+            .filter(Boolean);
+          setCampusList(names.length > 0 ? names : OFFICIAL_CAMPUSES);
         })
-        .finally(() => setLoadingAcademicData(false));
+        .catch((err) => {
+          console.error('Failed to load campuses from database:', err);
+          setCampusList(OFFICIAL_CAMPUSES);
+        })
+        .finally(() => setLoadingCampuses(false));
     } else {
       setLoadingAssignments(true);
       facultyService
@@ -130,38 +140,76 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
     }
   }, [isOpen, isAdmin]);
 
-  // Derived options for Admin dependent dropdowns
-  const activeSections = useMemo(() => {
-    return allSections.filter((s) => s.active !== false);
-  }, [allSections]);
+  // Cascade 1: Handle Campus change for Admin
+  const handleCampusChange = async (e) => {
+    const campusVal = e.target.value;
+    setSelectedCampus(campusVal);
+    setSelectedGroup('');
+    setSelectedYear('');
+    setGroupOptions([]);
+    setYearOptions([]);
+    setYearError(null);
 
-  const groupOptions = useMemo(() => {
-    const fromGroups = allGroups
-      .filter((g) => g.active !== false)
-      .map((g) => (g.code || g.name || '').trim())
-      .filter(Boolean);
+    if (!campusVal) return;
 
-    const fromSections = activeSections
-      .map((s) => (s.branchGroup || '').trim())
-      .filter(Boolean);
+    setLoadingGroups(true);
+    try {
+      const groups = await academicService.getGroupsByCampus(campusVal);
+      const list = Array.isArray(groups) ? groups : [];
+      const codes = list
+        .filter((g) => g.active !== false)
+        .map((g) => (typeof g === 'string' ? g : g.code || g.name || '').trim())
+        .filter(Boolean);
+      setGroupOptions(Array.from(new Set(codes)).sort());
+    } catch (err) {
+      console.error('Failed to load groups for campus:', err);
+      showError('Failed to load groups for selected campus.');
+      setGroupOptions([]);
+    } finally {
+      setLoadingGroups(false);
+    }
+  };
 
-    return Array.from(new Set([...fromGroups, ...fromSections])).sort();
-  }, [allGroups, activeSections]);
+  // Cascade 2: Dynamic Academic Year loader
+  const loadAcademicYears = async (campusVal, groupVal) => {
+    if (!groupVal) {
+      setYearOptions([]);
+      setSelectedYear('');
+      setYearError(null);
+      return;
+    }
 
-  const yearOptions = useMemo(() => {
-    if (!selectedGroup) return [];
-    const matched = activeSections.filter(
-      (s) => (s.branchGroup || '').toUpperCase() === selectedGroup.toUpperCase()
-    );
-    const years = matched.map((s) => (s.intermediateYear || '').trim()).filter(Boolean);
-    return Array.from(new Set(years)).sort();
-  }, [activeSections, selectedGroup]);
+    setLoadingYears(true);
+    setYearError(null);
+    setYearOptions([]);
+    setSelectedYear('');
+
+    try {
+      const years = await academicService.getAcademicYears(campusVal, groupVal);
+      const list = Array.isArray(years) ? years : [];
+      setYearOptions(list);
+    } catch (err) {
+      console.error('Failed to load academic years:', err);
+      setYearError('Unable to load academic years.');
+      setYearOptions([]);
+    } finally {
+      setLoadingYears(false);
+    }
+  };
 
   // Handle Group change for Admin
   const handleGroupChange = (e) => {
     const val = e.target.value;
     setSelectedGroup(val);
     setSelectedYear('');
+    loadAcademicYears(selectedCampus, val);
+  };
+
+  // Retry loading years if API failed
+  const handleRetryYears = () => {
+    if (selectedGroup) {
+      loadAcademicYears(selectedCampus, selectedGroup);
+    }
   };
 
   // Handle Year change for Admin
@@ -248,8 +296,12 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
         showError('Please select a Campus.');
         return;
       }
-      if (!selectedGroup || !selectedYear) {
-        showError('Please select Academic Group and Academic Year before validating.');
+      if (!selectedGroup) {
+        showError('Please select an Academic Group.');
+        return;
+      }
+      if (!selectedYear) {
+        showError('Please select an Academic Year.');
         return;
       }
     } else {
@@ -385,6 +437,9 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
     setSelectedCampus('');
     setSelectedGroup('');
     setSelectedYear('');
+    setGroupOptions([]);
+    setYearOptions([]);
+    setYearError(null);
     onClose();
     if (shouldRefresh && typeof onSuccess === 'function') {
       onSuccess();
@@ -523,77 +578,105 @@ export const ImportStudentsModal = ({ isOpen, onClose, onSuccess }) => {
                     All imported students will be assigned to this database Campus, Group, and Academic Year.
                   </p>
 
-                  {loadingAcademicData ? (
-                    <div className="py-4 flex items-center space-x-2 text-xs text-slate-500">
-                      <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
-                      <span>Loading active groups and academic data from database...</span>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">
-                      {/* Campus Dropdown */}
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                          Campus <span className="text-rose-500">*</span>
-                        </label>
-                        <select
-                          id="admin-import-campus-select"
-                          value={selectedCampus}
-                          onChange={(e) => setSelectedCampus(e.target.value)}
-                          className="w-full px-3 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                        >
-                          <option value="">Select Campus</option>
-                          {OFFICIAL_CAMPUSES.map((c) => (
-                            <option key={c} value={c}>
-                              {c}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {/* Academic Group Dropdown */}
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                          Academic Group <span className="text-rose-500">*</span>
-                        </label>
-                        <select
-                          id="admin-import-group-select"
-                          value={selectedGroup}
-                          onChange={handleGroupChange}
-                          className="w-full px-3 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                        >
-                          <option value="">Select Academic Group</option>
-                          {groupOptions.map((g) => (
-                            <option key={g} value={g}>
-                              {g}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {/* Academic Year Dropdown */}
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                          Academic Year <span className="text-rose-500">*</span>
-                        </label>
-                        <select
-                          id="admin-import-year-select"
-                          value={selectedYear}
-                          onChange={handleYearChange}
-                          disabled={!selectedGroup}
-                          className="w-full px-3 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50 disabled:bg-slate-100 dark:disabled:bg-slate-800"
-                        >
-                          <option value="">
-                            {selectedGroup ? 'Select Academic Year' : 'Choose Group First'}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">
+                    {/* Campus Dropdown */}
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                        <span>Campus <span className="text-rose-500">*</span></span>
+                        {loadingCampuses && <Loader2 className="w-3 h-3 animate-spin text-blue-500" />}
+                      </label>
+                      <select
+                        id="admin-import-campus-select"
+                        value={selectedCampus}
+                        onChange={handleCampusChange}
+                        disabled={loadingCampuses}
+                        className="w-full px-3 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50"
+                      >
+                        <option value="">
+                          {loadingCampuses ? 'Loading campuses...' : 'Select Campus'}
+                        </option>
+                        {campusList.map((c) => (
+                          <option key={c} value={c}>
+                            {c}
                           </option>
-                          {yearOptions.map((y) => (
-                            <option key={y} value={y}>
-                              {y}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+                        ))}
+                      </select>
                     </div>
-                  )}
+
+                    {/* Academic Group Dropdown */}
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                        <span>Academic Group <span className="text-rose-500">*</span></span>
+                        {loadingGroups && <Loader2 className="w-3 h-3 animate-spin text-blue-500" />}
+                      </label>
+                      <select
+                        id="admin-import-group-select"
+                        value={selectedGroup}
+                        onChange={handleGroupChange}
+                        disabled={!selectedCampus || loadingGroups}
+                        className="w-full px-3 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50 disabled:bg-slate-100 dark:disabled:bg-slate-800"
+                      >
+                        <option value="">
+                          {!selectedCampus
+                            ? 'Choose Campus First'
+                            : loadingGroups
+                            ? 'Loading groups...'
+                            : 'Select Academic Group'}
+                        </option>
+                        {groupOptions.map((g) => (
+                          <option key={g} value={g}>
+                            {g}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Academic Year Dropdown */}
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                        <span>Academic Year <span className="text-rose-500">*</span></span>
+                        {loadingYears && <Loader2 className="w-3 h-3 animate-spin text-blue-500" />}
+                      </label>
+                      <select
+                        id="admin-import-year-select"
+                        value={selectedYear}
+                        onChange={handleYearChange}
+                        disabled={!selectedCampus || !selectedGroup || loadingYears || yearOptions.length === 0}
+                        className="w-full px-3 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50 disabled:bg-slate-100 dark:disabled:bg-slate-800"
+                      >
+                        <option value="">
+                          {!selectedCampus
+                            ? 'Choose Campus First'
+                            : !selectedGroup
+                            ? 'Choose Group First'
+                            : loadingYears
+                            ? 'Loading academic years...'
+                            : yearOptions.length === 0
+                            ? 'No academic years available'
+                            : 'Select Academic Year'}
+                        </option>
+                        {yearOptions.map((y) => (
+                          <option key={y} value={y}>
+                            {y}
+                          </option>
+                        ))}
+                      </select>
+
+                      {/* Error state with retry */}
+                      {yearError && (
+                        <div className="pt-1 flex items-center justify-between text-[11px] text-rose-600 dark:text-rose-400">
+                          <span>{yearError}</span>
+                          <button
+                            type="button"
+                            onClick={handleRetryYears}
+                            className="font-bold underline hover:text-rose-800 dark:hover:text-rose-300 cursor-pointer ml-2"
+                          >
+                            Retry
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               ) : (
                 /* FACULTY: Automatic Assignment Card (Security Enforced) */
