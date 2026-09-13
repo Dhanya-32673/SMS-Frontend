@@ -116,22 +116,6 @@ export const academicService = {
     return response.data;
   },
 
-  // Get Groups by Campus
-  getGroupsByCampus: async (campus) => {
-    const params = campus ? { campus } : {};
-    const response = await api.get('/academic/groups', { params });
-    return response.data;
-  },
-
-  // Dynamic Academic Years by Campus and Group
-  getAcademicYears: async (campus, group) => {
-    if (!group) return [];
-    const params = { group };
-    if (campus) params.campus = campus;
-    const response = await api.get('/academic/years', { params });
-    return Array.isArray(response.data) ? response.data : [];
-  },
-
   createGroup: async (groupData) => {
     const response = await api.post('/academic/groups', groupData);
     apiCache.clear('/academic/groups');
